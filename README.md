@@ -42,9 +42,9 @@ ALCRIS — Sistema para la gestión de un negocio de latonería y pintura. Permi
 2. Entra al directorio:
    cd ALCRIS
 3. Instala dependencias:
-   npm install
-   (o) yarn install
-4. Copia y configura variables de entorno:
+4. 
+   npm i @supabase/ssr @supabase/supabase-js bcrypt dotenv express jsonwebtoken nodemailer nodemon
+5. Copia y configura variables de entorno:
    cp .env.example .env
    Edita `.env` con tus credenciales y ajustes.
 
@@ -89,8 +89,10 @@ Lee `CONTRIBUTING.md` para normas más detalladas.
 Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más detalles.
 
 ## Contacto
-Autor: JAHACARI  
+Autor: JAHACARI- Janier Hair
+Autor: Joan Felipe
 Correo / GitHub: https://github.com/JAHACARI
+Correo / GitHub: 
 
 ## Agradecimientos
 - Gracias a las librerías y recursos usados (menciona los que uses, p.ej., Express, React, Sequelize).
