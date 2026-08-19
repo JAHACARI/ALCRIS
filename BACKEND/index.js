@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv';
 import express from 'express';
 
 connectaDB();
@@ -23,9 +23,10 @@ app.use((req, res) => {
         mensaje: 'La ruta solicitada no existe en este servidor.',
     });
 });
-
+//configuracion puerto
 const PORT = process.env.PORT || 3000;
-
+//poner a escuchar el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`http://localhost:${PORT}`);
 }); 
