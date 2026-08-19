@@ -13,7 +13,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
-    "@supabase/supabase-js": "^2.112.0",
+    "@supabase/supabase-js": "^2.112.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "3.0.3",
     "cloudinary": "^1.41.3",

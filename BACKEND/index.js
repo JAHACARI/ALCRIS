@@ -1,10 +1,8 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import './models/usuario.js';
-
-//configuracion de variables de entorno
-dotenv.config();
+import { conectaDB,supabase} from './config/supabase.js';
 
 const app = express();
 //Middlewares globales
