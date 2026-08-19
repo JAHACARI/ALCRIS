@@ -1,9 +1,9 @@
-import 'dotenv';
 import express from 'express';
-
-connectaDB();
+import cors from 'cors';
+import dotenv from 'dotenv'
 
 const app = express();
+const port = 3000;
 
 app.use(express.json());
 
@@ -16,13 +16,7 @@ app.use('/', (req, res) => {
     });
 });
 
-// mensage de error 404
-app.use((req, res) => {
-    res.status(404).json({
-        error: 'Ruta no encontrada',
-        mensaje: 'La ruta solicitada no existe en este servidor.',
-    });
-});
+
 //configuracion puerto
 const PORT = process.env.PORT || 3000;
 //poner a escuchar el servidor
