@@ -1,10 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
+import './models/usuario.js';
+
+//configuracion de variables de entorno
+dotenv.config();
 
 const app = express();
-const port = 3000;
-
+//Middlewares globales
+app.use(cors());
 app.use(express.json());
 
 // ruta inicial
@@ -15,7 +19,7 @@ app.use('/', (req, res) => {
         version: '1.0.0',
     });
 });
-
+//rutas de auntenticacion
 
 //configuracion puerto
 const PORT = process.env.PORT || 3000;
