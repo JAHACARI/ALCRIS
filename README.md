@@ -90,7 +90,7 @@ Lee `CONTRIBUTING.md` para normas más detalladas.
 
 ## Contacto
 -Autor: JAHACARI- Janier Hair
--Autor: Joan Felipe
+-Autor: Johan Felipe
 -Correo / GitHub: https://github.com/JAHACARI
 -Correo / GitHub: 
 

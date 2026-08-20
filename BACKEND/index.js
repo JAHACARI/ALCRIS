@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import './models/usuario.js';
 import { conectaDB,supabase} from './config/supabase.js';
+//cargar variables de entorno
+conectaDB();
 
 const app = express();
 //Middlewares globales
@@ -17,7 +19,6 @@ app.use('/', (req, res) => {
         version: '1.0.0',
     });
 });
-//rutas de auntenticacion
 
 //configuracion puerto
 const PORT = process.env.PORT || 3000;
