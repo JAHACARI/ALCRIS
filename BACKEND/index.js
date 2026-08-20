@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import './models/usuario.js';
 import { conectaDB,supabase} from './config/supabase.js';
+import userRoutes from './routes/user.js'
 //cargar variables de entorno
 conectaDB();
 
@@ -19,6 +20,9 @@ app.use('/', (req, res) => {
         version: '1.0.0',
     });
 });
+
+//rutas de usuarios
+app.use('/user', userRoutes);
 
 //configuracion puerto
 const PORT = process.env.PORT || 3000;
