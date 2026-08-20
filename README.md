@@ -43,7 +43,7 @@ ALCRIS — Sistema para la gestión de un negocio de latonería y pintura. Permi
    cd ALCRIS
 3. Instala dependencias:
 4. 
-   npm i @supabase/ssr @supabase/supabase-js bcrypt dotenv express jsonwebtoken nodemailer nodemon
+   npm install @supabase/ssr @supabase/supabase-js bcrypt bcryptjs cloudinary cors dotenv express jsonwebtoken multer multer-storage-cloudinary nodemailer
 5. Copia y configura variables de entorno:
    cp .env.example .env
    Edita `.env` con tus credenciales y ajustes.
