@@ -86,13 +86,13 @@ Incluye un archivo `.env.example` con las variables necesarias.
 Lee `CONTRIBUTING.md` para normas más detalladas.
 
 ## Licencia
-Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más detalles.
+-Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más detalles.
 
 ## Contacto
-Autor: JAHACARI- Janier Hair
-Autor: Joan Felipe
-Correo / GitHub: https://github.com/JAHACARI
-Correo / GitHub: 
+-Autor: JAHACARI- Janier Hair
+-Autor: Joan Felipe
+-Correo / GitHub: https://github.com/JAHACARI
+-Correo / GitHub: 
 
 ## Agradecimientos
 - Gracias a las librerías y recursos usados (menciona los que uses, p.ej., Express, React, Sequelize).
