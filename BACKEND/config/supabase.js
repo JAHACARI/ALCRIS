@@ -1,13 +1,18 @@
-//VARIABLES DE ENTORNO
+//----------------------------------------------------------//
+// Configuración de Supabase
+//----------------------------------------------------------//
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 
-
-//creacion de la conexion a supabase
+//----------------------------------------------------------//
+// Variables de entorno
+//----------------------------------------------------------//
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-//variables de conexion
+//----------------------------------------------------------//
+// Validación de variables de entorno
+//----------------------------------------------------------//
 if (!supabaseUrl || !supabaseKey) {
   console.error(
     "❌ Error: las variables de entorno SUPABASE_KEY y SUPABASE_URL son requeridas.",
@@ -15,9 +20,14 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1);
 }
 
-//variables a supabase
+//----------------------------------------------------------//
+// Creación del cliente de Supabase
+//----------------------------------------------------------//
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+//----------------------------------------------------------//
+// Función para confirmar la conexión
+//----------------------------------------------------------//
 export const conectaDB = () => {
   console.log("...//_________________________________________//...");
   console.log("✅ Conexión a Supabase establecida correctamente");
