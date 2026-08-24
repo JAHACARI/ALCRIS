@@ -6,12 +6,18 @@ import { supabase } from "../config/supabase.js";
 //----------------------------------------------------------//
 // Campos públicos (nunca se devuelve la contraseña)
 //----------------------------------------------------------//
-const CAMPOS_PUBLICOS = "id, nombre, correo, telefono, localidad, rol, created_at";
+const CAMPOS_PUBLICOS =
+  "id, nombre, correo, telefono, localidad, rol, created_at";
 
 //----------------------------------------------------------//
 // Crear nuevo usuario
 //----------------------------------------------------------//
-export const crearUsuario = async (nombre, correo, contrasena, rol = "usuario") => {
+export const crearUsuario = async (
+  nombre,
+  correo,
+  contrasena,
+  rol = "usuario",
+) => {
   const { data, error } = await supabase
     .from("usuario")
     .insert({ nombre, correo, contrasena, rol })

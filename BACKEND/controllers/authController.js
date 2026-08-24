@@ -47,7 +47,7 @@ export const registro = async (req, res) => {
       nombre,
       correo,
       hashedPassword,
-      "usuario"
+      "usuario",
     );
 
     if (error) {
@@ -73,7 +73,9 @@ export const login = async (req, res) => {
     const { correo, contrasena } = req.body;
 
     if (!correo || !contrasena) {
-      return res.status(400).json({ error: "Correo y contraseña son requeridos" });
+      return res
+        .status(400)
+        .json({ error: "Correo y contraseña son requeridos" });
     }
 
     const { data: usuario, error } = await obtenerPorCorreo(correo);
@@ -89,7 +91,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: usuario.id, correo: usuario.correo, rol: usuario.rol },
       JWT_SECRET,
-      { expiresIn: "8h" }
+      { expiresIn: "8h" },
     );
 
     return res.json({

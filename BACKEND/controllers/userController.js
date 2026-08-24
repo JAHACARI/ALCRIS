@@ -12,7 +12,13 @@ import bcrypt from "bcrypt";
 //----------------------------------------------------------//
 // Campos permitidos para actualización
 //----------------------------------------------------------//
-const CAMPOS_PERMITIDOS = ["nombre", "correo", "telefono", "localidad", "contrasena"];
+const CAMPOS_PERMITIDOS = [
+  "nombre",
+  "correo",
+  "telefono",
+  "localidad",
+  "contrasena",
+];
 
 //----------------------------------------------------------//
 // Obtener todos los usuarios (solo admin)
@@ -44,7 +50,9 @@ export const getUsuarioPorId = async (req, res) => {
 
     // Un usuario normal solo puede ver su propio perfil
     if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
-      return res.status(403).json({ error: "No tienes permiso para ver este usuario" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para ver este usuario" });
     }
 
     return res.status(200).json({ usuario: data });
@@ -63,14 +71,17 @@ export const updateUsuario = async (req, res) => {
     const body = req.body;
 
     // Verificar que el usuario exista
-    const { data: usuarioExistente, error: errorExistente } = await obtenerUsuarioPorId(id);
+    const { data: usuarioExistente, error: errorExistente } =
+      await obtenerUsuarioPorId(id);
     if (errorExistente || !usuarioExistente) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
     // Solo admin o el propio usuario pueden actualizar
     if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
-      return res.status(403).json({ error: "No tienes permiso para actualizar este usuario" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para actualizar este usuario" });
     }
 
     // Filtrar solo campos permitidos
@@ -84,19 +95,25 @@ export const updateUsuario = async (req, res) => {
     // Solo un admin puede cambiar el rol
     if (body.rol !== undefined) {
       if (req.usuario.rol !== "admin") {
-        return res.status(403).json({ error: "No tienes permiso para cambiar el rol" });
+        return res
+          .status(403)
+          .json({ error: "No tienes permiso para cambiar el rol" });
       }
       campos.rol = body.rol;
     }
 
     if (Object.keys(campos).length === 0) {
-      return res.status(400).json({ error: "No se enviaron campos válidos para actualizar" });
+      return res
+        .status(400)
+        .json({ error: "No se enviaron campos válidos para actualizar" });
     }
 
     // Si viene contraseña, encriptarla
     if (campos.contrasena) {
       if (campos.contrasena.length < 6) {
-        return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+        return res
+          .status(400)
+          .json({ error: "La contraseña debe tener al menos 6 caracteres" });
       }
       campos.contrasena = await bcrypt.hash(campos.contrasena, 10);
     }
@@ -124,7 +141,8 @@ export const deleteUsuario = async (req, res) => {
     const { id } = req.params;
 
     // Verificar que exista
-    const { data: usuarioExistente, error: errorExistente } = await obtenerUsuarioPorId(id);
+    const { data: usuarioExistente, error: errorExistente } =
+      await obtenerUsuarioPorId(id);
     if (errorExistente || !usuarioExistente) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
@@ -142,4 +160,4 @@ export const deleteUsuario = async (req, res) => {
     console.error("Error al eliminar usuario:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
   }
-}; 
+};
