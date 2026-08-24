@@ -1,28 +1,46 @@
+//----------------------------------------------------------//
+// Servidor Principal - AlCRIS
+//----------------------------------------------------------//
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import routerAuth from "./routes/authRoute.js";
+import routerUser from "./routes/userRoute.js";
 import { conectaDB } from "./config/supabase.js";
 
 const app = express();
-//Middlewares globales
+
+//----------------------------------------------------------//
+// Middlewares globales
+//----------------------------------------------------------//
 app.use(cors());
 app.use(express.json());
 
+//----------------------------------------------------------//
+// Conexión a la base de datos
+//----------------------------------------------------------//
 conectaDB();
 
-// Rutas de autenticacion
+//----------------------------------------------------------//
+// Rutas
+//----------------------------------------------------------//
 app.use("/auth", routerAuth);
+app.use("/usuarios", routerUser);
 
-// ruta inicial
+//----------------------------------------------------------//
+// Ruta inicial
+//----------------------------------------------------------//
 app.get("/", (req, res) => {
   res.json({
-    Mensaje: "bienvenido al backend de AlCRIS latoneria y pontura",
-    estado: "en linea",
+    mensaje: "Bienvenido al backend de AlCRIS latonería y pintura",
+    estado: "en línea",
     version: "1.0.0",
   });
 });
+
+//----------------------------------------------------------//
 // Manejo de rutas no encontradas
+//----------------------------------------------------------//
 app.use((req, res) => {
   res.status(404).json({
     error: "Ruta no encontrada",
@@ -30,9 +48,11 @@ app.use((req, res) => {
   });
 });
 
-//configuracion puerto
+//----------------------------------------------------------//
+// Configuración del puerto e inicio del servidor
+//----------------------------------------------------------//
 const PORT = process.env.PORT || 3000;
-//poner a escuchar el servidor
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
   console.log(`http://localhost:${PORT}`);
