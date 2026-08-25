@@ -4,15 +4,15 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import routerAuth from "./routes/authRoute.js";
-import routerUser from "./routes/userRoute.js";
-import routerReserva from "./routes/reservaRoute.js";
-import routerSeguimiento from "./routes/seguimientoRoute.js";
+import routerusers from "./routes/user.js"
 import routerdisponibilidad from "./routes/disponibilidad.js"
 import routertecnicos from "./routes/tecnicos.js";
 import routerServicios from "./routes/servicios.js"
+import routerPaqueteservicios from "./routes/paqueteservicios.js"
+import routercateServicios from "./routes/cateservicios.js"
+import routerVehiculos from "./routes/vehiculos.js"
+import routercoloresral from "./routes/coloresral.js"
 import { conectaDB } from "./config/supabase.js";
-
 
 const app = express();
 
@@ -30,13 +30,14 @@ conectaDB();
 //----------------------------------------------------------//
 // Rutas
 //----------------------------------------------------------//
-app.use("/auth", routerAuth);
-app.use("/usuarios", routerUser);
-app.use("/reservas", routerReserva);
-app.use("/seguimiento", routerSeguimiento);
-app.use("/disponibilidad",routerdisponibilidad);
-app.use("/tecnicos",routertecnicos);
-app.use("/servicios",routerServicios);
+app.use("/disponibilidad", routerdisponibilidad);
+app.use("/tecnicos", routertecnicos);
+app.use("/servicios", routerServicios);
+app.use("/user", routerusers);
+app.use("/paquete",routerPaqueteservicios);
+app.use("/cateservi", routercateServicios);
+app.use("/vehiculos", routerVehiculos);
+app.use("/coloresral", routercoloresral);
 
 //----------------------------------------------------------//
 // Ruta inicial
@@ -67,5 +68,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
   console.log(`http://localhost:${PORT}`);
-});import cors from "cors";
-import express from "express";
+});

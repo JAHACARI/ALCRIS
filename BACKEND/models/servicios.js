@@ -42,3 +42,16 @@ export const eliminarServicio = async (id) => {
         .select();
     return { data, error };
 };
+export const obtenerServiciosPorCategoria = async (categoria_id) => {
+    return await supabase
+        .from('servicios') // Asegúrate de que el nombre de la tabla sea correcto
+        .select('*')
+        .eq('categoria_id', categoria_id);
+};
+
+export const obtenerServiciosPorEstado = async (estado) => {
+    return await supabase
+        .from('servicios')
+        .select('*')
+        .eq('estado', estado);
+};

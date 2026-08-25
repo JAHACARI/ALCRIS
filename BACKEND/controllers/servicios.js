@@ -1,6 +1,8 @@
 import {
     obtenerServicios,
     obtenerServicioPorId,
+    obtenerServiciosPorCategoria, // <-- Nueva importación
+    obtenerServiciosPorEstado,    // <-- Nueva importación
     crearServicio,
     actualizarServicio,
     eliminarServicio
@@ -25,6 +27,31 @@ export const getServicioPorId = async (req, res) => {
         return res.status(200).json({ servicio: data });
     } catch (error) {
         console.error('Error al obtener servicio:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const getServiciosPorCategoria = async (req, res) => {
+    try {
+        const { categoria_id } = req.params;
+        const { data, error } = await obtenerServiciosPorCategoria(categoria_id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicios: data });
+    } catch (error) {
+        console.error('Error al obtener servicios por categoría:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// 🆕 NUEVO: Obtener servicios filtrados por Estado
+export const getServiciosPorEstado = async (req, res) => {
+    try {
+        const { estado } = req.params;
+        const { data, error } = await obtenerServiciosPorEstado(estado);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicios: data });
+    } catch (error) {
+        console.error('Error al obtener servicios por estado:', error);
         return res.status(500).json({ error: error.message });
     }
 };
