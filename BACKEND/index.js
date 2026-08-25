@@ -6,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import routerAuth from "./routes/authRoute.js";
 import routerUser from "./routes/userRoute.js";
+import routerReserva from "./routes/reservaRoute.js";
 import { conectaDB } from "./config/supabase.js";
 
 const app = express();
@@ -26,6 +27,7 @@ conectaDB();
 //----------------------------------------------------------//
 app.use("/auth", routerAuth);
 app.use("/usuarios", routerUser);
+app.use("/reservas", routerReserva);
 
 //----------------------------------------------------------//
 // Ruta inicial
