@@ -1,33 +1,39 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import './models/usuario.js';
-import { conectaDB,supabase} from './config/supabase.js';
-import userRoutes from './routes/user.js'
-//cargar variables de entorno
+import { conectaDB } from './config/supabase.js';
+
+import userRoutes from './routes/user.js';
+import disponibilidadRoutes from './routes/disponibilidad.js';
+import tecnicosRoutes from './routes/tecnicos.js';
+import serviciosRoutes from './routes/servicios.js';
+
 conectaDB();
 
 const app = express();
-//Middlewares globales
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// ruta inicial
-app.use('/', (req, res) => {
+// Ruta de bienvenida
+app.get('/', (req, res) => {
     res.json({
-        Mensaje: 'bienvenido al backend de AlCRIS latoneria y pontura',
-        estado: 'en linea',
-        version: '1.0.0',
+        mensaje: 'Bienvenido al backend de AlCRIS Latonería y Pintura',
+        estado: 'en línea',
+        version: '1.0.0'
     });
 });
 
-//rutas de usuarios
+// Rutas
 app.use('/user', userRoutes);
+app.use('/disponibilidad', disponibilidadRoutes);
+app.use('/tecnicos', tecnicosRoutes);
+app.use('/servicios', serviciosRoutes);
 
-//configuracion puerto
+// Puerto
 const PORT = process.env.PORT || 3000;
-//poner a escuchar el servidor
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
     console.log(`http://localhost:${PORT}`);
-}); 
+});

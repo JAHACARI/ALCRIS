@@ -5,9 +5,9 @@ import {
     obtenerDisponibilidadPorId,
     crearDisponibilidad,
     actualizarDisponibilidad,
-    eliminarDisponibilidad,
+    eliminarDisponibilidad
 } from '../models/disponibilidad.js';
- 
+
 // GET /disponibilidad/obtener
 export const getDisponibilidad = async (req, res) => {
     try {
@@ -19,7 +19,7 @@ export const getDisponibilidad = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
- 
+
 // GET /disponibilidad/tecnico/:tecnico_id
 export const getDisponibilidadPorTecnico = async (req, res) => {
     try {
@@ -28,11 +28,11 @@ export const getDisponibilidadPorTecnico = async (req, res) => {
         if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json({ disponibilidad: data });
     } catch (error) {
-        console.error('Error al obtener disponibilidad por tecnico:', error);
+        console.error('Error al obtener disponibilidad por técnico:', error);
         return res.status(500).json({ error: error.message });
     }
 };
- 
+
 // GET /disponibilidad/slots?fecha=2025-07-15
 export const getSlots = async (req, res) => {
     try {
@@ -45,7 +45,7 @@ export const getSlots = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
- 
+
 // GET /disponibilidad/obtener/:id
 export const getDisponibilidadPorId = async (req, res) => {
     try {
@@ -58,19 +58,48 @@ export const getDisponibilidadPorId = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
- 
+
 // POST /disponibilidad/crear
 export const postDisponibilidad = async (req, res) => {
     try {
         const { tecnico_id, fecha, hora, disponible } = req.body;
-        if (!tecnico_id || !fecha || !hora)
+        if (!tecnico_id || !fecha || !hora) {
             return res.status(400).json({ error: 'tecnico_id, fecha y hora son requeridos' });
- 
+        }
+
         const { data, error } = await crearDisponibilidad(tecnico_id, fecha, hora, disponible);
         if (error) return res.status(500).json({ error: error.message });
         return res.status(201).json({ disponibilidad: data });
     } catch (error) {
         console.error('Error al crear disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// PUT /disponibilidad/actualizar/:id
+export const putDisponibilidad = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const campos = req.body;
+
+        const { data, error } = await actualizarDisponibilidad(id, campos);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al actualizar disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// DELETE /disponibilidad/eliminar/:id
+export const deleteDisponibilidad = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await eliminarDisponibilidad(id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al eliminar disponibilidad:', error);
         return res.status(500).json({ error: error.message });
     }
 };
