@@ -8,6 +8,9 @@ import routerAuth from "./routes/authRoute.js";
 import routerUser from "./routes/userRoute.js";
 import routerReserva from "./routes/reservaRoute.js";
 import routerSeguimiento from "./routes/seguimientoRoute.js";
+import routerAcabado from "./routes/acabadoRoute.js";
+import routerEtapa from "./routes/etapaRoute.js";
+import routerRecuperacion from "./routes/recuperacionRoute.js";
 import { conectaDB } from "./config/supabase.js";
 
 const app = express();
@@ -30,6 +33,9 @@ app.use("/auth", routerAuth);
 app.use("/usuarios", routerUser);
 app.use("/reservas", routerReserva);
 app.use("/seguimiento", routerSeguimiento);
+app.use("/acabados", routerAcabado);
+app.use("/etapas", routerEtapa);
+app.use("/recuperacion", routerRecuperacion);
 
 //----------------------------------------------------------//
 // Ruta inicial
