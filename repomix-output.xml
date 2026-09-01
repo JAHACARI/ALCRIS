@@ -1,0 +1,3735 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+BACKEND/
+  config/
+    supabase.js
+  controllers/
+    acabadoController.js
+    authController.js
+    cateservicios.js
+    coloresral.js
+    disponibilidad.js
+    etapaController.js
+    paqueteservicios.js
+    recuperacionController.js
+    reservaController.js
+    seguimientoController.js
+    servicios.js
+    tecnicos.js
+    userController.js
+    vehiculos.js
+  middleware/
+    authMinddleware.js
+  models/
+    acabadoModel.js
+    categservicio.js
+    coloresral.js
+    disponibilidad.js
+    etapaModel.js
+    paqueteservicios.js
+    recuperacionModel.js
+    reservaModel.js
+    seguimientoModel.js
+    servicios.js
+    tecnicos.js
+    userModel.js
+    vehiculos.js
+  routes/
+    acabadoRoute.js
+    authRoute.js
+    cateservicios.js
+    coloresral.js
+    disponibilidad.js
+    etapaRoute.js
+    paqueteservicios.js
+    recuperacionRoute.js
+    reservaRoute.js
+    seguimientoRoute.js
+    servicios.js
+    tecnicos.js
+    userRoute.js
+    vehiculos.js
+  .env
+  index.js
+  package.json
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="BACKEND/controllers/cateservicios.js">
+import {
+  insertarCategoria, listarCategorias, buscarCategoriaPorId, actualizarCategoriaPorId, eliminarCategoriaPorId
+} from '../../BACKEND j/models/categservicio.js';
+ 
+// Crear una categoría
+export const crearCategoria = async (req, res) => {
+  try {
+    const { nombre, descripcion, imagen, color_tema } = req.body;
+ 
+    if (!nombre) {
+      return res.status(400).json({ error: 'nombre es obligatorio' });
+    }
+ 
+    const data = await insertarCategoria({
+      nombre,
+      descripcion: descripcion || null,
+      imagen: imagen || null,
+      color_tema: color_tema || null
+    });
+ 
+    return res.status(201).json(data);
+  } catch (error) {
+    console.error('Error al crear categoría:', error.message);
+    return res.status(500).json({ error: 'Error al crear la categoría de servicio' });
+  }
+};
+ 
+// Obtener todas las categorías
+export const obtenerCategorias = async (req, res) => {
+  try {
+    const data = await listarCategorias();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener categorías:', error.message);
+    return res.status(500).json({ error: 'Error al obtener las categorías de servicio' });
+  }
+};
+ 
+// Obtener una categoría por id
+export const obtenerCategoriaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await buscarCategoriaPorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener categoría:', error.message);
+    return res.status(500).json({ error: 'Error al obtener la categoría de servicio' });
+  }
+};
+ 
+// Actualizar una categoría
+export const actualizarCategoria = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, descripcion, imagen, color_tema } = req.body;
+ 
+    const camposActualizar = {};
+    if (nombre !== undefined) camposActualizar.nombre = nombre;
+    if (descripcion !== undefined) camposActualizar.descripcion = descripcion;
+    if (imagen !== undefined) camposActualizar.imagen = imagen;
+    if (color_tema !== undefined) camposActualizar.color_tema = color_tema;
+ 
+    if (Object.keys(camposActualizar).length === 0) {
+      return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
+    }
+ 
+    const data = await actualizarCategoriaPorId(id, camposActualizar);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al actualizar categoría:', error.message);
+    return res.status(500).json({ error: 'Error al actualizar la categoría de servicio' });
+  }
+};
+ 
+// Eliminar una categoría
+export const eliminarCategoria = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await eliminarCategoriaPorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+ 
+    return res.status(200).json({ mensaje: 'Categoría eliminada correctamente', categoria: data });
+  } catch (error) {
+    console.error('Error al eliminar categoría:', error.message);
+    return res.status(500).json({ error: 'Error al eliminar la categoría de servicio' });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/coloresral.js">
+import {
+  insertarColor,
+  listarColores,
+  buscarColorPorId,
+  actualizarColorPorId, // <-- Conectado con tu función del modelo
+  eliminarColorPorId
+} from '../models/coloresral.js';
+
+// Crear un nuevo color
+export const crearColor = async (req, res) => {
+  try {
+    const data = await insertarColor(req.body);
+    return res.status(201).json(data);
+  } catch (error) {
+    console.error('Error al crear color:', error.message);
+    return res.status(500).json({ error: 'Error al crear el color' });
+  }
+};
+
+// Obtener todos los colores
+export const obtenerColores = async (req, res) => {
+  try {
+    const data = await listarColores();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener colores:', error.message);
+    return res.status(500).json({ error: 'Error al obtener los colores' });
+  }
+};
+
+// Obtener un color por ID
+export const obtenerColorPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await buscarColorPorId(id);
+    if (!data) return res.status(404).json({ error: 'Color no encontrado' });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener color:', error.message);
+    return res.status(500).json({ error: 'Error al obtener el color' });
+  }
+};
+
+// Actualizar un color (La función que tus rutas estaban buscando)
+export const actualizarColor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await actualizarColorPorId(id, req.body);
+    if (!data) return res.status(404).json({ error: 'Color no encontrado o sin cambios' });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al actualizar color:', error.message);
+    return res.status(500).json({ error: 'Error al actualizar el color' });
+  }
+};
+
+// Eliminar un color
+export const eliminarColor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await eliminarColorPorId(id);
+    if (!data) return res.status(404).json({ error: 'Color no encontrado' });
+    return res.status(200).json({ mensaje: 'Color eliminado correctamente', color: data });
+  } catch (error) {
+    console.error('Error al eliminar color:', error.message);
+    return res.status(500).json({ error: 'Error al eliminar el color' });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/disponibilidad.js">
+import {
+    obtenerDisponibilidad,
+    obtenerDisponibilidadPorTecnico,
+    obtenerSlotsDisponibles,
+    obtenerDisponibilidadPorId,
+    crearDisponibilidad,
+    actualizarDisponibilidad,
+    eliminarDisponibilidad
+} from '../models/disponibilidad.js';
+
+// GET /disponibilidad/obtener
+export const getDisponibilidad = async (req, res) => {
+    try {
+        const { data, error } = await obtenerDisponibilidad();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al obtener disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// GET /disponibilidad/tecnico/:tecnico_id
+export const getDisponibilidadPorTecnico = async (req, res) => {
+    try {
+        const { tecnico_id } = req.params;
+        const { data, error } = await obtenerDisponibilidadPorTecnico(tecnico_id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al obtener disponibilidad por técnico:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// GET /disponibilidad/slots?fecha=2025-07-15
+export const getSlots = async (req, res) => {
+    try {
+        const { fecha } = req.query;
+        const { data, error } = await obtenerSlotsDisponibles(fecha || null);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ slots: data });
+    } catch (error) {
+        console.error('Error al obtener slots:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// GET /disponibilidad/obtener/:id
+export const getDisponibilidadPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await obtenerDisponibilidadPorId(id);
+        if (error || !data) return res.status(404).json({ error: 'Slot no encontrado' });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al obtener slot:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// POST /disponibilidad/crear
+export const postDisponibilidad = async (req, res) => {
+    try {
+        const { tecnico_id, fecha, hora, disponible } = req.body;
+        if (!tecnico_id || !fecha || !hora) {
+            return res.status(400).json({ error: 'tecnico_id, fecha y hora son requeridos' });
+        }
+
+        const { data, error } = await crearDisponibilidad(tecnico_id, fecha, hora, disponible);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(201).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al crear disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// PUT /disponibilidad/actualizar/:id
+export const putDisponibilidad = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const campos = req.body;
+
+        const { data, error } = await actualizarDisponibilidad(id, campos);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al actualizar disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// DELETE /disponibilidad/eliminar/:id
+export const deleteDisponibilidad = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await eliminarDisponibilidad(id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ disponibilidad: data });
+    } catch (error) {
+        console.error('Error al eliminar disponibilidad:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+</file>
+
+<file path="BACKEND/controllers/paqueteservicios.js">
+import {
+  existeServicio, insertarPaquete, listarPaquetes, buscarPaquetePorId, actualizarPaquetePorId, eliminarPaquetePorId
+} from '../models/paqueteservicios.js';
+ 
+// Crear un paquete
+export const crearPaquete = async (req, res) => {
+  try {
+    const {
+      servicio_id,
+      nombre,
+      descripcion,
+      precio,
+      duracion_dias_min,
+      duracion_dias_max,
+      destacado
+    } = req.body;
+ 
+    if (!servicio_id || !nombre || precio === undefined) {
+      return res.status(400).json({
+        error: 'servicio_id, nombre y precio son obligatorios'
+      });
+    }
+ 
+    if (!(await existeServicio(servicio_id))) {
+      return res.status(400).json({ error: 'El servicio_id indicado no existe' });
+    }
+ 
+    const data = await insertarPaquete({
+      servicio_id,
+      nombre,
+      descripcion: descripcion || null,
+      precio,
+      duracion_dias_min: duracion_dias_min ?? null,
+      duracion_dias_max: duracion_dias_max ?? null,
+      destacado: destacado ?? false
+    });
+ 
+    return res.status(201).json(data);
+  } catch (error) {
+    console.error('Error al crear paquete:', error.message);
+    return res.status(500).json({ error: 'Error al crear el paquete de servicio' });
+  }
+};
+ 
+// Obtener todos los paquetes (opcionalmente filtrados por servicio_id / destacado)
+export const obtenerPaquetes = async (req, res) => {
+  try {
+    const { servicio_id, destacado } = req.query;
+ 
+    const data = await listarPaquetes({
+      servicio_id,
+      destacado: destacado !== undefined ? destacado === 'true' : undefined
+    });
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener paquetes:', error.message);
+    return res.status(500).json({ error: 'Error al obtener los paquetes de servicio' });
+  }
+};
+ 
+// Obtener un paquete por id
+export const obtenerPaquetePorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await buscarPaquetePorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener paquete:', error.message);
+    return res.status(500).json({ error: 'Error al obtener el paquete de servicio' });
+  }
+};
+ 
+// Actualizar un paquete
+export const actualizarPaquete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      servicio_id,
+      nombre,
+      descripcion,
+      precio,
+      duracion_dias_min,
+      duracion_dias_max,
+      destacado
+    } = req.body;
+ 
+    if (servicio_id !== undefined && !(await existeServicio(servicio_id))) {
+      return res.status(400).json({ error: 'El servicio_id indicado no existe' });
+    }
+ 
+    const camposActualizar = {};
+    if (servicio_id !== undefined) camposActualizar.servicio_id = servicio_id;
+    if (nombre !== undefined) camposActualizar.nombre = nombre;
+    if (descripcion !== undefined) camposActualizar.descripcion = descripcion;
+    if (precio !== undefined) camposActualizar.precio = precio;
+    if (duracion_dias_min !== undefined) camposActualizar.duracion_dias_min = duracion_dias_min;
+    if (duracion_dias_max !== undefined) camposActualizar.duracion_dias_max = duracion_dias_max;
+    if (destacado !== undefined) camposActualizar.destacado = destacado;
+ 
+    if (Object.keys(camposActualizar).length === 0) {
+      return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
+    }
+ 
+    const data = await actualizarPaquetePorId(id, camposActualizar);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al actualizar paquete:', error.message);
+    return res.status(500).json({ error: 'Error al actualizar el paquete de servicio' });
+  }
+};
+ 
+// Eliminar un paquete
+export const eliminarPaquete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await eliminarPaquetePorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+ 
+    return res.status(200).json({ mensaje: 'Paquete eliminado correctamente', paquete: data });
+  } catch (error) {
+    console.error('Error al eliminar paquete:', error.message);
+    return res.status(500).json({ error: 'Error al eliminar el paquete de servicio' });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/servicios.js">
+import {
+    obtenerServicios,
+    obtenerServicioPorId,
+    obtenerServiciosPorCategoria, // <-- Nueva importación
+    obtenerServiciosPorEstado,    // <-- Nueva importación
+    crearServicio,
+    actualizarServicio,
+    eliminarServicio
+} from '../models/servicios.js';
+
+export const getServicios = async (req, res) => {
+    try {
+        const { data, error } = await obtenerServicios();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicios: data });
+    } catch (error) {
+        console.error('Error al obtener servicios:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const getServicioPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await obtenerServicioPorId(id);
+        if (error || !data) return res.status(404).json({ error: 'Servicio no encontrado' });
+        return res.status(200).json({ servicio: data });
+    } catch (error) {
+        console.error('Error al obtener servicio:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const getServiciosPorCategoria = async (req, res) => {
+    try {
+        const { categoria_id } = req.params;
+        const { data, error } = await obtenerServiciosPorCategoria(categoria_id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicios: data });
+    } catch (error) {
+        console.error('Error al obtener servicios por categoría:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// 🆕 NUEVO: Obtener servicios filtrados por Estado
+export const getServiciosPorEstado = async (req, res) => {
+    try {
+        const { estado } = req.params;
+        const { data, error } = await obtenerServiciosPorEstado(estado);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicios: data });
+    } catch (error) {
+        console.error('Error al obtener servicios por estado:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const postServicio = async (req, res) => {
+    try {
+        const { nombre, descripcion, precio, duracion_minutos } = req.body;
+        if (!nombre) {
+            return res.status(400).json({ error: 'El nombre es requerido' });
+        }
+
+        const { data, error } = await crearServicio(nombre, descripcion, precio, duracion_minutos);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(201).json({ servicio: data });
+    } catch (error) {
+        console.error('Error al crear servicio:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const putServicio = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const campos = req.body;
+
+        const { data, error } = await actualizarServicio(id, campos);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicio: data });
+    } catch (error) {
+        console.error('Error al actualizar servicio:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const deleteServicio = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await eliminarServicio(id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ servicio: data });
+    } catch (error) {
+        console.error('Error al eliminar servicio:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+</file>
+
+<file path="BACKEND/controllers/tecnicos.js">
+import {
+    obtenerTecnicos,
+    obtenerTecnicoPorId,
+    crearTecnico,
+    actualizarTecnico,
+    eliminarTecnico
+} from '../models/tecnicos.js';
+
+export const getTecnicos = async (req, res) => {
+    try {
+        const { data, error } = await obtenerTecnicos();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ tecnicos: data });
+    } catch (error) {
+        console.error('Error al obtener técnicos:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const getTecnicoPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await obtenerTecnicoPorId(id);
+        if (error || !data) return res.status(404).json({ error: 'Técnico no encontrado' });
+        return res.status(200).json({ tecnico: data });
+    } catch (error) {
+        console.error('Error al obtener técnico:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const postTecnico = async (req, res) => {
+    try {
+        const { nombre, telefono, especialidad, activo } = req.body;
+        if (!nombre) {
+            return res.status(400).json({ error: 'El nombre es requerido' });
+        }
+
+        const { data, error } = await crearTecnico(nombre, telefono, especialidad, activo);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(201).json({ tecnico: data });
+    } catch (error) {
+        console.error('Error al crear técnico:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const putTecnico = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const campos = req.body;
+
+        const { data, error } = await actualizarTecnico(id, campos);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ tecnico: data });
+    } catch (error) {
+        console.error('Error al actualizar técnico:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const deleteTecnico = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await eliminarTecnico(id);
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ tecnico: data });
+    } catch (error) {
+        console.error('Error al eliminar técnico:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+</file>
+
+<file path="BACKEND/controllers/vehiculos.js">
+import {
+  existeUsuario, insertarVehiculo, listarVehiculos, buscarVehiculoPorId, actualizarVehiculoPorId, eliminarVehiculoPorId
+} from '../models/vehiculos.js';
+ 
+// Crear un vehículo
+export const crearVehiculo = async (req, res) => {
+  try {
+    const { usuario_id, marca, modelo, anio, placa } = req.body;
+ 
+    if (!usuario_id) {
+      return res.status(400).json({ error: 'usuario_id es obligatorio' });
+    }
+ 
+    if (!(await existeUsuario(usuario_id))) {
+      return res.status(400).json({ error: 'El usuario_id indicado no existe' });
+    }
+ 
+    const data = await insertarVehiculo({
+      usuario_id,
+      marca: marca || null,
+      modelo: modelo || null,
+      anio: anio ?? null,
+      placa: placa || null
+    });
+ 
+    return res.status(201).json(data);
+  } catch (error) {
+    console.error('Error al crear vehículo:', error.message);
+    return res.status(500).json({ error: 'Error al crear el vehículo' });
+  }
+};
+ 
+// Obtener todos los vehículos (opcionalmente filtrados por usuario_id)
+export const obtenerVehiculos = async (req, res) => {
+  try {
+    const { usuario_id } = req.query;
+    const data = await listarVehiculos({ usuario_id });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener vehículos:', error.message);
+    return res.status(500).json({ error: 'Error al obtener los vehículos' });
+  }
+};
+ 
+// Obtener un vehículo por id
+export const obtenerVehiculoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await buscarVehiculoPorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al obtener vehículo:', error.message);
+    return res.status(500).json({ error: 'Error al obtener el vehículo' });
+  }
+};
+ 
+// Actualizar un vehículo
+export const actualizarVehiculo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { usuario_id, marca, modelo, anio, placa } = req.body;
+ 
+    if (usuario_id !== undefined && !(await existeUsuario(usuario_id))) {
+      return res.status(400).json({ error: 'El usuario_id indicado no existe' });
+    }
+ 
+    const camposActualizar = {};
+    if (usuario_id !== undefined) camposActualizar.usuario_id = usuario_id;
+    if (marca !== undefined) camposActualizar.marca = marca;
+    if (modelo !== undefined) camposActualizar.modelo = modelo;
+    if (anio !== undefined) camposActualizar.anio = anio;
+    if (placa !== undefined) camposActualizar.placa = placa;
+ 
+    if (Object.keys(camposActualizar).length === 0) {
+      return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
+    }
+ 
+    const data = await actualizarVehiculoPorId(id, camposActualizar);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+ 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error al actualizar vehículo:', error.message);
+    return res.status(500).json({ error: 'Error al actualizar el vehículo' });
+  }
+};
+ 
+// Eliminar un vehículo
+export const eliminarVehiculo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await eliminarVehiculoPorId(id);
+ 
+    if (!data) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+ 
+    return res.status(200).json({ mensaje: 'Vehículo eliminado correctamente', vehiculo: data });
+  } catch (error) {
+    console.error('Error al eliminar vehículo:', error.message);
+    return res.status(500).json({ error: 'Error al eliminar el vehículo' });
+  }
+};
+</file>
+
+<file path="BACKEND/models/categservicio.js">
+import {supabase} from '../config/supabase.js'; // ajusta la ruta según tu proyecto
+ 
+const TABLA = 'categorias_servicio';
+ 
+export const insertarCategoria = async (categoria) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .insert([categoria])
+    .select()
+    .single();
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const listarCategorias = async () => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .order('id', { ascending: true });
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const buscarCategoriaPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .eq('id', id)
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const actualizarCategoriaPorId = async (id, campos) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .update(campos)
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const eliminarCategoriaPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .delete()
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+</file>
+
+<file path="BACKEND/models/coloresral.js">
+import {supabase} from '../config/supabase.js'; // ajusta la ruta según tu proyecto
+ 
+const TABLA = 'colores_ral';
+ 
+export const insertarColor = async (color) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .insert([color])
+    .select()
+    .single();
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const listarColores = async () => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .order('id', { ascending: true });
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const buscarColorPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .eq('id', id)
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const actualizarColorPorId = async (id, campos) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .update(campos)
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const eliminarColorPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .delete()
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+</file>
+
+<file path="BACKEND/models/disponibilidad.js">
+import { supabase } from '../config/supabase.js';
+
+// Obtener toda la disponibilidad
+export const obtenerDisponibilidad = async () => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .select('*')
+        .order('fecha', { ascending: true });
+    return { data, error };
+};
+
+// Obtener disponibilidad por técnico
+export const obtenerDisponibilidadPorTecnico = async (tecnico_id) => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .select('*')
+        .eq('tecnico_id', tecnico_id)
+        .order('fecha', { ascending: true });
+    return { data, error };
+};
+
+// Obtener slots disponibles (opcionalmente filtrados por fecha)
+export const obtenerSlotsDisponibles = async (fecha = null) => {
+    let query = supabase
+        .from('disponibilidad')
+        .select('*')
+        .eq('disponible', true);
+
+    if (fecha) {
+        query = query.eq('fecha', fecha);
+    }
+
+    const { data, error } = await query.order('fecha', { ascending: true });
+    return { data, error };
+};
+
+// Obtener un slot por ID
+export const obtenerDisponibilidadPorId = async (id) => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .select('*')
+        .eq('id', id)
+        .single();
+    return { data, error };
+};
+
+// Crear disponibilidad
+export const crearDisponibilidad = async (tecnico_id, fecha, hora, disponible = true) => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .insert({ tecnico_id, fecha, hora, disponible })
+        .select();
+    return { data, error };
+};
+
+// Actualizar disponibilidad
+export const actualizarDisponibilidad = async (id, campos) => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .update(campos)
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+
+// Eliminar disponibilidad
+export const eliminarDisponibilidad = async (id) => {
+    const { data, error } = await supabase
+        .from('disponibilidad')
+        .delete()
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/paqueteservicios.js">
+import { supabase } from '../config/supabase.js'; 
+
+const TABLA = 'paquetes_servicio';
+ 
+export const existeServicio = async (servicio_id) => {
+  const { data, error } = await supabase
+    .from('servicios')
+    .select('id')
+    .eq('id', servicio_id)
+    .single();
+ 
+  return !error && !!data;
+};
+ 
+export const insertarPaquete = async (paquete) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .insert([paquete])
+    .select()
+    .single();
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const listarPaquetes = async ({ servicio_id, destacado } = {}) => {
+  let query = supabase.from(TABLA).select('*').order('id', { ascending: true });
+ 
+  if (servicio_id) {
+    query = query.eq('servicio_id', servicio_id);
+  }
+  if (destacado !== undefined) {
+    query = query.eq('destacado', destacado);
+  }
+ 
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+};
+ 
+export const buscarPaquetePorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .eq('id', id)
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const actualizarPaquetePorId = async (id, campos) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .update(campos)
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const eliminarPaquetePorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .delete()
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+</file>
+
+<file path="BACKEND/models/servicios.js">
+import { supabase } from '../config/supabase.js';
+
+export const obtenerServicios = async () => {
+    const { data, error } = await supabase
+        .from('servicios')
+        .select('*')
+        .order('nombre', { ascending: true });
+    return { data, error };
+};
+
+export const obtenerServicioPorId = async (id) => {
+    const { data, error } = await supabase
+        .from('servicios')
+        .select('*')
+        .eq('id', id)
+        .single();
+    return { data, error };
+};
+
+export const crearServicio = async (nombre, descripcion, precio, duracion_minutos) => {
+    const { data, error } = await supabase
+        .from('servicios')
+        .insert({ nombre, descripcion, precio, duracion_minutos })
+        .select();
+    return { data, error };
+};
+
+export const actualizarServicio = async (id, campos) => {
+    const { data, error } = await supabase
+        .from('servicios')
+        .update(campos)
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+
+export const eliminarServicio = async (id) => {
+    const { data, error } = await supabase
+        .from('servicios')
+        .delete()
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+export const obtenerServiciosPorCategoria = async (categoria_id) => {
+    return await supabase
+        .from('servicios') // Asegúrate de que el nombre de la tabla sea correcto
+        .select('*')
+        .eq('categoria_id', categoria_id);
+};
+
+export const obtenerServiciosPorEstado = async (estado) => {
+    return await supabase
+        .from('servicios')
+        .select('*')
+        .eq('estado', estado);
+};
+</file>
+
+<file path="BACKEND/models/tecnicos.js">
+import { supabase } from '../config/supabase.js';
+
+export const obtenerTecnicos = async () => {
+    const { data, error } = await supabase
+        .from('tecnicos')
+        .select('*')
+        .order('nombre', { ascending: true });
+    return { data, error };
+};
+
+export const obtenerTecnicoPorId = async (id) => {
+    const { data, error } = await supabase
+        .from('tecnicos')
+        .select('*')
+        .eq('id', id)
+        .single();
+    return { data, error };
+};
+
+export const crearTecnico = async (nombre, telefono, especialidad, activo = true) => {
+    const { data, error } = await supabase
+        .from('tecnicos')
+        .insert({ nombre, telefono, especialidad, activo })
+        .select();
+    return { data, error };
+};
+
+export const actualizarTecnico = async (id, campos) => {
+    const { data, error } = await supabase
+        .from('tecnicos')
+        .update(campos)
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+
+export const eliminarTecnico = async (id) => {
+    const { data, error } = await supabase
+        .from('tecnicos')
+        .delete()
+        .eq('id', id)
+        .select();
+    return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/vehiculos.js">
+import {supabase} from '../config/supabase.js'; // ajusta la ruta según tu proyecto
+ 
+const TABLA = 'vehiculos';
+ 
+export const existeUsuario = async (usuario_id) => {
+  const { data, error } = await supabase
+    .from('usuario')
+    .select('id')
+    .eq('id', usuario_id)
+    .single();
+ 
+  return !error && !!data;
+};
+ 
+export const insertarVehiculo = async (vehiculo) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .insert([vehiculo])
+    .select()
+    .single();
+ 
+  if (error) throw error;
+  return data;
+};
+ 
+export const listarVehiculos = async ({ usuario_id } = {}) => {
+  let query = supabase.from(TABLA).select('*').order('id', { ascending: true });
+ 
+  if (usuario_id) {
+    query = query.eq('usuario_id', usuario_id);
+  }
+ 
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+};
+ 
+export const buscarVehiculoPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .select('*')
+    .eq('id', id)
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const actualizarVehiculoPorId = async (id, campos) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .update(campos)
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+ 
+export const eliminarVehiculoPorId = async (id) => {
+  const { data, error } = await supabase
+    .from(TABLA)
+    .delete()
+    .eq('id', id)
+    .select()
+    .single();
+ 
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data;
+};
+</file>
+
+<file path="BACKEND/routes/cateservicios.js">
+import { Router } from 'express';
+import {
+  crearCategoria, obtenerCategorias, obtenerCategoriaPorId, actualizarCategoria, eliminarCategoria
+} from '../controllers/cateservicios.js';
+ 
+const router = Router();
+ 
+router.post('/categorias-servicio', crearCategoria);
+router.get('/categorias-servicio', obtenerCategorias);
+router.get('/categorias-servicio/:id', obtenerCategoriaPorId);
+router.put('/categorias-servicio/:id', actualizarCategoria);
+router.delete('/categorias-servicio/:id', eliminarCategoria);
+ 
+export default router;
+</file>
+
+<file path="BACKEND/routes/coloresral.js">
+import { Router } from 'express';
+import {
+  crearColor,
+  obtenerColores,
+  obtenerColorPorId,
+  actualizarColor,
+  eliminarColor
+} from '../controllers/coloresral.js';
+ 
+const router = Router();
+ 
+router.post('/colores-ral', crearColor);
+router.get('/colores-ral', obtenerColores);
+router.get('/colores-ral/:id', obtenerColorPorId);
+router.put('/colores-ral/:id', actualizarColor);
+router.delete('/colores-ral/:id', eliminarColor);
+ 
+export default router;
+</file>
+
+<file path="BACKEND/routes/disponibilidad.js">
+import express from 'express';
+import {
+    getDisponibilidad,
+    getDisponibilidadPorTecnico,
+    getSlots,
+    getDisponibilidadPorId,
+    postDisponibilidad,
+    putDisponibilidad,
+    deleteDisponibilidad
+} from '../controllers/disponibilidad.js';
+
+const router = express.Router();
+
+router.get('/obtener', getDisponibilidad);
+router.get('/tecnico/:tecnico_id', getDisponibilidadPorTecnico);
+router.get('/slots', getSlots);
+router.get('/obtener/:id', getDisponibilidadPorId);
+router.post('/crear', postDisponibilidad);
+router.put('/actualizar/:id', putDisponibilidad);
+router.delete('/eliminar/:id', deleteDisponibilidad);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/paqueteservicios.js">
+import { Router } from 'express';
+import {
+  crearPaquete, 
+  obtenerPaquetes, 
+  obtenerPaquetePorId, 
+  actualizarPaquete, 
+  eliminarPaquete
+} from '../controllers/paqueteservicios.js'; // Asegúrate de que el archivo físico se llame exactamente así
+ 
+const router = Router();
+ 
+router.post('/paquetes-servicio', crearPaquete);
+router.get('/paquetes-servicio', obtenerPaquetes);
+router.get('/paquetes-servicio/:id', obtenerPaquetePorId);
+router.put('/paquetes-servicio/:id', actualizarPaquete);
+router.delete('/paquetes-servicio/:id', eliminarPaquete);
+ 
+export default router;
+</file>
+
+<file path="BACKEND/routes/servicios.js">
+import express from 'express';
+import {
+    getServicios,
+    getServicioPorId,
+    getServiciosPorCategoria, // <-- Ya existe
+    getServiciosPorEstado,    // <-- Ya existe
+    postServicio,
+    putServicio,
+    deleteServicio,
+} from '../controllers/servicios.js';
+ 
+const router = express.Router();
+ 
+router.get('/obtener',                      getServicios);
+router.get('/obtener/:id',                  getServicioPorId);
+router.get('/categoria/:categoria_id',      getServiciosPorCategoria); // <-- Ruta activa
+router.get('/estado/:estado',               getServiciosPorEstado);    // <-- Ruta activa
+router.post('/crear',                       postServicio);
+router.put('/actualizar/:id',               putServicio);
+router.delete('/eliminar/:id',              deleteServicio);
+ 
+export default router;
+</file>
+
+<file path="BACKEND/routes/tecnicos.js">
+import express from 'express';
+import {
+    getTecnicos,
+    getTecnicoPorId,
+    postTecnico,
+    putTecnico,
+    deleteTecnico
+} from '../controllers/tecnicos.js';
+
+const router = express.Router();
+
+router.get('/obtener', getTecnicos);
+router.get('/obtener/:id', getTecnicoPorId);
+router.post('/crear', postTecnico);
+router.put('/actualizar/:id', putTecnico);
+router.delete('/eliminar/:id', deleteTecnico);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/vehiculos.js">
+import { Router } from 'express';
+import {
+  crearVehiculo,
+  obtenerVehiculos,
+  obtenerVehiculoPorId,
+  actualizarVehiculo,
+  eliminarVehiculo
+} from '../controllers/vehiculos.js';
+ 
+const router = Router();
+ 
+router.post('/vehiculos', crearVehiculo);
+router.get('/vehiculos', obtenerVehiculos);
+router.get('/vehiculos/:id', obtenerVehiculoPorId);
+router.put('/vehiculos/:id', actualizarVehiculo);
+router.delete('/vehiculos/:id', eliminarVehiculo);
+ 
+export default router;
+</file>
+
+<file path="BACKEND/controllers/acabadoController.js">
+//----------------------------------------------------------//
+// Controlador de Acabados de Pintura
+
+import {
+  crearAcabado,
+  obtenerAcabados,
+  obtenerAcabadoPorId,
+  actualizarAcabado,
+  eliminarAcabado,
+} from "../models/acabadoModel.js";
+
+//----------------------------------------------------------//
+// Crear acabado (solo admin)
+
+export const createAcabado = async (req, res) => {
+  try {
+    const { nombre } = req.body;
+
+    if (!nombre || nombre.trim() === "") {
+      return res.status(400).json({ error: "El nombre es obligatorio" });
+    }
+
+    const { data, error } = await crearAcabado(nombre.trim());
+
+    if (error) {
+      console.error("Error al crear acabado:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(201).json({
+      message: "Acabado creado exitosamente",
+      acabado: data,
+    });
+  } catch (error) {
+    console.error("Error al crear acabado:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener todos los acabados
+
+export const getAcabados = async (req, res) => {
+  try {
+    const { data, error } = await obtenerAcabados();
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ acabados: data });
+  } catch (error) {
+    console.error("Error al obtener acabados:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener acabado por ID
+
+export const getAcabadoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await obtenerAcabadoPorId(id);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Acabado no encontrado" });
+    }
+
+    return res.status(200).json({ acabado: data });
+  } catch (error) {
+    console.error("Error al obtener acabado:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Actualizar acabado (solo admin)
+
+export const updateAcabado = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre } = req.body;
+
+    if (!nombre || nombre.trim() === "") {
+      return res.status(400).json({ error: "El nombre es obligatorio" });
+    }
+
+    const { data: existente, error: errorExistente } = await obtenerAcabadoPorId(id);
+    if (errorExistente || !existente) {
+      return res.status(404).json({ error: "Acabado no encontrado" });
+    }
+
+    const { data, error } = await actualizarAcabado(id, { nombre: nombre.trim() });
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Acabado actualizado correctamente",
+      acabado: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar acabado:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Eliminar acabado (solo admin)
+
+export const deleteAcabado = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: existente, error: errorExistente } = await obtenerAcabadoPorId(id);
+    if (errorExistente || !existente) {
+      return res.status(404).json({ error: "Acabado no encontrado" });
+    }
+
+    const { data, error } = await eliminarAcabado(id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Acabado eliminado correctamente",
+      acabado: data,
+    });
+  } catch (error) {
+    console.error("Error al eliminar acabado:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/etapaController.js">
+//----------------------------------------------------------//
+// Controlador de Etapas de Proceso
+
+import {
+  crearEtapa,
+  obtenerEtapas,
+  obtenerEtapaPorId,
+  actualizarEtapa,
+  eliminarEtapa,
+} from "../models/etapaModel.js";
+
+//----------------------------------------------------------//
+// Crear etapa (solo admin)
+
+export const createEtapa = async (req, res) => {
+  try {
+    const { nombre, orden } = req.body;
+
+    if (!nombre || nombre.trim() === "") {
+      return res.status(400).json({ error: "El nombre es obligatorio" });
+    }
+
+    if (orden === undefined || orden === null || isNaN(orden)) {
+      return res.status(400).json({ error: "El orden es obligatorio y debe ser un número" });
+    }
+
+    const { data, error } = await crearEtapa(nombre.trim(), Number(orden));
+
+    if (error) {
+      console.error("Error al crear etapa:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(201).json({
+      message: "Etapa creada exitosamente",
+      etapa: data,
+    });
+  } catch (error) {
+    console.error("Error al crear etapa:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener todas las etapas
+
+export const getEtapas = async (req, res) => {
+  try {
+    const { data, error } = await obtenerEtapas();
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ etapas: data });
+  } catch (error) {
+    console.error("Error al obtener etapas:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener etapa por ID
+
+export const getEtapaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await obtenerEtapaPorId(id);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Etapa no encontrada" });
+    }
+
+    return res.status(200).json({ etapa: data });
+  } catch (error) {
+    console.error("Error al obtener etapa:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Actualizar etapa (solo admin)
+
+export const updateEtapa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, orden } = req.body;
+
+    const { data: existente, error: errorExistente } = await obtenerEtapaPorId(id);
+    if (errorExistente || !existente) {
+      return res.status(404).json({ error: "Etapa no encontrada" });
+    }
+
+    const campos = {};
+    if (nombre !== undefined) {
+      if (nombre.trim() === "") {
+        return res.status(400).json({ error: "El nombre no puede estar vacío" });
+      }
+      campos.nombre = nombre.trim();
+    }
+    if (orden !== undefined) {
+      if (isNaN(orden)) {
+        return res.status(400).json({ error: "El orden debe ser un número" });
+      }
+      campos.orden = Number(orden);
+    }
+
+    if (Object.keys(campos).length === 0) {
+      return res.status(400).json({ error: "No se enviaron campos válidos para actualizar" });
+    }
+
+    const { data, error } = await actualizarEtapa(id, campos);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Etapa actualizada correctamente",
+      etapa: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar etapa:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Eliminar etapa (solo admin)
+
+export const deleteEtapa = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: existente, error: errorExistente } = await obtenerEtapaPorId(id);
+    if (errorExistente || !existente) {
+      return res.status(404).json({ error: "Etapa no encontrada" });
+    }
+
+    const { data, error } = await eliminarEtapa(id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Etapa eliminada correctamente",
+      etapa: data,
+    });
+  } catch (error) {
+    console.error("Error al eliminar etapa:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/recuperacionController.js">
+//----------------------------------------------------------//
+// Controlador de Recuperación de Contraseña
+
+import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
+import {
+  crearCodigoRecuperacion,
+  obtenerCodigoValido,
+  marcarCodigoUsado,
+  invalidarCodigosAnteriores,
+} from "../models/recuperacionModel.js";
+import { obtenerPorCorreo, actualizarUsuario } from "../models/userModel.js";
+
+//----------------------------------------------------------//
+// Configurar nodemailer (Gmail)
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+//----------------------------------------------------------//
+// Generar código de 6 dígitos
+
+const generarCodigo = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+//----------------------------------------------------------//
+// Solicitar código
+
+export const solicitarCodigo = async (req, res) => {
+  try {
+    const { correo } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ error: "El correo es obligatorio" });
+    }
+
+    const { data: usuario, error } = await obtenerPorCorreo(correo);
+
+    // Por seguridad: siempre respondemos igual
+    if (error || !usuario) {
+      return res.status(200).json({
+        message: "Si el correo está registrado, recibirás un código de recuperación",
+      });
+    }
+
+    await invalidarCodigosAnteriores(usuario.id);
+
+    const codigo = generarCodigo();
+    const { error: errorCrear } = await crearCodigoRecuperacion(usuario.id, codigo);
+
+    if (errorCrear) {
+      console.error("Error al crear código:", errorCrear);
+      return res.status(500).json({ error: "Error al generar el código" });
+    }
+
+    // Enviar correo
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: correo,
+      subject: "Código de Recuperación - AlCRIS",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #2c3e50;">Código de Recuperación</h2>
+          <p>Has solicitado recuperar tu contraseña. Tu código es:</p>
+          <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 28px; letter-spacing: 8px; border-radius: 8px;">
+            <strong>${codigo}</strong>
+          </div>
+          <p>Este código expira en <strong>10 minutos</strong>.</p>
+          <p>Si no solicitaste este cambio, ignora este correo.</p>
+        </div>
+      `,
+    });
+
+    return res.status(200).json({
+      message: "Si el correo está registrado, recibirás un código de recuperación",
+    });
+  } catch (error) {
+    console.error("Error en solicitarCodigo:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Verificar código y cambiar contraseña
+
+export const resetearContrasena = async (req, res) => {
+  try {
+    const { correo, codigo, nueva_contrasena } = req.body;
+
+    if (!correo || !codigo || !nueva_contrasena) {
+      return res.status(400).json({
+        error: "Correo, código y nueva contraseña son obligatorios",
+      });
+    }
+
+    if (nueva_contrasena.length < 6) {
+      return res.status(400).json({
+        error: "La contraseña debe tener al menos 6 caracteres",
+      });
+    }
+
+    const { data: usuario, error } = await obtenerPorCorreo(correo);
+    if (error || !usuario) {
+      return res.status(400).json({ error: "Código inválido o expirado" });
+    }
+
+    const { data: registro, error: errorCodigo } = await obtenerCodigoValido(
+      usuario.id,
+      codigo
+    );
+
+    if (errorCodigo || !registro) {
+      return res.status(400).json({ error: "Código inválido o expirado" });
+    }
+
+    const hashedPassword = await bcrypt.hash(nueva_contrasena, 10);
+
+    const { error: errorUpdate } = await actualizarUsuario(usuario.id, {
+      contrasena: hashedPassword,
+    });
+
+    if (errorUpdate) {
+      console.error("Error al actualizar contraseña:", errorUpdate);
+      return res.status(500).json({ error: "Error al actualizar la contraseña" });
+    }
+
+    await marcarCodigoUsado(registro.id);
+
+    return res.status(200).json({
+      message: "Contraseña actualizada correctamente",
+    });
+  } catch (error) {
+    console.error("Error en resetearContrasena:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/reservaController.js">
+//----------------------------------------------------------//
+// Controlador de Reservas
+
+import {
+  crearReserva,
+  obtenerReservas,
+  obtenerReservasPorUsuario,
+  obtenerReservaPorId,
+  obtenerReservaPorCodigo,
+  actualizarReserva,
+  eliminarReserva,
+} from "../models/reservaModel.js";
+
+//----------------------------------------------------------//
+// Valores permitidos (enums)
+
+const FORMAS_PAGO = ["efectivo", "transferencia"];
+const ESTADOS = ["pendiente", "confirmada", "en_proceso", "completada", "cancelada"];
+
+//----------------------------------------------------------//
+// Campos que se pueden actualizar libremente
+
+const CAMPOS_PERMITIDOS = [
+  "vehiculo_id",
+  "servicio_id",
+  "paquete_id",
+  "tecnico_id",
+  "color_id",
+  "acabado_id",
+  "fecha_cita",
+  "hora_cita",
+  "subtotal",
+  "materiales",
+  "descuento",
+  "total",
+  "forma_pago",
+];
+
+//----------------------------------------------------------//
+// Generar código de reserva único (ej: RES-20260824-4831)
+
+const generarCodigoReserva = () => {
+  const fecha = new Date();
+  const año = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `RES-${año}${mes}${dia}-${random}`;
+};
+
+//----------------------------------------------------------//
+// Crear reserva
+
+export const createReserva = async (req, res) => {
+  try {
+    const body = req.body;
+
+    // Campos obligatorios
+    if (!body.servicio_id || !body.fecha_cita || !body.hora_cita || !body.forma_pago) {
+      return res.status(400).json({
+        error: "Faltan campos obligatorios (servicio_id, fecha_cita, hora_cita, forma_pago)",
+      });
+    }
+
+    // Validar forma de pago
+    if (!FORMAS_PAGO.includes(body.forma_pago)) {
+      return res.status(400).json({
+        error: `forma_pago inválida. Valores permitidos: ${FORMAS_PAGO.join(", ")}`,
+      });
+    }
+
+    // El usuario_id siempre se toma del token (no del body)
+    const usuario_id = req.usuario.id;
+
+    // Generar código único
+    let codigo_reserva = generarCodigoReserva();
+    // Verificar que no exista (muy raro, pero por seguridad)
+    const { data: existe } = await obtenerReservaPorCodigo(codigo_reserva);
+    if (existe) {
+      codigo_reserva = generarCodigoReserva(); // reintentar una vez
+    }
+
+    const datos = {
+      codigo_reserva,
+      usuario_id,
+      vehiculo_id: body.vehiculo_id || null,
+      servicio_id: body.servicio_id,
+      paquete_id: body.paquete_id || null,
+      tecnico_id: body.tecnico_id || null,
+      color_id: body.color_id || null,
+      acabado_id: body.acabado_id || null,
+      fecha_cita: body.fecha_cita,
+      hora_cita: body.hora_cita,
+      subtotal: body.subtotal ?? 0,
+      materiales: body.materiales ?? 0,
+      descuento: body.descuento ?? 0,
+      total: body.total ?? 0,
+      forma_pago: body.forma_pago,
+      estado: "pendiente",
+    };
+
+    const { data, error } = await crearReserva(datos);
+
+    if (error) {
+      console.error("Error al crear reserva:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(201).json({
+      message: "Reserva creada exitosamente",
+      reserva: data,
+    });
+  } catch (error) {
+    console.error("Error al crear reserva:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener todas las reservas (solo admin)
+
+export const getReservas = async (req, res) => {
+  try {
+    const { data, error } = await obtenerReservas();
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ reservas: data });
+  } catch (error) {
+    console.error("Error al obtener reservas:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener mis reservas (usuario autenticado)
+
+export const getMisReservas = async (req, res) => {
+  try {
+    const { data, error } = await obtenerReservasPorUsuario(req.usuario.id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ reservas: data });
+  } catch (error) {
+    console.error("Error al obtener mis reservas:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener reserva por ID
+
+export const getReservaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await obtenerReservaPorId(id);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Solo admin o el dueño de la reserva
+    if (req.usuario.rol !== "admin" && req.usuario.id !== data.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para ver esta reserva" });
+    }
+
+    return res.status(200).json({ reserva: data });
+  } catch (error) {
+    console.error("Error al obtener reserva:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener reserva por código
+
+export const getReservaPorCodigo = async (req, res) => {
+  try {
+    const { codigo } = req.params;
+    const { data, error } = await obtenerReservaPorCodigo(codigo);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Solo admin o el dueño
+    if (req.usuario.rol !== "admin" && req.usuario.id !== data.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para ver esta reserva" });
+    }
+
+    return res.status(200).json({ reserva: data });
+  } catch (error) {
+    console.error("Error al obtener reserva por código:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Actualizar reserva
+
+export const updateReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+
+    // Verificar que exista
+    const { data: reservaExistente, error: errorExistente } = await obtenerReservaPorId(id);
+    if (errorExistente || !reservaExistente) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Solo admin o el dueño
+    if (req.usuario.rol !== "admin" && req.usuario.id !== reservaExistente.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para actualizar esta reserva" });
+    }
+
+    // Filtrar campos permitidos
+    const campos = {};
+    for (const campo of CAMPOS_PERMITIDOS) {
+      if (body[campo] !== undefined) {
+        campos[campo] = body[campo];
+      }
+    }
+
+    // Solo admin puede cambiar el estado
+    if (body.estado !== undefined) {
+      if (req.usuario.rol !== "admin") {
+        return res.status(403).json({ error: "No tienes permiso para cambiar el estado" });
+      }
+      if (!ESTADOS.includes(body.estado)) {
+        return res.status(400).json({
+          error: `estado inválido. Valores permitidos: ${ESTADOS.join(", ")}`,
+        });
+      }
+      campos.estado = body.estado;
+    }
+
+    // Validar forma_pago si viene
+    if (campos.forma_pago && !FORMAS_PAGO.includes(campos.forma_pago)) {
+      return res.status(400).json({
+        error: `forma_pago inválida. Valores permitidos: ${FORMAS_PAGO.join(", ")}`,
+      });
+    }
+
+    if (Object.keys(campos).length === 0) {
+      return res.status(400).json({ error: "No se enviaron campos válidos para actualizar" });
+    }
+
+    const { data, error } = await actualizarReserva(id, campos);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Reserva actualizada correctamente",
+      reserva: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar reserva:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Eliminar reserva (solo admin)
+
+export const deleteReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: reservaExistente, error: errorExistente } = await obtenerReservaPorId(id);
+    if (errorExistente || !reservaExistente) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    const { data, error } = await eliminarReserva(id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Reserva eliminada correctamente",
+      reserva: data,
+    });
+  } catch (error) {
+    console.error("Error al eliminar reserva:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/controllers/seguimientoController.js">
+//----------------------------------------------------------//
+// Controlador de Seguimiento de Reserva
+
+import {
+  crearSeguimiento,
+  crearSeguimientosMultiples,
+  obtenerSeguimientosPorReserva,
+  obtenerSeguimientoPorId,
+  actualizarSeguimiento,
+  eliminarSeguimiento,
+} from "../models/seguimientoModel.js";
+import { obtenerReservaPorId } from "../models/reservaModel.js";
+
+//----------------------------------------------------------//
+// Estados permitidos
+
+const ESTADOS = ["pendiente", "en_curso", "completado"];
+
+//----------------------------------------------------------//
+// Crear un seguimiento
+
+export const createSeguimiento = async (req, res) => {
+  try {
+    const { reserva_id, etapa_id, estado } = req.body;
+
+    if (!reserva_id || !etapa_id) {
+      return res.status(400).json({
+        error: "Faltan campos obligatorios (reserva_id, etapa_id)",
+      });
+    }
+
+    // Verificar que la reserva exista
+    const { data: reserva, error: errorReserva } = await obtenerReservaPorId(reserva_id);
+    if (errorReserva || !reserva) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Solo admin puede crear seguimientos (o el dueño, según tu regla)
+    if (req.usuario.rol !== "admin" && req.usuario.id !== reserva.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para crear seguimiento en esta reserva" });
+    }
+
+    const estadoFinal = estado || "pendiente";
+    if (!ESTADOS.includes(estadoFinal)) {
+      return res.status(400).json({
+        error: `estado inválido. Valores permitidos: ${ESTADOS.join(", ")}`,
+      });
+    }
+
+    const datos = {
+      reserva_id,
+      etapa_id,
+      estado: estadoFinal,
+      fecha_actualizacion: new Date().toISOString(),
+    };
+
+    const { data, error } = await crearSeguimiento(datos);
+
+    if (error) {
+      // Error de unique constraint (reserva_id + etapa_id ya existe)
+      if (error.code === "23505") {
+        return res.status(400).json({
+          error: "Ya existe un seguimiento para esta reserva y etapa",
+        });
+      }
+      console.error("Error al crear seguimiento:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(201).json({
+      message: "Seguimiento creado exitosamente",
+      seguimiento: data,
+    });
+  } catch (error) {
+    console.error("Error al crear seguimiento:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener seguimientos de una reserva
+
+export const getSeguimientosPorReserva = async (req, res) => {
+  try {
+    const { reservaId } = req.params;
+
+    // Verificar que la reserva exista y permisos
+    const { data: reserva, error: errorReserva } = await obtenerReservaPorId(reservaId);
+    if (errorReserva || !reserva) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    if (req.usuario.rol !== "admin" && req.usuario.id !== reserva.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para ver el seguimiento de esta reserva" });
+    }
+
+    const { data, error } = await obtenerSeguimientosPorReserva(reservaId);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({ seguimientos: data });
+  } catch (error) {
+    console.error("Error al obtener seguimientos:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener un seguimiento por ID
+
+export const getSeguimientoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await obtenerSeguimientoPorId(id);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Seguimiento no encontrado" });
+    }
+
+    // Verificar permisos a través de la reserva
+    const { data: reserva } = await obtenerReservaPorId(data.reserva_id);
+    if (!reserva) {
+      return res.status(404).json({ error: "Reserva asociada no encontrada" });
+    }
+
+    if (req.usuario.rol !== "admin" && req.usuario.id !== reserva.usuario_id) {
+      return res.status(403).json({ error: "No tienes permiso para ver este seguimiento" });
+    }
+
+    return res.status(200).json({ seguimiento: data });
+  } catch (error) {
+    console.error("Error al obtener seguimiento:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Actualizar estado de un seguimiento
+
+export const updateSeguimiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!estado) {
+      return res.status(400).json({ error: "El campo estado es obligatorio" });
+    }
+
+    if (!ESTADOS.includes(estado)) {
+      return res.status(400).json({
+        error: `estado inválido. Valores permitidos: ${ESTADOS.join(", ")}`,
+      });
+    }
+
+    // Verificar que exista
+    const { data: seguimientoExistente, error: errorExistente } = await obtenerSeguimientoPorId(id);
+    if (errorExistente || !seguimientoExistente) {
+      return res.status(404).json({ error: "Seguimiento no encontrado" });
+    }
+
+    // Verificar permisos
+    const { data: reserva } = await obtenerReservaPorId(seguimientoExistente.reserva_id);
+    if (!reserva) {
+      return res.status(404).json({ error: "Reserva asociada no encontrada" });
+    }
+
+    // Solo admin puede cambiar el estado del seguimiento (puedes relajar esta regla)
+    if (req.usuario.rol !== "admin") {
+      return res.status(403).json({ error: "Solo un administrador puede actualizar el seguimiento" });
+    }
+
+    const campos = {
+      estado,
+      fecha_actualizacion: new Date().toISOString(),
+    };
+
+    const { data, error } = await actualizarSeguimiento(id, campos);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Seguimiento actualizado correctamente",
+      seguimiento: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar seguimiento:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Eliminar seguimiento (solo admin)
+
+export const deleteSeguimiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: seguimientoExistente, error: errorExistente } = await obtenerSeguimientoPorId(id);
+    if (errorExistente || !seguimientoExistente) {
+      return res.status(404).json({ error: "Seguimiento no encontrado" });
+    }
+
+    const { data, error } = await eliminarSeguimiento(id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Seguimiento eliminado correctamente",
+      seguimiento: data,
+    });
+  } catch (error) {
+    console.error("Error al eliminar seguimiento:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/models/acabadoModel.js">
+//----------------------------------------------------------//
+// Modelo de Acabados de Pintura - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos
+
+const CAMPOS_PUBLICOS = "id, nombre";
+
+//----------------------------------------------------------//
+// Crear acabado
+
+export const crearAcabado = async (nombre) => {
+  const { data, error } = await supabase
+    .from("acabados_pintura")
+    .insert({ nombre })
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener todos los acabados
+
+export const obtenerAcabados = async () => {
+  const { data, error } = await supabase
+    .from("acabados_pintura")
+    .select(CAMPOS_PUBLICOS)
+    .order("id", { ascending: true });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener acabado por ID
+
+export const obtenerAcabadoPorId = async (id) => {
+  const { data, error } = await supabase
+    .from("acabados_pintura")
+    .select(CAMPOS_PUBLICOS)
+    .eq("id", id)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Actualizar acabado
+
+export const actualizarAcabado = async (id, campos) => {
+  const { data, error } = await supabase
+    .from("acabados_pintura")
+    .update(campos)
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Eliminar acabado
+
+export const eliminarAcabado = async (id) => {
+  const { data, error } = await supabase
+    .from("acabados_pintura")
+    .delete()
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/etapaModel.js">
+//----------------------------------------------------------//
+// Modelo de Etapas de Proceso - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos
+
+const CAMPOS_PUBLICOS = "id, nombre, orden";
+
+//----------------------------------------------------------//
+// Crear etapa
+
+export const crearEtapa = async (nombre, orden) => {
+  const { data, error } = await supabase
+    .from("etapas_proceso")
+    .insert({ nombre, orden })
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener todas las etapas (ordenadas)
+
+export const obtenerEtapas = async () => {
+  const { data, error } = await supabase
+    .from("etapas_proceso")
+    .select(CAMPOS_PUBLICOS)
+    .order("orden", { ascending: true });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener etapa por ID
+
+export const obtenerEtapaPorId = async (id) => {
+  const { data, error } = await supabase
+    .from("etapas_proceso")
+    .select(CAMPOS_PUBLICOS)
+    .eq("id", id)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Actualizar etapa
+
+export const actualizarEtapa = async (id, campos) => {
+  const { data, error } = await supabase
+    .from("etapas_proceso")
+    .update(campos)
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Eliminar etapa
+
+export const eliminarEtapa = async (id) => {
+  const { data, error } = await supabase
+    .from("etapas_proceso")
+    .delete()
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/recuperacionModel.js">
+//----------------------------------------------------------//
+// Modelo de Recuperación de Contraseña - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos
+
+const CAMPOS_PUBLICOS = "id, usuario_id, codigo, usado, fecha_creacion, fecha_expira";
+
+//----------------------------------------------------------//
+// Crear código de recuperación (expira en 10 minutos)
+
+export const crearCodigoRecuperacion = async (usuario_id, codigo) => {
+  const fecha_expira = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  const { data, error } = await supabase
+    .from("recuperacion_password")
+    .insert({ usuario_id, codigo, fecha_expira })
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Buscar código válido (no usado y no expirado)
+
+export const obtenerCodigoValido = async (usuario_id, codigo) => {
+  const ahora = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("recuperacion_password")
+    .select(CAMPOS_PUBLICOS)
+    .eq("usuario_id", usuario_id)
+    .eq("codigo", codigo)
+    .eq("usado", false)
+    .gt("fecha_expira", ahora)
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Marcar código como usado
+
+export const marcarCodigoUsado = async (id) => {
+  const { data, error } = await supabase
+    .from("recuperacion_password")
+    .update({ usado: true })
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Invalidar códigos anteriores del usuario
+
+export const invalidarCodigosAnteriores = async (usuario_id) => {
+  const { data, error } = await supabase
+    .from("recuperacion_password")
+    .update({ usado: true })
+    .eq("usuario_id", usuario_id)
+    .eq("usado", false);
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/reservaModel.js">
+//----------------------------------------------------------//
+// Modelo de Reservas - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos
+
+const CAMPOS_PUBLICOS =
+  "id, codigo_reserva, usuario_id, vehiculo_id, servicio_id, paquete_id, tecnico_id, color_id, acabado_id, fecha_cita, hora_cita, subtotal, materiales, descuento, total, forma_pago, estado, fecha_creacion";
+
+//----------------------------------------------------------//
+// Crear nueva reserva
+
+export const crearReserva = async (datos) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .insert(datos)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener todas las reservas
+
+export const obtenerReservas = async () => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .select(CAMPOS_PUBLICOS)
+    .order("id", { ascending: false });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener reservas de un usuario
+
+export const obtenerReservasPorUsuario = async (usuarioId) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .select(CAMPOS_PUBLICOS)
+    .eq("usuario_id", usuarioId)
+    .order("id", { ascending: false });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener reserva por ID
+
+export const obtenerReservaPorId = async (id) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .select(CAMPOS_PUBLICOS)
+    .eq("id", id)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener reserva por código
+
+export const obtenerReservaPorCodigo = async (codigo) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .select(CAMPOS_PUBLICOS)
+    .eq("codigo_reserva", codigo)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Actualizar reserva
+
+export const actualizarReserva = async (id, campos) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .update(campos)
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Eliminar reserva
+
+export const eliminarReserva = async (id) => {
+  const { data, error } = await supabase
+    .from("reservas")
+    .delete()
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/models/seguimientoModel.js">
+//----------------------------------------------------------//
+// Modelo de Seguimiento de Reserva - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos
+
+const CAMPOS_PUBLICOS =
+  "id, reserva_id, etapa_id, estado, fecha_actualizacion";
+
+//----------------------------------------------------------//
+// Crear seguimiento
+
+export const crearSeguimiento = async (datos) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .insert(datos)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Crear varios seguimientos a la vez (útil al crear una reserva)
+
+export const crearSeguimientosMultiples = async (lista) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .insert(lista)
+    .select(CAMPOS_PUBLICOS);
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener todos los seguimientos de una reserva
+
+export const obtenerSeguimientosPorReserva = async (reservaId) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .select(CAMPOS_PUBLICOS)
+    .eq("reserva_id", reservaId)
+    .order("id", { ascending: true });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener un seguimiento por ID
+
+export const obtenerSeguimientoPorId = async (id) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .select(CAMPOS_PUBLICOS)
+    .eq("id", id)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Actualizar seguimiento
+
+export const actualizarSeguimiento = async (id, campos) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .update(campos)
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Eliminar seguimiento
+
+export const eliminarSeguimiento = async (id) => {
+  const { data, error } = await supabase
+    .from("seguimiento_reserva")
+    .delete()
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/routes/acabadoRoute.js">
+//----------------------------------------------------------//
+// Rutas de Acabados de Pintura
+
+import express from "express";
+import {
+  createAcabado,
+  getAcabados,
+  getAcabadoPorId,
+  updateAcabado,
+  deleteAcabado,
+} from "../controllers/acabadoController.js";
+import { verificarToken, soloAdmin } from "../middleware/authMinddleware.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Obtener todos los acabados (cualquier usuario autenticado)
+router.get("/obtener", verificarToken, getAcabados);
+
+//----------------------------------------------------------//
+// Obtener un acabado por ID
+router.get("/obtener/:id", verificarToken, getAcabadoPorId);
+
+//----------------------------------------------------------//
+// Crear acabado (solo admin)
+router.post("/crear", verificarToken, soloAdmin, createAcabado);
+
+//----------------------------------------------------------//
+// Actualizar acabado (solo admin)
+router.put("/actualizar/:id", verificarToken, soloAdmin, updateAcabado);
+
+//----------------------------------------------------------//
+// Eliminar acabado (solo admin)
+router.delete("/eliminar/:id", verificarToken, soloAdmin, deleteAcabado);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/etapaRoute.js">
+//----------------------------------------------------------//
+// Rutas de Etapas de Proceso
+
+import express from "express";
+import {
+  createEtapa,
+  getEtapas,
+  getEtapaPorId,
+  updateEtapa,
+  deleteEtapa,
+} from "../controllers/etapaController.js";
+import { verificarToken, soloAdmin } from "../middleware/authMinddleware.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Obtener todas las etapas
+router.get("/obtener", verificarToken, getEtapas);
+
+//----------------------------------------------------------//
+// Obtener una etapa por ID
+router.get("/obtener/:id", verificarToken, getEtapaPorId);
+
+//----------------------------------------------------------//
+// Crear etapa (solo admin)
+router.post("/crear", verificarToken, soloAdmin, createEtapa);
+
+//----------------------------------------------------------//
+// Actualizar etapa (solo admin)
+router.put("/actualizar/:id", verificarToken, soloAdmin, updateEtapa);
+
+//----------------------------------------------------------//
+// Eliminar etapa (solo admin)
+router.delete("/eliminar/:id", verificarToken, soloAdmin, deleteEtapa);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/recuperacionRoute.js">
+//----------------------------------------------------------//
+// Rutas de Recuperación de Contraseña
+
+import express from "express";
+import {
+  solicitarCodigo,
+  resetearContrasena,
+} from "../controllers/recuperacionController.js";
+
+const router = express.Router();
+
+router.post("/solicitar", solicitarCodigo);
+router.post("/resetear", resetearContrasena);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/reservaRoute.js">
+//----------------------------------------------------------//
+// Rutas de Reservas
+
+import express from "express";
+import {
+  createReserva,
+  getReservas,
+  getMisReservas,
+  getReservaPorId,
+  getReservaPorCodigo,
+  updateReserva,
+  deleteReserva,
+} from "../controllers/reservaController.js";
+import { verificarToken, soloAdmin } from "../middleware/authMinddleware.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Crear reserva (usuario autenticado)
+
+router.post("/crear", verificarToken, createReserva);
+
+//----------------------------------------------------------//
+// Obtener mis reservas (usuario autenticado)
+
+router.get("/mis-reservas", verificarToken, getMisReservas);
+
+//----------------------------------------------------------//
+// Obtener todas las reservas (solo admin)
+
+router.get("/obtener", verificarToken, soloAdmin, getReservas);
+
+//----------------------------------------------------------//
+// Obtener una reserva por ID
+
+router.get("/obtener/:id", verificarToken, getReservaPorId);
+
+//----------------------------------------------------------//
+// Obtener reserva por código
+
+router.get("/codigo/:codigo", verificarToken, getReservaPorCodigo);
+
+//----------------------------------------------------------//
+// Actualizar reserva
+
+router.put("/actualizar/:id", verificarToken, updateReserva);
+
+//----------------------------------------------------------//
+// Eliminar reserva (solo admin)
+
+router.delete("/eliminar/:id", verificarToken, soloAdmin, deleteReserva);
+
+export default router;
+</file>
+
+<file path="BACKEND/routes/seguimientoRoute.js">
+//----------------------------------------------------------//
+// Rutas de Seguimiento de Reserva
+
+import express from "express";
+import {
+  createSeguimiento,
+  getSeguimientosPorReserva,
+  getSeguimientoPorId,
+  updateSeguimiento,
+  deleteSeguimiento,
+} from "../controllers/seguimientoController.js";
+import { verificarToken, soloAdmin } from "../middleware/authMinddleware.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Crear seguimiento
+
+router.post("/crear", verificarToken, createSeguimiento);
+
+//----------------------------------------------------------//
+// Obtener seguimientos de una reserva
+
+router.get("/reserva/:reservaId", verificarToken, getSeguimientosPorReserva);
+
+//----------------------------------------------------------//
+// Obtener un seguimiento por ID
+
+router.get("/obtener/:id", verificarToken, getSeguimientoPorId);
+
+//----------------------------------------------------------//
+// Actualizar estado de un seguimiento (solo admin)
+
+router.put("/actualizar/:id", verificarToken, soloAdmin, updateSeguimiento);
+
+//----------------------------------------------------------//
+// Eliminar seguimiento (solo admin)
+
+router.delete("/eliminar/:id", verificarToken, soloAdmin, deleteSeguimiento);
+
+export default router;
+</file>
+
+<file path="BACKEND/controllers/userController.js">
+//----------------------------------------------------------//
+// Controlador de Usuarios
+
+import {
+  obtenerUsuarios,
+  obtenerUsuarioPorId,
+  actualizarUsuario,
+  eliminarUsuario,
+} from "../models/userModel.js";
+import bcrypt from "bcrypt";
+
+//----------------------------------------------------------//
+// Campos permitidos para actualización
+
+const CAMPOS_PERMITIDOS = [
+  "nombre",
+  "correo",
+  "telefono",
+  "localidad",
+  "contrasena",
+];
+
+//----------------------------------------------------------//
+// Obtener todos los usuarios (solo admin)
+
+export const getUsuarios = async (req, res) => {
+  try {
+    const { data, error } = await obtenerUsuarios();
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ usuarios: data });
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Obtener usuario por ID
+
+export const getUsuarioPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await obtenerUsuarioPorId(id);
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Un usuario normal solo puede ver su propio perfil
+    if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para ver este usuario" });
+    }
+
+    return res.status(200).json({ usuario: data });
+  } catch (error) {
+    console.error("Error al obtener usuario:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Actualizar usuario
+
+export const updateUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+
+    // Verificar que el usuario exista
+    const { data: usuarioExistente, error: errorExistente } =
+      await obtenerUsuarioPorId(id);
+    if (errorExistente || !usuarioExistente) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Solo admin o el propio usuario pueden actualizar
+    if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para actualizar este usuario" });
+    }
+
+    // Filtrar solo campos permitidos
+    const campos = {};
+    for (const campo of CAMPOS_PERMITIDOS) {
+      if (body[campo] !== undefined) {
+        campos[campo] = body[campo];
+      }
+    }
+
+    // Solo un admin puede cambiar el rol
+    if (body.rol !== undefined) {
+      if (req.usuario.rol !== "admin") {
+        return res
+          .status(403)
+          .json({ error: "No tienes permiso para cambiar el rol" });
+      }
+      campos.rol = body.rol;
+    }
+
+    if (Object.keys(campos).length === 0) {
+      return res
+        .status(400)
+        .json({ error: "No se enviaron campos válidos para actualizar" });
+    }
+
+    // Si viene contraseña, encriptarla
+    if (campos.contrasena) {
+      if (campos.contrasena.length < 6) {
+        return res
+          .status(400)
+          .json({ error: "La contraseña debe tener al menos 6 caracteres" });
+      }
+      campos.contrasena = await bcrypt.hash(campos.contrasena, 10);
+    }
+
+    const { data, error } = await actualizarUsuario(id, campos);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Usuario actualizado correctamente",
+      usuario: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Eliminar usuario (solo admin)
+
+export const deleteUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar que exista
+    const { data: usuarioExistente, error: errorExistente } =
+      await obtenerUsuarioPorId(id);
+    if (errorExistente || !usuarioExistente) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const { data, error } = await eliminarUsuario(id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({
+      message: "Usuario eliminado correctamente",
+      usuario: data,
+    });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/middleware/authMinddleware.js">
+//----------------------------------------------------------//
+// Middleware de Autenticación JWT
+
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+export const verificarToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Token no proporcionado" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.usuario = decoded; // { id, correo, rol }
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Token inválido o expirado" });
+  }
+};
+
+// Solo permite acceso a administradores
+export const soloAdmin = (req, res, next) => {
+  if (req.usuario?.rol !== "admin") {
+    return res
+      .status(403)
+      .json({ error: "Acceso denegado. Se requiere rol de administrador" });
+  }
+  next();
+};
+</file>
+
+<file path="BACKEND/models/userModel.js">
+//----------------------------------------------------------//
+// Modelo de Usuario - Operaciones con Supabase
+
+import { supabase } from "../config/supabase.js";
+
+//----------------------------------------------------------//
+// Campos públicos (nunca se devuelve la contraseña)
+
+const CAMPOS_PUBLICOS =
+  "id, nombre, correo, telefono, localidad, rol, created_at";
+
+//----------------------------------------------------------//
+// Crear nuevo usuario
+
+export const crearUsuario = async (
+  nombre,
+  correo,
+  contrasena,
+  rol = "usuario",
+) => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .insert({ nombre, correo, contrasena, rol })
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener todos los usuarios
+
+export const obtenerUsuarios = async () => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .select(CAMPOS_PUBLICOS)
+    .order("id", { ascending: true });
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Buscar usuario por correo (login) - incluye contraseña
+
+export const obtenerPorCorreo = async (correo) => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .select("*")
+    .eq("correo", correo)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Obtener usuario por ID
+
+export const obtenerUsuarioPorId = async (id) => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .select(CAMPOS_PUBLICOS)
+    .eq("id", id)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Actualizar usuario
+
+export const actualizarUsuario = async (id, campos) => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .update(campos)
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+
+//----------------------------------------------------------//
+// Eliminar usuario
+
+export const eliminarUsuario = async (id) => {
+  const { data, error } = await supabase
+    .from("usuario")
+    .delete()
+    .eq("id", id)
+    .select(CAMPOS_PUBLICOS)
+    .single();
+  return { data, error };
+};
+</file>
+
+<file path="BACKEND/routes/userRoute.js">
+//----------------------------------------------------------//
+// Rutas de Usuarios
+
+import express from "express";
+import {
+  getUsuarios,
+  getUsuarioPorId,
+  updateUsuario,
+  deleteUsuario,
+} from "../controllers/userController.js";
+import { verificarToken, soloAdmin } from "../middleware/authMinddleware.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Obtener todos los usuarios (solo admin)
+
+router.get("/obtener", verificarToken, soloAdmin, getUsuarios);
+
+//----------------------------------------------------------//
+// Obtener un usuario por ID
+
+router.get("/obtener/:id", verificarToken, getUsuarioPorId);
+
+//----------------------------------------------------------//
+// Actualizar un usuario
+
+router.put("/actualizar/:id", verificarToken, updateUsuario);
+
+//----------------------------------------------------------//
+// Eliminar un usuario (solo admin)
+
+router.delete("/eliminar/:id", verificarToken, soloAdmin, deleteUsuario);
+
+export default router;
+</file>
+
+<file path="BACKEND/controllers/authController.js">
+//----------------------------------------------------------//
+// Controlador de Autenticación
+
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { crearUsuario, obtenerPorCorreo } from "../models/userModel.js";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error("❌ JWT_SECRET no está definido en el archivo .env");
+  process.exit(1);
+}
+
+//----------------------------------------------------------//
+// Registro de usuario
+
+export const registro = async (req, res) => {
+  try {
+    const { nombre, correo, contrasena } = req.body;
+
+    if (!nombre || !correo || !contrasena) {
+      return res.status(400).json({
+        error: "Faltan campos obligatorios (nombre, correo, contrasena)",
+      });
+    }
+
+    if (contrasena.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
+    // Validación básica de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+      return res.status(400).json({ error: "El correo no es válido" });
+    }
+
+    const { data: usuarioExiste } = await obtenerPorCorreo(correo);
+    if (usuarioExiste) {
+      return res.status(400).json({ error: "El correo ya está registrado" });
+    }
+
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    const { data: nuevoUsuario, error } = await crearUsuario(
+      nombre,
+      correo,
+      hashedPassword,
+      "usuario",
+    );
+
+    if (error) {
+      console.error("Error en el registro:", error);
+      return res.status(500).json({ error: "Error al crear el usuario" });
+    }
+
+    return res.status(201).json({
+      message: "Usuario creado exitosamente",
+      usuario: nuevoUsuario,
+    });
+  } catch (error) {
+    console.error("Error en el registro:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+//----------------------------------------------------------//
+// Login de usuario
+
+export const login = async (req, res) => {
+  try {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+      return res
+        .status(400)
+        .json({ error: "Correo y contraseña son requeridos" });
+    }
+
+    const { data: usuario, error } = await obtenerPorCorreo(correo);
+    if (error || !usuario) {
+      return res.status(401).json({ error: "Credenciales incorrectas" });
+    }
+
+    const passwordValido = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordValido) {
+      return res.status(401).json({ error: "Credenciales incorrectas" });
+    }
+
+    const token = jwt.sign(
+      { id: usuario.id, correo: usuario.correo, rol: usuario.rol },
+      JWT_SECRET,
+      { expiresIn: "8h" },
+    );
+
+    return res.json({
+      message: "Login exitoso",
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        rol: usuario.rol,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error("Error en login:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+</file>
+
+<file path="BACKEND/routes/authRoute.js">
+//----------------------------------------------------------//
+// Rutas de Autenticación
+
+import express from "express";
+import { registro, login } from "../controllers/authController.js";
+
+const router = express.Router();
+
+//----------------------------------------------------------//
+// Registro de usuario
+
+router.post("/registro", registro);
+
+//----------------------------------------------------------//
+// Login de usuario
+
+router.post("/login", login);
+
+export default router;
+</file>
+
+<file path="BACKEND/.env">
+# Supabase
+SUPABASE_URL=https://frrluzcohystufchegoh.supabase.co
+SUPABASE_KEY=sb_publishable_q1fRI2aiECV6C4LiYJiFuQ_HMXChvog
+
+# JWT
+JWT_SECRET=ALCRIS_2026
+
+#APP PASWORD
+EMAIL_USER=alcris323@gmail.com
+EMAIL_PASS=yffpslemjfeaapzs
+
+# Puerto
+PORT=3000
+</file>
+
+<file path="BACKEND/package.json">
+{
+  "name": "alcris",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
+</file>
+
+<file path="BACKEND/config/supabase.js">
+//----------------------------------------------------------//
+// Configuración de Supabase
+//----------------------------------------------------------//
+import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
+
+//----------------------------------------------------------//
+// Variables de entorno
+//----------------------------------------------------------//
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+//----------------------------------------------------------//
+// Validación de variables de entorno
+//----------------------------------------------------------//
+if (!supabaseUrl || !supabaseKey) {
+  console.error(
+    "❌ Error: las variables de entorno SUPABASE_KEY y SUPABASE_URL son requeridas.",
+  );
+  process.exit(1);
+}
+
+//----------------------------------------------------------//
+// Creación del cliente de Supabase
+//----------------------------------------------------------//
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+//----------------------------------------------------------//
+// Función para confirmar la conexión
+//----------------------------------------------------------//
+export const conectaDB = () => {
+  console.log("...//_________________________________________//...");
+  console.log("✅ Conexión a Supabase establecida correctamente");
+};
+</file>
+
+<file path="README.md">
+# ALCRIS
+
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen)
+
+ALCRIS — Sistema para la gestión de un taller de latonería y pintura. Permite gestionar clientes, vehículos, presupuestos, órdenes de trabajo, inventario y facturación.
+
+## Tabla de contenidos
+- [Características](#características)
+- [Demo / Capturas](#demo--capturas)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Uso (desarrollo)](#uso-desarrollo)
+- [Configuración](#configuración)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Scripts útiles](#scripts-útiles)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
+- [Contacto](#contacto)
+- [Agradecimientos](#agradecimientos)
+
+## Características
+- Gestión de clientes y vehículos.
+- Creación y seguimiento de presupuestos y órdenes de trabajo.
+- Control de inventario (repuestos y pintura).
+- Generación de facturas y reportes.
+- Historial de trabajos y fotos asociadas.
+
+## Demo / Capturas
+Añadí capturas o GIFs en `docs/screenshots/`. Ejemplo de imagen:
+![Captura](docs/screenshots/ejemplo.png)
+
+## Requisitos
+- Node.js >= 16
+- npm o yarn
+- (Opcional) Base de datos: SQLite / PostgreSQL / MongoDB (configurable según implementación)
+
+## Instalación
+1. Clona el repositorio:
+   git clone https://github.com/JAHACARI/ALCRIS.git
+2. Entra al directorio:
+   cd ALCRIS
+3. Instala dependencias (ejemplo):
+   npm install
+   # Dependencias usadas en el proyecto (ejemplo):
+   npm install @supabase/ssr @supabase/supabase-js bcrypt bcryptjs cloudinary cors dotenv express jsonwebtoken multer multer-storage-cloudinary nodemailer
+
+4. Copia y configura variables de entorno:
+   cp .env.example .env
+   Edita `.env` con tus credenciales y ajustes.
+
+## Uso (desarrollo)
+- Iniciar en modo desarrollo:
+  npm run dev
+- Generar build de producción:
+  npm run build
+- Ejecutar servidor en producción:
+  npm start
+
+## Configuración
+Ejemplo mínimo de `.env`:
+PORT=3000
+DATABASE_URL=postgres://user:pass@localhost:5432/alcris
+JWT_SECRET=tu_secreto_aqui
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+
+Asegurate de añadir un `.env.example` con las variables necesarias.
+
+## Estructura del proyecto
+- /src — código fuente
+- /public — archivos estáticos
+- /docs — documentación y capturas
+- /tests — pruebas
+(Ajusta según la estructura real del repo)
+
+## Scripts útiles
+- npm run dev — desarrollo
+- npm run build — compilar
+- npm test — ejecutar pruebas
+- npm run lint — linters
+
+## Contribuir
+1. Abre un issue describiendo tu propuesta o bug.
+2. Crea una rama: `git checkout -b feat/nueva-funcionalidad`
+3. Haz commits pequeños y descriptivos.
+4. Envía un pull request explicando los cambios.
+
+Lee `CONTRIBUTING.md` si existe para normas más detalladas.
+
+## Licencia
+Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más detalles.
+
+## Contacto
+- Autores:
+  - Janier Hair (JAHACARI) — https://github.com/JAHACARI
+  - Joan Felipe — (añadir perfil/email)
+- Email: (opcional — añadir si querés)
+
+## Agradecimientos
+Gracias a las librerías y recursos usados (p. ej., Express, React, Sequelize). Añadí aquí referencias a proyectos y recursos que utilices.
+</file>
+
+<file path="BACKEND/index.js">
+//----------------------------------------------------------//
+// Servidor Principal - AlCRIS
+//----------------------------------------------------------//
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import routerAuth from "./routes/authRoute.js";
+import routerUser from "./routes/userRoute.js";
+import routerReserva from "./routes/reservaRoute.js";
+import routerSeguimiento from "./routes/seguimientoRoute.js";
+import routerAcabado from "./routes/acabadoRoute.js";
+import routerEtapa from "./routes/etapaRoute.js";
+import routerRecuperacion from "./routes/recuperacionRoute.js";
+import { conectaDB } from "./config/supabase.js";
+
+const app = express();
+
+//----------------------------------------------------------//
+// Middlewares globales
+//----------------------------------------------------------//
+app.use(cors());
+app.use(express.json());
+
+//----------------------------------------------------------//
+// Conexión a la base de datos
+//----------------------------------------------------------//
+conectaDB();
+
+//----------------------------------------------------------//
+// Rutas
+//----------------------------------------------------------//
+app.use("/auth", routerAuth);
+app.use("/usuarios", routerUser);
+app.use("/reservas", routerReserva);
+app.use("/seguimiento", routerSeguimiento);
+app.use("/acabados", routerAcabado);
+app.use("/etapas", routerEtapa);
+app.use("/recuperacion", routerRecuperacion);
+
+//----------------------------------------------------------//
+// Ruta inicial
+//----------------------------------------------------------//
+app.get("/", (req, res) => {
+  res.json({
+    mensaje: "Bienvenido al backend de AlCRIS latonería y pintura",
+    estado: "en línea",
+    version: "1.0.0",
+  });
+});
+
+//----------------------------------------------------------//
+// Manejo de rutas no encontradas
+//----------------------------------------------------------//
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Ruta no encontrada",
+    mensaje: "La ruta solicitada no existe en este servidor.",
+  });
+});
+
+//----------------------------------------------------------//
+// Configuración del puerto e inicio del servidor
+//----------------------------------------------------------//
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`http://localhost:${PORT}`);
+});
+</file>
+
+</files>

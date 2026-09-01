@@ -1,17 +1,17 @@
 //----------------------------------------------------------//
 // Modelo de Seguimiento de Reserva - Operaciones con Supabase
-//----------------------------------------------------------//
+
 import { supabase } from "../config/supabase.js";
 
 //----------------------------------------------------------//
 // Campos públicos
-//----------------------------------------------------------//
+
 const CAMPOS_PUBLICOS =
   "id, reserva_id, etapa_id, estado, fecha_actualizacion";
 
 //----------------------------------------------------------//
 // Crear seguimiento
-//----------------------------------------------------------//
+
 export const crearSeguimiento = async (datos) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")
@@ -23,7 +23,7 @@ export const crearSeguimiento = async (datos) => {
 
 //----------------------------------------------------------//
 // Crear varios seguimientos a la vez (útil al crear una reserva)
-//----------------------------------------------------------//
+
 export const crearSeguimientosMultiples = async (lista) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")
@@ -34,7 +34,7 @@ export const crearSeguimientosMultiples = async (lista) => {
 
 //----------------------------------------------------------//
 // Obtener todos los seguimientos de una reserva
-//----------------------------------------------------------//
+
 export const obtenerSeguimientosPorReserva = async (reservaId) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")
@@ -46,7 +46,7 @@ export const obtenerSeguimientosPorReserva = async (reservaId) => {
 
 //----------------------------------------------------------//
 // Obtener un seguimiento por ID
-//----------------------------------------------------------//
+
 export const obtenerSeguimientoPorId = async (id) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")
@@ -58,7 +58,7 @@ export const obtenerSeguimientoPorId = async (id) => {
 
 //----------------------------------------------------------//
 // Actualizar seguimiento
-//----------------------------------------------------------//
+
 export const actualizarSeguimiento = async (id, campos) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")
@@ -71,7 +71,7 @@ export const actualizarSeguimiento = async (id, campos) => {
 
 //----------------------------------------------------------//
 // Eliminar seguimiento
-//----------------------------------------------------------//
+
 export const eliminarSeguimiento = async (id) => {
   const { data, error } = await supabase
     .from("seguimiento_reserva")

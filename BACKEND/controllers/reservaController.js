@@ -1,6 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Reservas
-//----------------------------------------------------------//
+
 import {
   crearReserva,
   obtenerReservas,
@@ -13,13 +13,13 @@ import {
 
 //----------------------------------------------------------//
 // Valores permitidos (enums)
-//----------------------------------------------------------//
-const FORMAS_PAGO = ["efectivo", "tarjeta", "nequi"];
+
+const FORMAS_PAGO = ["efectivo", "transferencia"];
 const ESTADOS = ["pendiente", "confirmada", "en_proceso", "completada", "cancelada"];
 
 //----------------------------------------------------------//
 // Campos que se pueden actualizar libremente
-//----------------------------------------------------------//
+
 const CAMPOS_PERMITIDOS = [
   "vehiculo_id",
   "servicio_id",
@@ -38,7 +38,7 @@ const CAMPOS_PERMITIDOS = [
 
 //----------------------------------------------------------//
 // Generar código de reserva único (ej: RES-20260824-4831)
-//----------------------------------------------------------//
+
 const generarCodigoReserva = () => {
   const fecha = new Date();
   const año = fecha.getFullYear();
@@ -50,7 +50,7 @@ const generarCodigoReserva = () => {
 
 //----------------------------------------------------------//
 // Crear reserva
-//----------------------------------------------------------//
+
 export const createReserva = async (req, res) => {
   try {
     const body = req.body;
@@ -118,7 +118,7 @@ export const createReserva = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener todas las reservas (solo admin)
-//----------------------------------------------------------//
+
 export const getReservas = async (req, res) => {
   try {
     const { data, error } = await obtenerReservas();
@@ -134,7 +134,7 @@ export const getReservas = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener mis reservas (usuario autenticado)
-//----------------------------------------------------------//
+
 export const getMisReservas = async (req, res) => {
   try {
     const { data, error } = await obtenerReservasPorUsuario(req.usuario.id);
@@ -150,7 +150,7 @@ export const getMisReservas = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener reserva por ID
-//----------------------------------------------------------//
+
 export const getReservaPorId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -174,7 +174,7 @@ export const getReservaPorId = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener reserva por código
-//----------------------------------------------------------//
+
 export const getReservaPorCodigo = async (req, res) => {
   try {
     const { codigo } = req.params;
@@ -198,7 +198,7 @@ export const getReservaPorCodigo = async (req, res) => {
 
 //----------------------------------------------------------//
 // Actualizar reserva
-//----------------------------------------------------------//
+
 export const updateReserva = async (req, res) => {
   try {
     const { id } = req.params;
@@ -264,7 +264,7 @@ export const updateReserva = async (req, res) => {
 
 //----------------------------------------------------------//
 // Eliminar reserva (solo admin)
-//----------------------------------------------------------//
+
 export const deleteReserva = async (req, res) => {
   try {
     const { id } = req.params;
