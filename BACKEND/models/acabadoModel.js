@@ -1,13 +1,16 @@
 //----------------------------------------------------------//
 // Modelo de Acabados de Pintura - Operaciones con Supabase
+
 import { supabase } from "../config/supabase.js";
 
 //----------------------------------------------------------//
 // Campos públicos
+
 const CAMPOS_PUBLICOS = "id, nombre";
 
 //----------------------------------------------------------//
 // Crear acabado
+
 export const crearAcabado = async (nombre) => {
   const { data, error } = await supabase
     .from("acabados_pintura")
@@ -19,6 +22,7 @@ export const crearAcabado = async (nombre) => {
 
 //----------------------------------------------------------//
 // Obtener todos los acabados
+
 export const obtenerAcabados = async () => {
   const { data, error } = await supabase
     .from("acabados_pintura")
@@ -29,6 +33,7 @@ export const obtenerAcabados = async () => {
 
 //----------------------------------------------------------//
 // Obtener acabado por ID
+
 export const obtenerAcabadoPorId = async (id) => {
   const { data, error } = await supabase
     .from("acabados_pintura")
@@ -40,6 +45,7 @@ export const obtenerAcabadoPorId = async (id) => {
 
 //----------------------------------------------------------//
 // Actualizar acabado
+
 export const actualizarAcabado = async (id, campos) => {
   const { data, error } = await supabase
     .from("acabados_pintura")
@@ -52,6 +58,7 @@ export const actualizarAcabado = async (id, campos) => {
 
 //----------------------------------------------------------//
 // Eliminar acabado
+
 export const eliminarAcabado = async (id) => {
   const { data, error } = await supabase
     .from("acabados_pintura")

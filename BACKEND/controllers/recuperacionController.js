@@ -1,5 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Recuperación de Contraseña
+
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import {
@@ -12,6 +13,7 @@ import { obtenerPorCorreo, actualizarUsuario } from "../models/userModel.js";
 
 //----------------------------------------------------------//
 // Configurar nodemailer (Gmail)
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -22,12 +24,14 @@ const transporter = nodemailer.createTransport({
 
 //----------------------------------------------------------//
 // Generar código de 6 dígitos
+
 const generarCodigo = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 //----------------------------------------------------------//
 // Solicitar código
+
 export const solicitarCodigo = async (req, res) => {
   try {
     const { correo } = req.body;
@@ -84,6 +88,7 @@ export const solicitarCodigo = async (req, res) => {
 
 //----------------------------------------------------------//
 // Verificar código y cambiar contraseña
+
 export const resetearContrasena = async (req, res) => {
   try {
     const { correo, codigo, nueva_contrasena } = req.body;

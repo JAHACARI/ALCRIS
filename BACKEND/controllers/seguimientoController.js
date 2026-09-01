@@ -1,6 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Seguimiento de Reserva
-//----------------------------------------------------------//
+
 import {
   crearSeguimiento,
   crearSeguimientosMultiples,
@@ -13,12 +13,12 @@ import { obtenerReservaPorId } from "../models/reservaModel.js";
 
 //----------------------------------------------------------//
 // Estados permitidos
-//----------------------------------------------------------//
+
 const ESTADOS = ["pendiente", "en_curso", "completado"];
 
 //----------------------------------------------------------//
 // Crear un seguimiento
-//----------------------------------------------------------//
+
 export const createSeguimiento = async (req, res) => {
   try {
     const { reserva_id, etapa_id, estado } = req.body;
@@ -79,7 +79,7 @@ export const createSeguimiento = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener seguimientos de una reserva
-//----------------------------------------------------------//
+
 export const getSeguimientosPorReserva = async (req, res) => {
   try {
     const { reservaId } = req.params;
@@ -108,7 +108,7 @@ export const getSeguimientosPorReserva = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener un seguimiento por ID
-//----------------------------------------------------------//
+
 export const getSeguimientoPorId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -137,7 +137,7 @@ export const getSeguimientoPorId = async (req, res) => {
 
 //----------------------------------------------------------//
 // Actualizar estado de un seguimiento
-//----------------------------------------------------------//
+
 export const updateSeguimiento = async (req, res) => {
   try {
     const { id } = req.params;
@@ -192,7 +192,7 @@ export const updateSeguimiento = async (req, res) => {
 
 //----------------------------------------------------------//
 // Eliminar seguimiento (solo admin)
-//----------------------------------------------------------//
+
 export const deleteSeguimiento = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,5 +1,6 @@
 //----------------------------------------------------------//
 // Rutas de Acabados de Pintura
+
 import express from "express";
 import {
   createAcabado,

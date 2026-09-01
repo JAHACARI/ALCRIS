@@ -1,6 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Autenticación
-//----------------------------------------------------------//
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { crearUsuario, obtenerPorCorreo } from "../models/userModel.js";
@@ -14,7 +14,7 @@ if (!JWT_SECRET) {
 
 //----------------------------------------------------------//
 // Registro de usuario
-//----------------------------------------------------------//
+
 export const registro = async (req, res) => {
   try {
     const { nombre, correo, contrasena } = req.body;
@@ -67,7 +67,7 @@ export const registro = async (req, res) => {
 
 //----------------------------------------------------------//
 // Login de usuario
-//----------------------------------------------------------//
+
 export const login = async (req, res) => {
   try {
     const { correo, contrasena } = req.body;

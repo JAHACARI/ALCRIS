@@ -1,5 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Acabados de Pintura
+
 import {
   crearAcabado,
   obtenerAcabados,
@@ -10,6 +11,7 @@ import {
 
 //----------------------------------------------------------//
 // Crear acabado (solo admin)
+
 export const createAcabado = async (req, res) => {
   try {
     const { nombre } = req.body;
@@ -37,6 +39,7 @@ export const createAcabado = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener todos los acabados
+
 export const getAcabados = async (req, res) => {
   try {
     const { data, error } = await obtenerAcabados();
@@ -52,6 +55,7 @@ export const getAcabados = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener acabado por ID
+
 export const getAcabadoPorId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,6 +74,7 @@ export const getAcabadoPorId = async (req, res) => {
 
 //----------------------------------------------------------//
 // Actualizar acabado (solo admin)
+
 export const updateAcabado = async (req, res) => {
   try {
     const { id } = req.params;
@@ -101,6 +106,7 @@ export const updateAcabado = async (req, res) => {
 
 //----------------------------------------------------------//
 // Eliminar acabado (solo admin)
+
 export const deleteAcabado = async (req, res) => {
   try {
     const { id } = req.params;

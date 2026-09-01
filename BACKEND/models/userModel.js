@@ -1,17 +1,17 @@
 //----------------------------------------------------------//
 // Modelo de Usuario - Operaciones con Supabase
-//----------------------------------------------------------//
+
 import { supabase } from "../config/supabase.js";
 
 //----------------------------------------------------------//
 // Campos públicos (nunca se devuelve la contraseña)
-//----------------------------------------------------------//
+
 const CAMPOS_PUBLICOS =
   "id, nombre, correo, telefono, localidad, rol, created_at";
 
 //----------------------------------------------------------//
 // Crear nuevo usuario
-//----------------------------------------------------------//
+
 export const crearUsuario = async (
   nombre,
   correo,
@@ -28,7 +28,7 @@ export const crearUsuario = async (
 
 //----------------------------------------------------------//
 // Obtener todos los usuarios
-//----------------------------------------------------------//
+
 export const obtenerUsuarios = async () => {
   const { data, error } = await supabase
     .from("usuario")
@@ -39,7 +39,7 @@ export const obtenerUsuarios = async () => {
 
 //----------------------------------------------------------//
 // Buscar usuario por correo (login) - incluye contraseña
-//----------------------------------------------------------//
+
 export const obtenerPorCorreo = async (correo) => {
   const { data, error } = await supabase
     .from("usuario")
@@ -51,7 +51,7 @@ export const obtenerPorCorreo = async (correo) => {
 
 //----------------------------------------------------------//
 // Obtener usuario por ID
-//----------------------------------------------------------//
+
 export const obtenerUsuarioPorId = async (id) => {
   const { data, error } = await supabase
     .from("usuario")
@@ -63,7 +63,7 @@ export const obtenerUsuarioPorId = async (id) => {
 
 //----------------------------------------------------------//
 // Actualizar usuario
-//----------------------------------------------------------//
+
 export const actualizarUsuario = async (id, campos) => {
   const { data, error } = await supabase
     .from("usuario")
@@ -76,7 +76,7 @@ export const actualizarUsuario = async (id, campos) => {
 
 //----------------------------------------------------------//
 // Eliminar usuario
-//----------------------------------------------------------//
+
 export const eliminarUsuario = async (id) => {
   const { data, error } = await supabase
     .from("usuario")

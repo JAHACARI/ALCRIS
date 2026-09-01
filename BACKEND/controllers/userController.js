@@ -1,6 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Usuarios
-//----------------------------------------------------------//
+
 import {
   obtenerUsuarios,
   obtenerUsuarioPorId,
@@ -11,7 +11,7 @@ import bcrypt from "bcrypt";
 
 //----------------------------------------------------------//
 // Campos permitidos para actualización
-//----------------------------------------------------------//
+
 const CAMPOS_PERMITIDOS = [
   "nombre",
   "correo",
@@ -22,7 +22,7 @@ const CAMPOS_PERMITIDOS = [
 
 //----------------------------------------------------------//
 // Obtener todos los usuarios (solo admin)
-//----------------------------------------------------------//
+
 export const getUsuarios = async (req, res) => {
   try {
     const { data, error } = await obtenerUsuarios();
@@ -38,7 +38,7 @@ export const getUsuarios = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener usuario por ID
-//----------------------------------------------------------//
+
 export const getUsuarioPorId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +64,7 @@ export const getUsuarioPorId = async (req, res) => {
 
 //----------------------------------------------------------//
 // Actualizar usuario
-//----------------------------------------------------------//
+
 export const updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,7 +135,7 @@ export const updateUsuario = async (req, res) => {
 
 //----------------------------------------------------------//
 // Eliminar usuario (solo admin)
-//----------------------------------------------------------//
+
 export const deleteUsuario = async (req, res) => {
   try {
     const { id } = req.params;

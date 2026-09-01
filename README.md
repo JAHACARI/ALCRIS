@@ -96,5 +96,3 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más 
   - Joan Felipe — (añadir perfil/email)
 - Email: (opcional — añadir si querés)
 
-## Agradecimientos
-Gracias a las librerías y recursos usados (p. ej., Express, React, Sequelize). Añadí aquí referencias a proyectos y recursos que utilices.

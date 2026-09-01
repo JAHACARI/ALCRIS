@@ -1,5 +1,6 @@
 //----------------------------------------------------------//
 // Controlador de Etapas de Proceso
+
 import {
   crearEtapa,
   obtenerEtapas,
@@ -10,6 +11,7 @@ import {
 
 //----------------------------------------------------------//
 // Crear etapa (solo admin)
+
 export const createEtapa = async (req, res) => {
   try {
     const { nombre, orden } = req.body;
@@ -41,6 +43,7 @@ export const createEtapa = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener todas las etapas
+
 export const getEtapas = async (req, res) => {
   try {
     const { data, error } = await obtenerEtapas();
@@ -56,6 +59,7 @@ export const getEtapas = async (req, res) => {
 
 //----------------------------------------------------------//
 // Obtener etapa por ID
+
 export const getEtapaPorId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,6 +78,7 @@ export const getEtapaPorId = async (req, res) => {
 
 //----------------------------------------------------------//
 // Actualizar etapa (solo admin)
+
 export const updateEtapa = async (req, res) => {
   try {
     const { id } = req.params;
@@ -119,6 +124,7 @@ export const updateEtapa = async (req, res) => {
 
 //----------------------------------------------------------//
 // Eliminar etapa (solo admin)
+
 export const deleteEtapa = async (req, res) => {
   try {
     const { id } = req.params;
