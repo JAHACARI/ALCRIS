@@ -93,6 +93,6 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más 
 ## Contacto
 - Autores:
   - Janier Hair (JAHACARI) — https://github.com/JAHACARI
-  - Joan Felipe — (añadir perfil/email)
+  - Joan Felipe — https://github.com/johanfelipecastillo8-ui
 - Email: (opcional — añadir si querés)
 
