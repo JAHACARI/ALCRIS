@@ -15,7 +15,7 @@
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "bcrypt": "^6.0.0",
-    "bcryptjs": "3.0.3",
+    "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -23,8 +23,12 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
+<<<<<<< HEAD
     "nodemailer": "^9.0.3",
     "repomix": "^1.18.0"
+=======
+    "nodemailer": "^9.0.5"
+>>>>>>> main
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
