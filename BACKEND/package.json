@@ -5,13 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+
+  "start": "node index.js",
+  "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@getbrevo/brevo": "^6.0.3",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "bcrypt": "^6.0.0",
@@ -23,12 +26,8 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
-<<<<<<< HEAD
     "nodemailer": "^9.0.3",
     "repomix": "^1.18.0"
-=======
-    "nodemailer": "^9.0.5"
->>>>>>> main
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

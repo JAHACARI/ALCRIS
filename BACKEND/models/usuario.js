@@ -1,4 +1,4 @@
-//----------------------------------------------------------//
+// ----------------------------------------------------------//
 // Modelo de Usuario - Operaciones con Supabase
 //----------------------------------------------------------//
 import { supabase } from "../config/supabase.js";
@@ -10,42 +10,62 @@ const CAMPOS_PUBLICOS =
   "id, nombre, correo, telefono, localidad, rol, created_at";
 
 //----------------------------------------------------------//
-// Crear nuevo usuario
+// Crear el usuario
 //----------------------------------------------------------//
 export const crearUsuario = async (
-  nombre,
-  correo,
-  contrasena,
-  rol = "usuario",
+  nombre, 
+  correo, 
+  contrasena, 
+  rol, 
+  cedula, 
+  telefono, 
+  localidad, 
+  codigoverificacion, 
+  codigoverificacionexpiracion
 ) => {
+  console.log("========================================");
+  console.log(">>> SÍ ESTOY USANDO EL ARCHIVO CORRECTO <<<");
+  console.log("========================================");
+
   const { data, error } = await supabase
-    .from("usuario")
-    .insert({ nombre, correo, contrasena, rol })
-    .select(CAMPOS_PUBLICOS)
+    .from('usuario')
+    .insert({ 
+      nombre, 
+      correo, 
+      contrasena, 
+      rol, 
+      cedula,
+      telefono,
+      localidad,
+      isverified: false,
+      codigoverificacion, 
+      codigoverificacionexpiracion 
+    })
+    .select('id, nombre, correo, rol')
     .single();
+
   return { data, error };
 };
-
 //----------------------------------------------------------//
-// Obtener todos los usuarios
+// Obtener todos los usuarios (¡AGREGADA!)
 //----------------------------------------------------------//
 export const obtenerUsuarios = async () => {
   const { data, error } = await supabase
     .from("usuario")
-    .select(CAMPOS_PUBLICOS)
-    .order("id", { ascending: true });
+    .select(CAMPOS_PUBLICOS);
   return { data, error };
 };
 
+
 //----------------------------------------------------------//
-// Buscar usuario por correo (login) - incluye contraseña
+// Obtener usuario por Email (¡AGREGADA!)
 //----------------------------------------------------------//
-export const obtenerPorCorreo = async (correo) => {
+export const obtenerPorEmail = async (correo) => {
   const { data, error } = await supabase
     .from("usuario")
-    .select("*")
+    .select("*") // Se requiere todo para validar contraseña y verificación en login
     .eq("correo", correo)
-    .single();
+    .maybeSingle(); // Evita errores molestos si el usuario no existe aún
   return { data, error };
 };
 
