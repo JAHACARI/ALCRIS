@@ -10,17 +10,17 @@ import { enviarCodigoVerificacion } from '../services/emailservices.js';
 //JavaScrip// REGISTRO
 export const registro = async (req, res) => {
     try {
-        const { nombre, correo, contrasena,  telefono, localidad } = req.body;
+        const { nombre, email, contrasena,  telefono, localidad } = req.body;
 
         // 1. Validar que lleguen todos los campos requeridos
-        if (!nombre || !correo || !contrasena  || !telefono || !localidad) {
+        if (!nombre || !email || !contrasena  || !telefono || !localidad) {
             return res.status(400).json({
                 error: 'Todos los campos son requeridos: nombre, correo, contrasena,  telefono y localidad'
             });
         }
 
         // 2. Verificar si el email ya está registrado
-        const { data: usuarioExiste } = await obtenerPorEmail(correo);
+        const { data: usuarioExiste } = await obtenerPorEmail(email);
         if (usuarioExiste) {
             return res.status(400).json({
                 error: 'El email ya está registrado'
@@ -40,10 +40,9 @@ export const registro = async (req, res) => {
         // 6. Guardar en Supabase
         const { data: nuevoUsuario, error: errorCreacion } = await crearUsuario(
             nombre,
-            correo,
+            email,
             hashedcontrasena,
             rolPorDefecto,
-            cedula,
             telefono,
             localidad,
             codigoverificacion,
@@ -65,7 +64,7 @@ export const registro = async (req, res) => {
 }
 
         // 7. Enviar el correo con el código de 6 dígitos
-        const resultadoEnvio = await enviarCodigoVerificacion(correo, nombre, codigoverificacion);
+        const resultadoEnvio = await enviarCodigoVerificacion(email, nombre, codigoverificacion);
 
         // 8. Normalizar el objeto de usuario
         const usuarioCreado = Array.isArray(nuevoUsuario) ? nuevoUsuario[0] : nuevoUsuario;
@@ -73,7 +72,7 @@ export const registro = async (req, res) => {
         const usuarioRespuesta = {
             id: usuarioCreado.id,
             nombre: usuarioCreado.nombre,
-            correo: usuarioCreado.correo,
+            email: usuarioCreado.email,
             rol: usuarioCreado.rol
         };
 
@@ -81,14 +80,14 @@ export const registro = async (req, res) => {
         if (!resultadoEnvio || !resultadoEnvio.exito) {
             return res.status(201).json({
                 message: 'Tu cuenta fue creada, pero hubo un problema enviando el código de verificación a tu correo. Intenta registrarte de nuevo en unos minutos o contacta soporte.',
-                correoEnviado: false,
+                emailEnviado: false,
                 usuario: usuarioRespuesta
             });
         }
 
         return res.status(201).json({
             message: 'Usuario registrado con éxito. Hemos enviado un código de 6 dígitos a tu correo.',
-            correoEnviado: true,
+            emailEnviado: true,
             usuario: usuarioRespuesta
         });
 
@@ -103,15 +102,15 @@ export const registro = async (req, res) => {
 // LOGIN
 export const login = async (req, res) => {
     try {
-        const { correo, contrasena } = req.body;
+        const { email, contrasena } = req.body;
 
-        if (!correo || !contrasena) {
+        if (!email || !contrasena) {
             return res.status(400).json({
                 error: 'El correo y la contrasena son requeridos'
             });
         }
 
-        const { data: usuario } = await obtenerPorEmail(correo);
+        const { data: usuario } = await obtenerPorEmail(email);
         if (!usuario) {
             return res.status(401).json({
                 error: 'Credenciales incorrectas'
@@ -145,7 +144,7 @@ export const login = async (req, res) => {
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
-                correo: usuario.correo,
+                email: usuario.email,
                 rol: usuario.rol
             }
         });
@@ -161,9 +160,9 @@ export const login = async (req, res) => {
 // VERIFICAR CUENTA CON CODIGO DE 6 DIGITOS
 export const verificarCuenta = async (req, res) => {
     try {
-        const { correo, codigo } = req.body;
+        const { email, codigo } = req.body;
 
-        if (!correo || !codigo) {
+        if (!email || !codigo) {
             return res.status(400).json({
                 error: 'El email y el codigo de verificacion son requeridos'
             });
@@ -172,8 +171,8 @@ export const verificarCuenta = async (req, res) => {
         // 1. Buscar al usuario en Supabase
         const { data: usuario, error: errorUsuario } = await supabase
             .from('usuario')
-            .select('id, correo, isverified, codigoverificacion, codigoverificacionexpiracion')
-            .eq('correo', correo)
+            .select('id, email, isverified, codigoverificacion, codigoverificacionexpiracion')
+            .eq('email', email)
             .single();
 
         if (errorUsuario || !usuario) {

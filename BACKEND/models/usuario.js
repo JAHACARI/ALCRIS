@@ -39,7 +39,7 @@ export const crearUsuario = async (
       codigoverificacion, 
       codigoverificacionexpiracion 
     })
-    .select('id, nombre, correo, rol')
+    .select('id, nombre, email, rol')
     .single();
 
   return { data, error };
@@ -58,11 +58,11 @@ export const obtenerUsuarios = async () => {
 //----------------------------------------------------------//
 // Obtener usuario por Email (¡AGREGADA!)
 //----------------------------------------------------------//
-export const obtenerPorEmail = async (correo) => {
+export const obtenerPorEmail = async (email) => {
   const { data, error } = await supabase
     .from("usuario")
     .select("*") // Se requiere todo para validar contraseña y verificación en login
-    .eq("correo", correo)
+    .eq("email", email)
     .maybeSingle(); // Evita errores molestos si el usuario no existe aún
   return { data, error };
 };
