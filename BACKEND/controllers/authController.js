@@ -10,12 +10,12 @@ import { enviarCodigoVerificacion } from '../services/emailservices.js';
 //JavaScrip// REGISTRO
 export const registro = async (req, res) => {
     try {
-        const { nombre, correo, contrasena, cedula, telefono, localidad } = req.body;
+        const { nombre, correo, contrasena,  telefono, localidad } = req.body;
 
         // 1. Validar que lleguen todos los campos requeridos
-        if (!nombre || !correo || !contrasena || !cedula || !telefono || !localidad) {
+        if (!nombre || !correo || !contrasena  || !telefono || !localidad) {
             return res.status(400).json({
-                error: 'Todos los campos son requeridos: nombre, correo, contrasena, cedula, telefono y localidad'
+                error: 'Todos los campos son requeridos: nombre, correo, contrasena,  telefono y localidad'
             });
         }
 

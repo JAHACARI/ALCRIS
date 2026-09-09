@@ -11,6 +11,7 @@ import routerPaqueteservicios from "./routes/paqueteservicios.js"
 import routercateServicios from "./routes/cateservicios.js"
 import routerVehiculos from "./routes/vehiculos.js"
 import routercoloresral from "./routes/coloresral.js"
+import authRoutes from "./routes/auth.routes.js"
 import { conectaDB } from "./config/supabase.js";
 
 const app = express();
@@ -38,6 +39,7 @@ app.use("/cateservi", routercateServicios);
 app.use("/vehiculos", routerVehiculos);
 app.use("/coloresral", routercoloresral);
 app.use("/auth", routerAuth);
+app.use("/api/auth", authRoutes)
 
 app.post("/test-register", (req, res) => {
   res.json({ mensaje: "¡La ruta directa sí funciona!", recibido: req.body });

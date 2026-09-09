@@ -4,12 +4,16 @@
 import express from "express";
 import { registro, login } from "../controllers/authController.js";
 
+
 const router = express.Router();
 
 //----------------------------------------------------------//
 // Registro de usuario
 
 router.post("/registro", registro);
+
+// Endpoint: POST /api/auth/google
+
 
 //----------------------------------------------------------//
 // Login de usuario

@@ -7,17 +7,16 @@ import { supabase } from "../config/supabase.js";
 // Campos públicos (nunca se devuelve la contraseña)
 //----------------------------------------------------------//
 const CAMPOS_PUBLICOS =
-  "id, nombre, correo, telefono, localidad, rol, created_at";
+  "id, nombre, email, telefono, localidad, rol, created_at";
 
 //----------------------------------------------------------//
 // Crear el usuario
 //----------------------------------------------------------//
 export const crearUsuario = async (
   nombre, 
-  correo, 
+  email, 
   contrasena, 
   rol, 
-  cedula, 
   telefono, 
   localidad, 
   codigoverificacion, 
@@ -31,10 +30,9 @@ export const crearUsuario = async (
     .from('usuario')
     .insert({ 
       nombre, 
-      correo, 
+      email, 
       contrasena, 
       rol, 
-      cedula,
       telefono,
       localidad,
       isverified: false,
@@ -68,7 +66,26 @@ export const obtenerPorEmail = async (correo) => {
     .maybeSingle(); // Evita errores molestos si el usuario no existe aún
   return { data, error };
 };
+// 2. Función específica para los usuarios autenticados con Google
+export const crearUsuarioGoogle = async ({ nombre, email, googleId, avatar = null, rol = 'usuario' }) => {
+    const { data, error } = await supabase
+        .from('usuario')
+        .insert({
+            nombre,
+            email,
+            contrasena: null,           // No requiere contraseña
+            rol,
+            isverified: true,         // Google ya validó este correo
+            googleId,
+            avatar,
+            codigoverificacion: null,
+            codigoverificacionexpiracion: null
+        })
+        .select('id, nombre, correo, rol, avatar')
+        .single();
 
+    return { data, error };
+};
 //----------------------------------------------------------//
 // Obtener usuario por ID
 //----------------------------------------------------------//
@@ -105,4 +122,4 @@ export const eliminarUsuario = async (id) => {
     .select(CAMPOS_PUBLICOS)
     .single();
   return { data, error };
-};
+}; 
