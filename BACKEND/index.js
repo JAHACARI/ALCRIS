@@ -6,7 +6,6 @@ import routerusers from "./routes/userRoute.js"
 import routerAuth from "./routes/auth1Route.js"
 import routerdisponibilidad from "./routes/disponibilidad.js"
 import routertecnicos from "./routes/tecnicos.js";
-import routerServicios from "./routes/servicios.js"
 import routerPaqueteservicios from "./routes/paqueteservicios.js"
 import routercateServicios from "./routes/cateservicios.js"
 import routerVehiculos from "./routes/vehiculos.js"
@@ -32,7 +31,6 @@ conectaDB();
 //----------------------------------------------------------//
 app.use("/disponibilidad", routerdisponibilidad);
 app.use("/tecnicos", routertecnicos);
-app.use("/servicios", routerServicios);
 app.use("/user", routerusers);
 app.use("/paquete",routerPaqueteservicios);
 app.use("/cateservi", routercateServicios);
