@@ -34,7 +34,7 @@ export const enviarCodigoVerificacion = async (emailDestino, nombreDestino, codi
                         </span>
                     </div>
                     <p style="color: #888888; font-size: 12px; text-align: center; margin-top: 30px;">
-                        Si no creaste una cuenta en Mimos, puedes ignorar este correo.
+                        Si no creaste una cuenta en Alcris, puedes ignorar este correo.
                     </p>
                 </div>
             `

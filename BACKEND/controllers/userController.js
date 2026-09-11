@@ -6,7 +6,7 @@ import {
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,
-} from "../models/userModel.js";
+} from "../models/usuario.js";
 import bcrypt from "bcrypt";
 
 //----------------------------------------------------------//
@@ -29,7 +29,14 @@ export const getUsuarios = async (req, res) => {
     if (error) {
       return res.status(500).json({ error: error.message });
     }
-    return res.status(200).json({ usuarios: data });
+
+    // Ocultar contraseñas de la lista por seguridad
+    const usuariosSeguros = data.map(user => {
+      const { contrasena, ...resto } = user;
+      return resto;
+    });
+
+    return res.status(200).json({ usuarios: usuariosSeguros });
   } catch (error) {
     console.error("Error al obtener usuarios:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
@@ -48,12 +55,15 @@ export const getUsuarioPorId = async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Un usuario normal solo puede ver su propio perfil
-    if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
+    // CORRECCIÓN: Comparación segura usando String() para evitar errores num/string
+    if (req.usuario.rol !== "admin" && String(req.usuario.id) !== String(id)) {
       return res
         .status(403)
         .json({ error: "No tienes permiso para ver este usuario" });
     }
+
+    // CORRECCIÓN: Remover contraseña de la respuesta
+    if (data.contrasena) delete data.contrasena;
 
     return res.status(200).json({ usuario: data });
   } catch (error) {
@@ -77,8 +87,8 @@ export const updateUsuario = async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Solo admin o el propio usuario pueden actualizar
-    if (req.usuario.rol !== "admin" && req.usuario.id !== Number(id)) {
+    // CORRECCIÓN: Comparación segura usando String()
+    if (req.usuario.rol !== "admin" && String(req.usuario.id) !== String(id)) {
       return res
         .status(403)
         .json({ error: "No tienes permiso para actualizar este usuario" });
@@ -123,6 +133,9 @@ export const updateUsuario = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
+    // CORRECCIÓN: Remover contraseña de la respuesta final
+    if (data && data.contrasena) delete data.contrasena;
+
     return res.status(200).json({
       message: "Usuario actualizado correctamente",
       usuario: data,
@@ -151,6 +164,9 @@ export const deleteUsuario = async (req, res) => {
     if (error) {
       return res.status(500).json({ error: error.message });
     }
+
+    // CORRECCIÓN: Remover contraseña del objeto eliminado devuelto
+    if (data && data.contrasena) delete data.contrasena;
 
     return res.status(200).json({
       message: "Usuario eliminado correctamente",

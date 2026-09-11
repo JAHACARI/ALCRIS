@@ -222,7 +222,7 @@ export const verificarCuenta = async (req, res) => {
         }
 
         return res.status(200).json({
-            message: 'Cuenta verificada exitosamente. Ya puedes iniciar sesion en Mimos.'
+            message: 'Cuenta verificada exitosamente. Ya puedes iniciar sesion en Alcris.'
         });
 
     } catch (error) {

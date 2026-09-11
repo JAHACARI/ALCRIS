@@ -2,7 +2,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import routerusers from "./routes/user.js"
+import routerusers from "./routes/userRoute.js"
 import routerAuth from "./routes/auth1Route.js"
 import routerdisponibilidad from "./routes/disponibilidad.js"
 import routertecnicos from "./routes/tecnicos.js";
