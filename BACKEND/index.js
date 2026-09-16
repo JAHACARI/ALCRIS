@@ -1,116 +1,56 @@
-//----------------------------------------------------------//
-// Servidor Principal - AlCRIS
-
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { conectarDB } from "./config/supabase.js";
 
-// Rutas de autenticación y usuarios
-import routerAuth from "./routes/authRoute.js";
-import routerUser from "./routes/userRoute.js";
-import routerRecuperacion from "./routes/recuperacionRoute.js";
-
-// Rutas de negocio principal
-import routerReserva from "./routes/reservaRoute.js";
-import routerSeguimiento from "./routes/seguimientoRoute.js";
-import routerAcabado from "./routes/acabadoRoute.js";
-import routerEtapa from "./routes/etapaRoute.js";
-
-// Rutas de catálogos y soporte
-import routerCategorias from "./routes/cateservicios.js";
-import routerColores from "./routes/coloresral.js";
-import routerDisponibilidad from "./routes/disponibilidad.js";
-import routerPaquetes from "./routes/paqueteservicios.js";
-import routerServicios from "./routes/servicios.js";
-import routerTecnicos from "./routes/tecnicos.js";
-import routerVehiculos from "./routes/vehiculos.js";
-
-import { conectaDB } from "./config/supabase.js";
+import authRoutes from "./routes/auth/authRoutes.js";
+import usuarioRoutes from "./routes/usuario/usuarioRoutes.js";
+import vehiculoRoutes from "./routes/vehiculo/vehiculoRoutes.js";
+import servicioRoutes from "./routes/servicio/servicioRoutes.js";
+import tecnicoRoutes from "./routes/tecnico/tecnicoRoutes.js";
+import reservaRoutes from "./routes/reserva/reservaRoutes.js";
+import catalogoRoutes from "./routes/catalogo/catalogoRoutes.js";
+import chatRoutes from "./routes/chat/chatRoutes.js";
 
 const app = express();
 
-//----------------------------------------------------------//
-// Middlewares globales
-
+// ---------- Middlewares ----------
 app.use(cors());
 app.use(express.json());
 
-//----------------------------------------------------------//
-// Conexión a la base de datos
+// ---------- DB ----------
+conectarDB();
 
-conectaDB();
+// ---------- Rutas ----------
+app.use("/api/auth", authRoutes);
+app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/vehiculos", vehiculoRoutes);
+app.use("/api/servicios", servicioRoutes);
+app.use("/api/tecnicos", tecnicoRoutes);
+app.use("/api/reservas", reservaRoutes);
+app.use("/api", catalogoRoutes); // /api/colores y /api/acabados
+app.use("/api/chat", chatRoutes);
 
-//----------------------------------------------------------//
-// Rutas
-
-
-// Autenticación y usuarios
-app.use("/auth", routerAuth);
-app.use("/usuarios", routerUser);
-app.use("/recuperacion", routerRecuperacion);
-
-// Reservas y seguimiento
-app.use("/reservas", routerReserva);
-app.use("/seguimiento", routerSeguimiento);
-
-// Catálogos de pintura / proceso
-app.use("/acabados", routerAcabado);
-app.use("/etapas", routerEtapa);
-app.use("/colores-ral", routerColores);
-
-// Servicios y paquetes
-app.use("/servicios", routerServicios);
-app.use("/categorias-servicio", routerCategorias);
-app.use("/paquetes-servicio", routerPaquetes);
-
-// Técnicos, disponibilidad y vehículos
-app.use("/tecnicos", routerTecnicos);
-app.use("/disponibilidad", routerDisponibilidad);
-app.use("/vehiculos", routerVehiculos);
-
-//----------------------------------------------------------//
-// Ruta inicial
-
+// ---------- Ruta de bienvenida ----------
 app.get("/", (req, res) => {
   res.json({
-    mensaje: "Bienvenido al backend de AlCRIS latonería y pintura",
+    mensaje: "Bienvenido al backend de Alcris - Latonería y Pintura",
+    version: "2.1.0",
     estado: "en línea",
-    version: "1.1.0",
-    endpoints: {
-      auth: "/auth",
-      usuarios: "/usuarios",
-      recuperacion: "/recuperacion",
-      reservas: "/reservas",
-      seguimiento: "/seguimiento",
-      acabados: "/acabados",
-      etapas: "/etapas",
-      "colores-ral": "/colores-ral",
-      servicios: "/servicios",
-      "categorias-servicio": "/categorias-servicio",
-      "paquetes-servicio": "/paquetes-servicio",
-      tecnicos: "/tecnicos",
-      disponibilidad: "/disponibilidad",
-      vehiculos: "/vehiculos",
-    },
   });
 });
 
-//----------------------------------------------------------//
-// Manejo de rutas no encontradas
-
+// ---------- 404 ----------
 app.use((req, res) => {
   res.status(404).json({
     error: "Ruta no encontrada",
-    mensaje: "La ruta solicitada no existe en este servidor.",
+    mensaje: `La ruta ${req.method} ${req.path} no existe`,
   });
 });
 
-//----------------------------------------------------------//
-// Configuración del puerto e inicio del servidor
-
+// ---------- Iniciar servidor ----------
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-  console.log(`http://localhost:${PORT}`);
+  console.log(`🚀 Servidor Alcris corriendo en http://localhost:${PORT}`);
 });
