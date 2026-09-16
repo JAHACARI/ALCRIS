@@ -38,7 +38,7 @@ Cómo ejecutar (mínimo)
    ```bash
    git clone https://github.com/JAHACARI/ALCRIS.git
    cd ALCRIS
-   git checkout JANIER
+   git checkout "tu rama"
    ```
 2. Ve al directorio backend e instala dependencias:
    ```bash
