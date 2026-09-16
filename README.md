@@ -17,7 +17,6 @@ ALCRIS — Sistema para la gestión de un taller de latonería y pintura. Permit
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
 - [Contacto](#contacto)
-- [Agradecimientos](#agradecimientos)
 
 ## Características
 - Gestión de clientes y vehículos.
@@ -95,4 +94,3 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más 
   - Janier Hair (JAHACARI) — https://github.com/JAHACARI
   - Joan Felipe — https://github.com/johanfelipecastillo8-ui
 - Email: (opcional — añadir si querés)
-
