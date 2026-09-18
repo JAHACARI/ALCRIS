@@ -97,5 +97,3 @@ Contacto
 - Para dudas o detalles sobre rutas específicas, indícame qué módulo quieres que documente (por ejemplo: `auth`, `reserva` o `servicio`) y preparo una sección de endpoints con ejemplos de request/response.
 
 ---
-
-_He generado este README basándome en el contenido de la rama `JANIER`, inspeccionando `backend/index.js`, `package.json`, `.env.example`, `config/supabase.js`, `middleware/authMiddleware.js`, `services/emailService.js` y la estructura de carpetas `controllers/`, `models/` y `routes/`._
