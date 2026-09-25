@@ -9,7 +9,7 @@ class LoginCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D2C59),
+        color: const Color.fromARGB(255, 195, 205, 216),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(

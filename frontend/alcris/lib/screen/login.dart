@@ -1,3 +1,4 @@
+import 'package:alcris/screen/recuperarcontrase%C3%B1a.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/screen/servicio.dart';
 import 'package:alcris/screen/registro.dart';
@@ -21,19 +22,27 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> camposLogin = [
-      {'label': 'usuario o correo', 'hint': 'User Name',
-      'labelcolor': Colors.white},
       {
-        
+        'label': 'usuario o correo',
+        'hint': 'User Name',
+        'labelcolor': Colors.white,
+      },
+      {
         'label': 'contraseña',
         'hint': '********',
         'labelcolor': Colors.white,
         'obscure': _ocultarContrasena,
         'suffix': IconButton(
-          icon: Icon(_ocultarContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18, color: Colors.grey.shade600),
-          onPressed: () => setState(() => _ocultarContrasena = !_ocultarContrasena),
+          icon: Icon(
+            _ocultarContrasena
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            size: 18,
+            color: Colors.grey.shade600,
+          ),
+          onPressed: () =>
+              setState(() => _ocultarContrasena = !_ocultarContrasena),
         ),
-        
       },
     ];
 
@@ -47,31 +56,73 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 children: [
-                  const Text('Unete a nuestro mundo hoy', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B))),
+                  const Text(
+                    'Unete a nuestro mundo hoy',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  
+
                   LoginCard(
                     children: [
                       const Center(
-                        child: Text('LOGIN', style: TextStyle(color: Color(0xFFE94560), fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                        child: Text(
+                          'LOGIN',
+                          style: TextStyle(
+                            color: Color(0xFFE94560),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 20),
                       ...camposLogin.map((c) => CampoTexto(config: c)),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RecuperarScreen(),
+                            ),
+                          );
+                        },
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                        child: const Text('OLVIDASTE TU CONTRASEÑA?', style: TextStyle(color: Color(0xFFE94560), fontSize: 11, fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'OLVIDASTE TU CONTRASEÑA?',
+                          style: TextStyle(
+                            color: Color(0xFFE94560),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 12),
                       LoginBoton(
-                        onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PantallaServicios()), (route) => false),
+                        onPressed: () => Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PantallaServicios(),
+                          ),
+                          (route) => false,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       const LoginSeparador(),
                       const SizedBox(height: 18),
                       Row(
                         children: [
-                          Expanded(child: BotonSocial(icon: Icons.g_mobiledata_rounded, label: 'Google', iconColor: Colors.black87, onTap: () {})),
+                          Expanded(
+                            child: BotonSocial(
+                              icon: Icons.g_mobiledata_rounded,
+                              label: 'Google',
+                              iconColor: Colors.black87,
+                              onTap: () {},
+                            ),
+                          ),
                           const SizedBox(width: 12),
                         ],
                       ),
@@ -79,14 +130,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
                   TextButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistroScreen())),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegistroScreen(),
+                      ),
+                    ),
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: const TextSpan(
-                        style: TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF1E293B),
+                        ),
                         children: [
                           TextSpan(text: '¿No tienes cuenta?  '),
-                          TextSpan(text: 'Crea una', style: TextStyle(color: Color(0xFFE94560), fontWeight: FontWeight.bold)),
+                          TextSpan(
+                            text: 'Crea una',
+                            style: TextStyle(
+                              color: Color(0xFFE94560),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
