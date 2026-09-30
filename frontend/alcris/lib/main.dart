@@ -1,4 +1,4 @@
-import 'package:alcris/screen/principal.dart';
+import 'package:alcris/screen/carga.dart';
 import 'package:flutter/material.dart';
 
 void main() {

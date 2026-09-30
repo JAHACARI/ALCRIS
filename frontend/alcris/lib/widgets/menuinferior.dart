@@ -14,12 +14,11 @@ class _MenuInferiorState extends State<MenuInferior> {
   // Guardamos el índice sobre el que está el mouse (-1 = ninguno)
   int _hoveredIndex = -1;
 
+  // Lista de 4 elementos oficiales tras remover "Inicio"
   static const List<Map<String, dynamic>> _items = [
-    {'icon': Icons.home_filled, 'label': 'Inicio'},
     {'icon': Icons.person_rounded, 'label': 'Perfil'},
     {'icon': Icons.assignment_rounded, 'label': 'Servicios'},
     {'icon': Icons.smart_toy_outlined, 'label': 'Chat'},
-    {'icon': Icons.settings_outlined, 'label': 'Config'},
   ];
 
   @override

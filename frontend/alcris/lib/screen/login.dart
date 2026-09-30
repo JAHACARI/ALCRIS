@@ -1,14 +1,15 @@
-import 'package:alcris/screen/recuperarcontrase%C3%B1a.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/screen/servicio.dart';
-import 'package:alcris/screen/registro.dart';
-// Importamos de manera limpia todos tus componentes de la carpeta widgets
+import 'package:alcris/screen/verificarcuenta.dart';
 import 'package:alcris/widgets/cabeceraregistro.dart';
-import 'package:alcris/widgets/camposdetexto.dart';
-import 'package:alcris/widgets/login/botonsocial.dart';
-import 'package:alcris/widgets/login/botonlogin.dart';
-import 'package:alcris/widgets/login/logincard.dart';
-import 'package:alcris/widgets/login/loginseparador.dart';
+
+// Importación de los nuevos componentes modulares aislados
+import 'package:alcris/widgets/login/bloquesocial.dart';
+import 'package:alcris/widgets/login/enlaceregistro.dart';
+import 'package:alcris/widgets/login/formulariologin.dart';
+
+// Capa de infraestructura
+import 'package:alcris/services/api3_verifycuenta.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,19 +20,95 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _ocultarContrasena = true;
 
+  // Controladores de búfer para inyección y captura de texto
+  final TextEditingController _correoController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final ApiService _apiService = ApiService();
+
+  @override
+  void dispose() {
+    _correoController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Pipeline asíncrono para la verificación de credenciales en Node.js
+  Future<void> _procesarLogin() async {
+    final correo = _correoController.text.trim();
+    final password = _passwordController.text;
+
+    if (correo.isEmpty || password.isEmpty) {
+      _mostrarAlerta('Por favor, ingresa tu correo y contraseña.');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: Colors.redAccent),
+      ),
+    );
+
+    try {
+      final respuesta = await _apiService.iniciarSesion(
+        email: correo,
+        contrasena: password,
+      );
+
+      if (mounted) Navigator.pop(context);
+
+      _mostrarAlerta(respuesta['message'] ?? '¡Login exitoso!');
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const PantallaServicios()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      
+      final String mensajeError = e.toString().replaceAll('Exception: ', '');
+
+      // Redirección forzada hacia la verificación si el backend responde con error de activación (403)
+      if (mensajeError.contains('verificar') || mensajeError.contains('403')) {
+        _mostrarAlerta('Debes verificar tu cuenta primero.');
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerificarCuentaScreen(email: correo),
+            ),
+          );
+        }
+      } else {
+        _mostrarAlerta(mensajeError);
+      }
+    }
+  }
+
+  void _mostrarAlerta(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> camposLogin = [
       {
         'label': 'usuario o correo',
-        'hint': 'User Name',
+        'hint': 'CORREO@gmail.com',
         'labelcolor': Colors.white,
+        'controller': _correoController,
       },
       {
         'label': 'contraseña',
         'hint': '********',
         'labelcolor': Colors.white,
         'obscure': _ocultarContrasena,
+        'controller': _passwordController,
         'suffix': IconButton(
           icon: Icon(
             _ocultarContrasena
@@ -40,8 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
             size: 18,
             color: Colors.grey.shade600,
           ),
-          onPressed: () =>
-              setState(() => _ocultarContrasena = !_ocultarContrasena),
+          onPressed: () => setState(() => _ocultarContrasena = !_ocultarContrasena),
         ),
       },
     ];
@@ -58,104 +134,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text(
                     'Unete a nuestro mundo hoy',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B),
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                   ),
                   const SizedBox(height: 20),
-
-                  LoginCard(
-                    children: [
-                      const Center(
-                        child: Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            color: Color(0xFFE94560),
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ...camposLogin.map((c) => CampoTexto(config: c)),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RecuperarScreen(),
-                            ),
-                          );
-                        },
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                        child: const Text(
-                          'OLVIDASTE TU CONTRASEÑA?',
-                          style: TextStyle(
-                            color: Color(0xFFE94560),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      LoginBoton(
-                        onPressed: () => Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PantallaServicios(),
-                          ),
-                          (route) => false,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const LoginSeparador(),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: BotonSocial(
-                              icon: Icons.g_mobiledata_rounded,
-                              label: 'Google',
-                              iconColor: Colors.black87,
-                              onTap: () {},
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                        ],
-                      ),
-                    ],
+                  
+                  // Componente 1: Bloque de Inputs y acciones de credenciales
+                  FormularioLogin(
+                    campos: camposLogin,
+                    onLoginPressed: _procesarLogin,
+                  ),
+                  
+                  // Componente 2: Separador e inicios alternativos (Oauth2)
+                  BloqueSocial(
+                    onGoogleTap: () {},
                   ),
                   const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegistroScreen(),
-                      ),
-                    ),
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF1E293B),
-                        ),
-                        children: [
-                          TextSpan(text: '¿No tienes cuenta?  '),
-                          TextSpan(
-                            text: 'Crea una',
-                            style: TextStyle(
-                              color: Color(0xFFE94560),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  
+                  // Componente 3: Enlace plano inferior
+                  const EnlaceRegistro(),
                 ],
               ),
             ),
