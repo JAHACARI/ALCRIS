@@ -1,16 +1,10 @@
 import 'dart:developer';
-
 import 'package:alcris/screen/servicio.dart';
 import 'package:alcris/widgets/botonsiguiente.dart';
 import 'package:alcris/widgets/tarjetalogo.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/core/themes/colors.dart';
 import 'package:alcris/screen/registro.dart';
-
-// Importamos nuestros nuevos componentes modulares
-import 'package:alcris/widgets/botonsiguiente.dart';
-import 'package:alcris/widgets/tarjetalogo.dart';
-
 class Principal extends StatefulWidget {
   const Principal({super.key});
 
