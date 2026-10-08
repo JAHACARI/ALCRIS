@@ -15,6 +15,7 @@ class ResumenReservaScreen extends StatefulWidget {
 
 class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
   final int _currentIndex = 1; // Ajustado al índice de Servicios para tu barra de 4 ítems
+  // ignore: unused_field
   String _metodoPagoSeleccionado = 'Efectivo';
 
   @override

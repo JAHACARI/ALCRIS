@@ -1,4 +1,3 @@
-import 'package:alcris/widgets/recuperar%20contrase%C3%B1a/tarjetarecuperar.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/recuperar contraseña/tarjetarecuperar.dart';
 

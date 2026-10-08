@@ -30,7 +30,14 @@ class FormularioLogin extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        ...campos.map((c) => CampoTexto(config: c)),
+        ...campos.map((c) {
+          final campo = Map<String, dynamic>.from(c);
+          campo['controller'] ??= TextEditingController();
+          return CampoTexto(
+            config: campo,
+            controller: campo['controller'] as TextEditingController,
+          );
+        }),
         TextButton(
           onPressed: () {
             Navigator.push(

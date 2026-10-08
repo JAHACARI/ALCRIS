@@ -23,7 +23,9 @@ class FormularioRegistro extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ...campos.map((c) => CampoTexto(config: c)),
+          ...campos.map(
+            (c) => CampoTexto(config: c, controller: c['controller']),
+          ),
           Row(
             children: [
               Checkbox(
