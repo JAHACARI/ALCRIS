@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:alcris/screen/servicio.dart';
 import 'package:alcris/screen/verificarcuenta.dart';
+// IMPORTANTE: Asegúrate de importar la pantalla de tu administrador aquí si está en otro archivo
+// import 'package:alcris/screen/admin_screen.dart'; 
+
 import 'package:alcris/widgets/cabeceraregistro.dart';
 
 // Importación de los nuevos componentes modulares aislados
@@ -62,11 +65,24 @@ class _LoginScreenState extends State<LoginScreen> {
       _mostrarAlerta(respuesta['message'] ?? '¡Login exitoso!');
 
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const PantallaServicios()),
-          (route) => false,
-        );
+        // 1. Extraemos el rol que devuelve tu backend en el JSON (ajusta si es 'rol' o 'role')
+        final String rol = respuesta['rol'] ?? 'usuario';
+
+        // 2. Evaluamos el rol para decidir la redirección con pushAndRemoveUntil
+        if (rol == 'admin') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            // REEMPLAZA 'PantallaServicios()' por el Widget real de tu panel de Administrador si es diferente
+            MaterialPageRoute(builder: (context) => const PantallaServicios()), 
+            (route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const PantallaServicios()),
+            (route) => false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) Navigator.pop(context);

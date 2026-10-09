@@ -12,7 +12,7 @@ class Alcris extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Principal()),
+      home: Scaffold(body: AlcrisSplashScreen()),
     );
   }
 }

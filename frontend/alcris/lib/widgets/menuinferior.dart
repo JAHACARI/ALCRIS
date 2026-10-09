@@ -16,6 +16,7 @@ class _MenuInferiorState extends State<MenuInferior> {
 
   // Lista de 4 elementos oficiales tras remover "Inicio"
   static const List<Map<String, dynamic>> _items = [
+    {'icon': Icons.home_outlined, 'label': 'Inicio'},
     {'icon': Icons.person_rounded, 'label': 'Perfil'},
     {'icon': Icons.assignment_rounded, 'label': 'Servicios'},
     {'icon': Icons.smart_toy_outlined, 'label': 'Chat'},

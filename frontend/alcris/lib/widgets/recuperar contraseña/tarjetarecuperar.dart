@@ -24,7 +24,7 @@ class _TarjetaRecuperarState extends State<TarjetaRecuperar> {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim());
   }
 
-  void _procesarEnvio() async {
+   void _procesarEnvio() async {
     final emailIngresado = _emailController.text.trim(); 
 
     if (emailIngresado.isEmpty || !_esCorreoValido(emailIngresado)) {
@@ -48,9 +48,12 @@ class _TarjetaRecuperarState extends State<TarjetaRecuperar> {
         SnackBar(backgroundColor: Colors.green, content: Text(resultado['mensaje'])),
       );
       
+      // CAMBIO AQUÍ: Enviamos el correo ingresado a la pantalla de restablecer
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const RestablecerScreen()),
+        MaterialPageRoute(
+          builder: (context) => RestablecerScreen(emailUsuario: emailIngresado),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +61,6 @@ class _TarjetaRecuperarState extends State<TarjetaRecuperar> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Container(

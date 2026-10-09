@@ -142,12 +142,12 @@ class _RegistroScreenState extends State<RegistroScreen> {
         'controller': _correoController,
       },
       {
-        'label': 'Teléfono celular', // 👈 NUEVO CAMPOS EN UI
+        'label': 'Teléfono celular', 
         'hint': 'Ej: 3123456789',
         'controller': _telefonoController,
       },
       {
-        'label': 'Localidad / Ciudad', // 👈 NUEVO CAMPOS EN UI
+        'label': 'Ciudad / Departamento', 
         'hint': 'Tu ubicación actual...',
         'controller': _localidadController,
       },

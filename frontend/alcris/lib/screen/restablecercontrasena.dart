@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/recuperar contraseña/tarjetarestablecer.dart';
 
 class RestablecerScreen extends StatelessWidget {
-  const RestablecerScreen({super.key});
+  // 1. Añadimos la variable obligatoria en el constructor
+  final String emailUsuario;
+
+  const RestablecerScreen({super.key, required this.emailUsuario});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,8 @@ class RestablecerScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 80),
-              const TarjetaRestablecer(),
+              // 2. Le heredamos el correo directamente a la tarjeta interna
+              TarjetaRestablecer(emailUsuario: emailUsuario),
             ],
           ),
         ),

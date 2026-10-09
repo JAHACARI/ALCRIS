@@ -15,12 +15,26 @@ class ApiService {
 
       final decodedResponse = jsonDecode(response.body);
 
+      // Si todo sale bien (status 200 o 201)
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return {'exito': true, 'mensaje': decodedResponse['message'] ?? 'Código enviado'};
+        return {
+          'exito': true, 
+          // Si tu backend exitoso devuelve 'message', lo lee aquí
+          'mensaje': decodedResponse['message'] ?? 'Código enviado con éxito.'
+        };
       }
-      return {'exito': false, 'mensaje': decodedResponse['message'] ?? 'El correo no existe'};
+      
+      // SOLUCIÓN: Si falla, tu backend de Node.js envía la propiedad 'error'
+      return {
+        'exito': false, 
+        'mensaje': decodedResponse['error'] ?? decodedResponse['message'] ?? 'Ocurrió un error en el servidor.'
+      };
+      
     } catch (e) {
-      return {'exito': false, 'mensaje': 'Error de red: No se pudo conectar al servidor'};
+      return {
+        'exito': false, 
+        'mensaje': 'Error de red: No se pudo conectar al servidor'
+      };
     }
   }
 }
