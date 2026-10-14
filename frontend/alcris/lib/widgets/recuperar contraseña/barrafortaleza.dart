@@ -76,7 +76,7 @@ class _BarraFortalezaState extends State<BarraFortaleza> {
                 boxShadow: [
                   if (estaEnfocado || tieneTexto)
                     BoxShadow(
-                      color: const Color(0xFFE94560).withOpacity(0.15),
+                      color: const Color.fromARGB(255, 77, 43, 49).withOpacity(0.8),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),

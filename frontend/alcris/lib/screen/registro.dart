@@ -111,12 +111,16 @@ class _RegistroScreenState extends State<RegistroScreen> {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (context) => VerificarCuentaScreen(
+              email: _correoController.text.trim(),
+            ),
+          ),
           (route) => false,
         );
       }
     } catch (e) {
-      // Gestión y encapsulamiento de excepciones controladas del servidor
+      // Gestión y encapsulamiento de excepciones controladas del servidor 
       if (mounted) Navigator.pop(context);
       _mostrarAlerta(e.toString().replaceAll('Exception: ', ''));
     }

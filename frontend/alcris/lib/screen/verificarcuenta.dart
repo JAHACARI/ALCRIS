@@ -83,7 +83,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Verificar Cuenta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFC0392B),
+        backgroundColor: const Color.fromARGB(225, 8, 157, 243),
         elevation: 0,
         centerTitle: true,
       ),
@@ -136,7 +136,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
               child: ElevatedButton(
                 onPressed: _estaCargando ? null : _enviarVerificacion,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC0392B),
+                  backgroundColor:  Colors.redAccent,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: _estaCargando

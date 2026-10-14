@@ -126,10 +126,16 @@ class ApiService {
       if (respuesta.statusCode == 200) {
         return datosJson;
       } else {
-        throw Exception(datosJson['error'] ?? 'Código incorrecto o expirado.');
+        // Al lanzar un FormatException o una excepción específica, 
+        // puedes identificarla en el catch.
+        throw FormatException(datosJson['error'] ?? 'Código incorrecto o expirado.');
       }
+    } on FormatException catch (e) {
+      // Aquí caen únicamente los errores enviados y controlados por el servidor
+      throw Exception(e.message);
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      // Aquí caen los errores reales de red (SocketException, timeout, etc.)
+      throw Exception('Error de conexión. Inténtalo de nuevo.');
     }
   }
 
