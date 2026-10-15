@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.0.10
   http: ^1.6.0
 
 dev_dependencies:
@@ -21,4 +22,4 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/images/logo_alcris.svg
+    - assets/images/logo.svg

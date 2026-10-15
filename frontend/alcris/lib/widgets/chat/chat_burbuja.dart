@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Mensaje individual (estructura de la guía SENA + estilo oscuro Alcris).
 class ChatBurbuja extends StatelessWidget {
   final String texto;
   final bool esUsuario;
@@ -10,7 +11,9 @@ class ChatBurbuja extends StatelessWidget {
     required this.esUsuario,
   });
 
-  static const Color _azulAlcris = Color(0xFF0055A5);
+  static const Color _fondoBot = Color(0xFF1A2744);
+  static const Color _fondoUsuario = Color(0xFF5C33FF);
+  static const Color _textoClaro = Color(0xFFE2E8F0);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,7 @@ class ChatBurbuja extends StatelessWidget {
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         decoration: BoxDecoration(
-          color: esUsuario ? _azulAlcris : const Color(0xFFF1F3F4),
+          color: esUsuario ? _fondoUsuario : _fondoBot,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -33,8 +36,8 @@ class ChatBurbuja extends StatelessWidget {
         ),
         child: Text(
           texto,
-          style: TextStyle(
-            color: esUsuario ? Colors.white : Colors.black87,
+          style: const TextStyle(
+            color: _textoClaro,
             fontSize: 14,
             height: 1.35,
           ),

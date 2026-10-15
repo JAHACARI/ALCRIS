@@ -1,20 +1,7 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:alcris/services/api_config.dart' as shared;
 
 class ApiConfig {
-  static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:3000/api';
-    }
-    try {
-      if (Platform.isAndroid) {
-        return 'http://10.0.2.2:3000/api';
-      }
-    } catch (_) {
-      // Platform no disponible en algunos entornos
-    }
-    return 'http://localhost:3000/api';
-  }
+  static String get baseUrl => shared.ApiConfig.baseUrl;
 
   static Map<String, String> get headers => {
         'Content-Type': 'application/json',

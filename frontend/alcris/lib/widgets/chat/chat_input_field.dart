@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Caja de texto + botón enviar (estructura guía + estilo oscuro).
 class ChatInputField extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onEnviar;
@@ -12,7 +13,9 @@ class ChatInputField extends StatelessWidget {
     required this.cargando,
   });
 
-  static const Color _azulAlcris = Color(0xFF0055A5);
+  static const Color _fondoCampo = Color(0xFF1A2744);
+  static const Color _bordeCampo = Color(0xFF2A3A5C);
+  static const Color _moradoEnviar = Color(0xFF5C33FF);
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +26,19 @@ class ChatInputField extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
+                color: _fondoCampo,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.black12),
+                border: Border.all(color: _bordeCampo),
               ),
               child: TextField(
                 controller: controller,
                 enabled: !cargando,
                 textInputAction: TextInputAction.send,
+                style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 14),
+                cursorColor: _moradoEnviar,
                 decoration: const InputDecoration(
-                  hintText: 'Pregunta por servicios, precios, citas...',
-                  hintStyle: TextStyle(color: Colors.black38, fontSize: 13),
+                  hintText: 'Escribe un mensaje...',
+                  hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 13),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16,
@@ -48,10 +53,12 @@ class ChatInputField extends StatelessWidget {
           IconButton(
             onPressed: cargando ? null : onEnviar,
             style: IconButton.styleFrom(
-              backgroundColor: _azulAlcris,
+              backgroundColor: cargando
+                  ? const Color(0xFF334155)
+                  : _moradoEnviar,
               foregroundColor: Colors.white,
               shape: const CircleBorder(),
-              disabledBackgroundColor: Colors.grey.shade300,
+              disabledBackgroundColor: const Color(0xFF334155),
             ),
             icon: const Icon(Icons.send_rounded, size: 20),
           ),

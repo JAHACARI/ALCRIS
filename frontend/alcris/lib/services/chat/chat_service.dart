@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
 
+/// Única pieza que habla con el backend (como en la guía SENA).
 class ChatService {
   static String get _chatUrl => '${ApiConfig.baseUrl}/chat';
 
@@ -15,8 +16,7 @@ class ChatService {
         headers: ApiConfig.headers,
         body: jsonEncode({
           'mensaje': mensaje,
-          'sesionId':
-              sesionId ??
+          'sesionId': sesionId ??
               'alcris_cliente_${DateTime.now().millisecondsSinceEpoch}',
         }),
       );
