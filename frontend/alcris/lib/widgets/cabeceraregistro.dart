@@ -2,37 +2,140 @@ import 'package:flutter/material.dart';
 
 class CabeceraRegistro extends StatelessWidget {
   final String titulo;
+
   const CabeceraRegistro({super.key, required this.titulo});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      height: 170,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF003366), Color(0xFF0055A5)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+          // Combinación de colores para un degradado profundo y moderno
+          colors: [
+            Color(0xFF0F2B48),
+            Color(0xFF0A1E36),
+            Color(0xFF051224),
+          ],
+          stops: [0.0, 0.5, 1.0], // Distribución suave del degradado
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
-      padding: const EdgeInsets.only(top: 50, bottom: 20),
-      child: Column(
+      child: Stack(
         children: [
-          // Logo Oficial centrado en la parte superior
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.asset('assets/images/logo.jpg', width: 85, height: 85, fit: BoxFit.contain),
+          // 1. Logotipo de fondo con degradado de opacidad (difuminado en el fondo)
+          Positioned(
+            right: -15,
+            top: -10,
+            bottom: -10,
+            child: ShaderMask(
+              // Este ShaderMask hace que el logo se desvanezca hacia la izquierda
+              shaderCallback: (rect) {
+                return const LinearGradient(
+                  colors: [Colors.transparent, Colors.white],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ).createShader(rect);
+              },
+              blendMode: BlendMode.dstIn,
+              child: Opacity(
+                opacity: 0.12, // Controla qué tan sutil se ve el logo de fondo
+                child: Image.asset(
+                  'assets/images/logo.jpg',
+                  width: 190,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          // Título de la pantalla (Crear Cuenta)
-          Text(
-            titulo,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              shadows: [Shadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 2))],
+          
+          // 2. Contenido Principal (Icono + Textos)
+          Padding(
+            padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 40.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Contenedor del Icono con efecto de cristal (Glassmorphism sutil)
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    // Degradado interno del recuadro del icono
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.12),
+                        Colors.white.withOpacity(0.04),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.18),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.lock_outline,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 18),
+                
+                // Bloque de Textos
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Etiqueta de estado/registro en verde
+                      Row(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF00E676),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Crea tu cuenta',
+                            style: TextStyle(
+                              color: Color(0xFF00E676),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
