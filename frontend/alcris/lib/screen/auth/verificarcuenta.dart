@@ -136,7 +136,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
               child: ElevatedButton(
                 onPressed: _estaCargando ? null : _enviarVerificacion,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC0392B),
+                  backgroundColor: const Color.fromARGB(255, 35, 117, 211),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: _estaCargando
