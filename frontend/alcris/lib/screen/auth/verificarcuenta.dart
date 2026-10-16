@@ -83,7 +83,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Verificar Cuenta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFC0392B),
+        backgroundColor: const Color.fromARGB(255, 48, 145, 209),
         elevation: 0,
         centerTitle: true,
       ),

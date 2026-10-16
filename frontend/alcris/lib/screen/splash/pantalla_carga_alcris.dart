@@ -3,6 +3,7 @@ import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/themes/colors.dart';
+import 'package:alcris/screen/auth/registro.dart';
 
 class PantallaCargaAlcris extends StatefulWidget {
   const PantallaCargaAlcris({super.key});
@@ -43,7 +44,7 @@ class _PantallaCargaAlcrisState extends State<PantallaCargaAlcris>
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const PantallaServicios(),
+              const RegistroScreen(),
           transitionDuration: const Duration(milliseconds: 600),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/recuperar_contrasena/tarjetarecuperar.dart';
+import 'package:alcris/widgets/recuperar contraseña/tarjetarecuperar.dart';
 
 class RecuperarScreen extends StatelessWidget {
   const RecuperarScreen({super.key});

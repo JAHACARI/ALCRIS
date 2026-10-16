@@ -111,7 +111,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (context) => VerificarCuentaScreen(
+              email: _correoController.text.trim(),
+            ),
+          ),
           (route) => false,
         );
       }
