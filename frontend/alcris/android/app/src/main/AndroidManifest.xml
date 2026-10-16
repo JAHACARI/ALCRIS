@@ -1,8 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. PERMISO DE INTERNET ADICIONADO AQUÍ -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="alcris"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- 2. TRÁFICO HTTP PERMITIDO ADICIONADO AQUÍ -->
+        android:usesCleartextTraffic="true"
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
