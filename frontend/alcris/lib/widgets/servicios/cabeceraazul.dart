@@ -1,81 +1,188 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CabeceraAzul extends StatelessWidget {
+class CabeceraPremium extends StatelessWidget {
   final String titulo;
-  const CabeceraAzul({super.key, required this.titulo});
+
+  const CabeceraPremium({super.key, required this.titulo});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF003366), Color(0xFF0055A5)],
-          begin: Alignment.topCenter,
-        ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 1. Contenedor Principal (Cabecera con bordes inferiores redondeados)
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF0F2B48), Color(0xFF0A1E36), Color(0xFF051224)],
+              stops: [0.0, 0.5, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+
+          ),
+          padding: const EdgeInsets.only(
+            top: 60,
+            left: 24,
+            right: 24,
+            bottom: 24,
+          ),
+          child: Stack(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
+              // Logotipo de fondo con degradado de opacidad (Fondo JPG sutil)
+              Positioned(
+                right: -40,
+                top: -10,
+                bottom: -10,
+                child: ShaderMask(
+                  shaderCallback: (rect) {
+                    return const LinearGradient(
+                      colors: [Colors.transparent, Colors.white],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ).createShader(rect);
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Opacity(
+                    opacity: 0.12,
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
+                      width: 190,
+                      fit: BoxFit.contain,
                     ),
-                    child: const Icon(Icons.card_travel, color: Colors.white),
                   ),
-                  const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ),
+
+              // Contenido Principal (Fila Superior de Identidad + Título Inferior)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Alcris',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Taller automotriz',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      Row(
+                        children: [
+                          // Contenedor del Icono con efecto de cristal (Glassmorphism)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.12),
+                                  Colors.white.withOpacity(0.04),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.18),
+                                width: 1.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.lock_outline,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          // Bloque de Textos del Taller
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Alcris',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Etiqueta de estado/registro en verde
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF00E676),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Crea tu cuenta',
+                                    style: TextStyle(
+                                      color: Color(0xFF00E676),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
+                  const SizedBox(height: 28),
+                  // Texto Dinámico Principal (Título)
+                  Text(
+                    titulo,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
                 ],
-              ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: SvgPicture.asset(
-                  'assets/images/logo.svg',
-                  width: 84,
-                  height: 84,
-                  fit: BoxFit.contain,
-                ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          Text(
-            titulo,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
+        ),
+
+        // 2. Línea de Degradado + Sombra Inferior de Flotado (Ajustada a la curvatura)
+        Container(
+          height: 4,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 12,
+          ), // Margen sutil para estilizar la división redondeada
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Colors.transparent,
+                Color.fromARGB(255, 230, 8, 0),
+                Color.fromARGB(255, 240, 105, 105),
+                Color.fromARGB(255, 230, 0, 0),
+                Colors.transparent,
+              ],
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

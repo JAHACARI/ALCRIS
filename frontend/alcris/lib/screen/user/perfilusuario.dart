@@ -22,7 +22,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       backgroundColor: const Color(0xFFF7F9FC),
       body: Column(
         children: [
-          const CabeceraAzul(titulo: 'PERFIL'),
+          const CabeceraPremium(titulo: 'PERFIL'),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),

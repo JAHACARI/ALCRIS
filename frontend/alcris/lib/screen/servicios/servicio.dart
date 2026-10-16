@@ -88,7 +88,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       body: Column(
         children: [
           // El chat tiene su propia cabecera oscura; no mostrar CabeceraAzul
-          if (!esChat) CabeceraAzul(titulo: titulos[_currentIndex]),
+          if (!esChat) CabeceraPremium(titulo: titulos[_currentIndex]),
           Expanded(
             child: IndexedStack(
               index: _currentIndex,
