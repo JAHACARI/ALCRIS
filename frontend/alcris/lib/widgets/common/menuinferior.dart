@@ -16,7 +16,6 @@ class _MenuInferiorState extends State<MenuInferior> {
 
   // Lista de 4 elementos oficiales tras remover "Inicio"
   static const List<Map<String, dynamic>> _items = [
-    
     {'icon': Icons.person_rounded, 'label': 'Perfil'},
     {'icon': Icons.assignment_rounded, 'label': 'Servicios'},
     {'icon': Icons.smart_toy_outlined, 'label': 'Chat'},
@@ -53,7 +52,7 @@ class _MenuInferiorState extends State<MenuInferior> {
                 _items[index]['icon'],
                 color: isSelected 
                     ? const Color(0xFF0055A5) 
-                    : (isHovered ? const Color(0xFF0055A5).withOpacity(0.7) : Colors.grey),
+                    : (isHovered ? const Color(0xFF0055A5).withValues(alpha: 0.7) : Colors.grey),
               ),
             ),
           ),

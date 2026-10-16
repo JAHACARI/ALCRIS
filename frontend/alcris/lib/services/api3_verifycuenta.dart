@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:alcris/services/api_config.dart';
 
 class ApiService {
-  // IP correcta para el emulador de Android apuntando al puerto 3000 de tu Express
-  static const String baseUrl = "http://10.0.2.2:3000/api";
+  static String get baseUrl => ApiConfig.baseUrl;
 
   // ---------- CATÁLOGO DE SERVICIOS ----------
   Future<List<dynamic>> obtenerServicios() async {
@@ -15,19 +15,19 @@ class ApiService {
       if (respuesta.statusCode == 200) {
         final String cuerpoDecodificado = utf8.decode(respuesta.bodyBytes);
         final Map<String, dynamic> datosJson = json.decode(cuerpoDecodificado);
-
+        
         if (datosJson.containsKey('servicios')) {
           return datosJson['servicios'] as List<dynamic>;
-        }
+        } 
         if (datosJson.containsKey('data')) {
           return datosJson['data'] as List<dynamic>;
         }
 
         final valorLista = datosJson.values.firstWhere(
-          (value) => value is List,
+          (value) => value is List, 
           orElse: () => [],
         );
-
+        
         return valorLista as List<dynamic>;
       } else {
         throw Exception("Error del servidor: ${respuesta.statusCode}");
@@ -43,29 +43,29 @@ class ApiService {
     required String email,
     required String contrasena,
     required String telefono,
-    required String localidad,
+    required String localidad, 
   }) async {
     final url = Uri.parse('$baseUrl/auth/registro');
 
     try {
       final respuesta = await http.post(
         url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
         body: json.encode({
           'nombre': nombre,
           'email': email,
           'contrasena': contrasena,
-          'telefono': telefono,
-          'localidad': localidad,
+          'telefono': telefono,   
+          'localidad': localidad, 
         }),
       );
 
-      final Map<String, dynamic> datosJson = json.decode(
-        utf8.decode(respuesta.bodyBytes),
-      );
+      final Map<String, dynamic> datosJson = json.decode(utf8.decode(respuesta.bodyBytes));
 
       if (respuesta.statusCode == 201 || respuesta.statusCode == 200) {
-        return datosJson;
+        return datosJson; 
       } else {
         throw Exception(datosJson['error'] ?? 'Error al registrar el usuario');
       }
@@ -79,26 +79,26 @@ class ApiService {
     required String email,
     required String contrasena,
   }) async {
-    final url = Uri.parse('$baseUrl/auth/login');
+    final url = Uri.parse('$baseUrl/auth/login'); 
 
     try {
       final respuesta = await http.post(
         url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: json.encode({'email': email, 'contrasena': contrasena}),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'email': email,
+          'contrasena': contrasena,
+        }),
       );
 
-      final Map<String, dynamic> datosJson = json.decode(
-        utf8.decode(respuesta.bodyBytes),
-      );
+      final Map<String, dynamic> datosJson = json.decode(utf8.decode(respuesta.bodyBytes));
 
       if (respuesta.statusCode == 200) {
-        return datosJson;
+        return datosJson; 
       } else {
-        throw Exception(
-          datosJson['error'] ??
-              'Error ${respuesta.statusCode}: No se pudo iniciar sesión',
-        );
+        throw Exception(datosJson['error'] ?? 'Error ${respuesta.statusCode}: No se pudo iniciar sesión');
       }
     } catch (e) {
       throw Exception('No se pudo conectar al servidor: $e');
@@ -110,7 +110,7 @@ class ApiService {
     required String email,
     required String codigo,
   }) async {
-    final url = Uri.parse('$baseUrl/auth/verificar');
+    final url = Uri.parse('$baseUrl/auth/verificar'); 
 
     try {
       final respuesta = await http.post(
@@ -119,23 +119,15 @@ class ApiService {
         body: json.encode({'email': email, 'codigo': codigo}),
       );
 
-      final Map<String, dynamic> datosJson = json.decode(
-        utf8.decode(respuesta.bodyBytes),
-      );
+      final Map<String, dynamic> datosJson = json.decode(utf8.decode(respuesta.bodyBytes));
 
       if (respuesta.statusCode == 200) {
         return datosJson;
       } else {
-        // Al lanzar un FormatException o una excepción específica, 
-        // puedes identificarla en el catch.
-        throw FormatException(datosJson['error'] ?? 'Código incorrecto o expirado.');
+        throw Exception(datosJson['error'] ?? 'Código incorrecto o expirado.');
       }
-    } on FormatException catch (e) {
-      // Aquí caen únicamente los errores enviados y controlados por el servidor
-      throw Exception(e.message);
     } catch (e) {
-      // Aquí caen los errores reales de red (SocketException, timeout, etc.)
-      throw Exception('Error de conexión. Inténtalo de nuevo.');
+      throw Exception('Error de conexión: $e');
     }
   }
 
@@ -143,7 +135,7 @@ class ApiService {
   Future<Map<String, dynamic>> reenviarCodigoVerificacion({
     required String email,
   }) async {
-    final url = Uri.parse('$baseUrl/auth/reenviar-codigo');
+    final url = Uri.parse('$baseUrl/auth/reenviar-codigo'); 
 
     try {
       final respuesta = await http.post(
@@ -152,9 +144,7 @@ class ApiService {
         body: json.encode({'email': email}),
       );
 
-      final Map<String, dynamic> datosJson = json.decode(
-        utf8.decode(respuesta.bodyBytes),
-      );
+      final Map<String, dynamic> datosJson = json.decode(utf8.decode(respuesta.bodyBytes));
 
       if (respuesta.statusCode == 200) {
         return datosJson;
@@ -166,4 +156,3 @@ class ApiService {
     }
   }
 }
-

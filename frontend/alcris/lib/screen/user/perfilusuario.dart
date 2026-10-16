@@ -1,7 +1,7 @@
-import 'package:alcris/screen/servicio.dart';
+import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/servicios/cabeceraazul.dart';
-import 'package:alcris/widgets/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinferior.dart';
 import 'package:alcris/widgets/perfil/tarjetaestadistica.dart';
 // Nuevos widgets importados
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
@@ -67,7 +67,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8, offset: const Offset(0, 4))
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 8, offset: const Offset(0, 4))
                       ],
                     ),
                     child: ElevatedButton(

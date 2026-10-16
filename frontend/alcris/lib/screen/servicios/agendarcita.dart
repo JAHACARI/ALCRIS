@@ -1,4 +1,4 @@
-import 'package:alcris/screen/resumenreserva.dart';
+import 'package:alcris/screen/servicios/resumenreserva.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/paquete/cabecera.dart';
 import 'package:alcris/widgets/datosreserva/calendario.dart';
@@ -14,7 +14,6 @@ class AgendarCitaScreen extends StatefulWidget {
 }
 
 class _AgendarCitaScreenState extends State<AgendarCitaScreen> {
-  final int _currentIndex = 2; // "Servicios" seleccionado en tu barra inferior
   String _fechaSeleccionada = '11 de Julio, 2026';
   String _horaSeleccionadaString = '8:00 AM';
   @override
@@ -91,7 +90,7 @@ class _AgendarCitaScreenState extends State<AgendarCitaScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),

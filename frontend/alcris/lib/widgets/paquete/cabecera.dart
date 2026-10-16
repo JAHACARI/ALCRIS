@@ -32,7 +32,7 @@ class CabeceraDetalle extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.15),
+              backgroundColor: Colors.white.withValues(alpha: 0.15),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -40,7 +40,7 @@ class CabeceraDetalle extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icono, color: Colors.white70, size: 20),
@@ -58,7 +58,7 @@ class CabeceraDetalle extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitulo,
-            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
           ),
         ],
       ),

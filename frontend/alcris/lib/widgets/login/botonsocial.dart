@@ -36,7 +36,7 @@ class _BotonSocialState extends State<BotonSocial> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: _isHovered ? Colors.black.withOpacity(0.12) : Colors.black.withOpacity(0.04),
+              color: _isHovered ? Colors.black.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.04),
               blurRadius: _isHovered ? 8 : 4,
               offset: _isHovered ? const Offset(0, 4) : const Offset(0, 2),
             ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/camposdetexto.dart';
+import 'package:alcris/widgets/common/camposdetexto.dart';
 import 'package:alcris/widgets/login/botonlogin.dart';
 import 'package:alcris/widgets/login/logincard.dart';
-import 'package:alcris/screen/recuperarcontrase%C3%B1a.dart';
+import 'package:alcris/screen/auth/recuperar_contrasena.dart';
 
 class FormularioLogin extends StatelessWidget {
   final List<Map<String, dynamic>> campos;
@@ -30,14 +30,7 @@ class FormularioLogin extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        ...campos.map((c) {
-          final campo = Map<String, dynamic>.from(c);
-          campo['controller'] ??= TextEditingController();
-          return CampoTexto(
-            config: campo,
-            controller: campo['controller'] as TextEditingController,
-          );
-        }),
+        ...campos.map((c) => CampoTexto(config: c)),
         TextButton(
           onPressed: () {
             Navigator.push(

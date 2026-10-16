@@ -1,10 +1,7 @@
+import 'package:alcris/screen/auth/verificarcuenta.dart';
+import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
-import 'package:alcris/screen/servicio.dart';
-import 'package:alcris/screen/verificarcuenta.dart';
-// IMPORTANTE: Asegúrate de importar la pantalla de tu administrador aquí si está en otro archivo
-// import 'package:alcris/screen/admin_screen.dart'; 
-
-import 'package:alcris/widgets/cabeceraregistro.dart';
+import 'package:alcris/widgets/common/cabeceraregistro.dart';
 
 // Importación de los nuevos componentes modulares aislados
 import 'package:alcris/widgets/login/bloquesocial.dart';

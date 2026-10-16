@@ -26,7 +26,7 @@ class _SelectorCalendarioState extends State<SelectorCalendario> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 24, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 24, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
@@ -71,7 +71,7 @@ class _SelectorCalendarioState extends State<SelectorCalendario> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: isSelected ? const LinearGradient(colors: [Color(0xFFE94560), Color(0xFFC0392B)], begin: Alignment.topCenter, end: Alignment.bottomCenter) : null,
-                      boxShadow: [if (isSelected) BoxShadow(color: const Color(0xFFE94560).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
+                      boxShadow: [if (isSelected) BoxShadow(color: const Color(0xFFE94560).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
                     ),
                     child: Center(
                       child: Text('$diaActual', style: TextStyle(color: isSelected ? Colors.white : const Color(0xFF1E293B), fontSize: 14, fontWeight: isSelected ? FontWeight.bold : FontWeight.w600)),

@@ -55,7 +55,7 @@ class _SelectorHorasState extends State<SelectorHoras> {
               boxShadow: [
                 if (isSelected)
                   BoxShadow(
-                    color: const Color(0xFFE94560).withOpacity(0.2),
+                    color: const Color(0xFFE94560).withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),

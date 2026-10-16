@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/screen/login.dart';
+import 'package:alcris/screen/auth/login.dart';
 
 class EnlaceLogin extends StatelessWidget {
   const EnlaceLogin({super.key});

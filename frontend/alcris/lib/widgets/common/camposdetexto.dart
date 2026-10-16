@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CampoTexto extends StatelessWidget {
   final Map<String, dynamic> config;
 
-  const CampoTexto({super.key, required this.config, required TextEditingController controller});
+  const CampoTexto({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {

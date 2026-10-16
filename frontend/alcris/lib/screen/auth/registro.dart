@@ -1,7 +1,7 @@
-import 'package:alcris/screen/verificarcuenta.dart';
+import 'package:alcris/screen/auth/verificarcuenta.dart';
 import 'package:flutter/material.dart';
-import 'package:alcris/screen/login.dart';
-import 'package:alcris/widgets/cabeceraregistro.dart';
+import 'package:alcris/screen/auth/login.dart';
+import 'package:alcris/widgets/common/cabeceraregistro.dart';
 
 // Importación de los componentes modulares en archivos independientes
 import 'package:alcris/widgets/registro/botoncrear.dart';
@@ -120,7 +120,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         );
       }
     } catch (e) {
-      // Gestión y encapsulamiento de excepciones controladas del servidor 
+      // Gestión y encapsulamiento de excepciones controladas del servidor
       if (mounted) Navigator.pop(context);
       _mostrarAlerta(e.toString().replaceAll('Exception: ', ''));
     }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/resumenreserva/desglocecostos.dart';
 import 'package:alcris/widgets/resumenreserva/detallereserva.dart';
 import 'package:alcris/widgets/resumenreserva/formasdepago.dart';
-import 'package:alcris/widgets/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinferior.dart';
 
 class ResumenReservaScreen extends StatefulWidget {
   final Map<String, dynamic> datosReserva;
@@ -15,7 +15,6 @@ class ResumenReservaScreen extends StatefulWidget {
 
 class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
   final int _currentIndex = 1; // Ajustado al índice de Servicios para tu barra de 4 ítems
-  // ignore: unused_field
   String _metodoPagoSeleccionado = 'Efectivo';
 
   @override
@@ -64,7 +63,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Revisa los detalles de tu cita antes de confirmar.', 
-                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
                 ),
               ],
             ),
@@ -104,14 +103,18 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 10, offset: const Offset(0, 4)),
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 10, offset: const Offset(0, 4)),
                       ],
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Aquí enviarías el mapa 'widget.datosReserva' definitivo a tu backend
+                        // Aquí enviarías widget.datosReserva + método de pago al backend
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('¡Reserva confirmada con éxito!')),
+                          SnackBar(
+                            content: Text(
+                              '¡Reserva confirmada! Pago: $_metodoPagoSeleccionado',
+                            ),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(

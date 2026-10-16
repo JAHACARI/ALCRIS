@@ -1,6 +1,6 @@
+import 'package:alcris/screen/auth/restablecercontrasena.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/services/api4_recuperarcontrasena.dart';
-import 'package:alcris/screen/restablecercontrasena.dart';
 import 'package:alcris/widgets/recuperar contraseña/botondegradado.dart'; // Importación de tu botón reutilizable
 
 class TarjetaRecuperar extends StatefulWidget {
@@ -86,7 +86,7 @@ class _TarjetaRecuperarState extends State<TarjetaRecuperar> {
             ],
           ),
           const SizedBox(height: 20),
-          const Text('No te preocupes, te enviaremos instrucciones para recuperarla', style: TextStyle(color: Color(0xFF003366), fontSize: 13, fontWeight: FontWeight.bold)),
+          const Text('No te preocupes, te enviaremos intrucciones para recuperarla', style: TextStyle(color: Color(0xFF003366), fontSize: 13, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           
           Column(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/camposdetexto.dart';
+import 'package:alcris/widgets/common/camposdetexto.dart';
 
 class FormularioRegistro extends StatelessWidget {
   final List<Map<String, dynamic>> campos;
@@ -23,9 +23,7 @@ class FormularioRegistro extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ...campos.map(
-            (c) => CampoTexto(config: c, controller: c['controller']),
-          ),
+          ...campos.map((c) => CampoTexto(config: c)),
           Row(
             children: [
               Checkbox(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/servicios/cabeceraazul.dart';
-import 'package:alcris/widgets/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinferior.dart';
 import 'package:alcris/widgets/servicios/tarjetaservicio.dart';
-import 'package:alcris/screen/detallepaquete.dart';
+import 'package:alcris/screen/servicios/detallepaquete.dart';
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
 import 'package:alcris/widgets/perfil/tarjetausuario.dart';
 import 'package:alcris/widgets/perfil/botonperfil.dart';
@@ -10,6 +10,7 @@ import 'package:alcris/widgets/perfil/filaestadisticas.dart';
 
 // 1. IMPORTA TU SERVICIO DE CONEXIÓN
 import 'package:alcris/services/api2_servicios.dart';
+import 'package:alcris/screen/chat/chat_alcris.dart';
 
 class PantallaServicios extends StatefulWidget {
   const PantallaServicios({super.key});
@@ -66,7 +67,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       'title': servicioBackend['nombre'] ?? 'Servicio Alcris',
       'subtitle': servicioBackend['subtitulo'] ?? 'Calidad Premium',
       'desc': servicioBackend['descripcion'] ?? 'Sin descripción disponible.',
-      'precio': servicioBackend['precio'], // Campo nuevo de tu backend
+      'precio': servicioBackend['precio_base'] ?? servicioBackend['precio'],
       'icon': icon,
       'color': color,
       'bg': bg,
@@ -79,21 +80,22 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       'PERFIL',
       'SERVICIOS',
       'ASISTENTE CHAT',
-      'CONFIGURACIÓN',
     ];
+    final bool esChat = _currentIndex == 2;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
+      backgroundColor: esChat ? const Color(0xFF0B1220) : const Color(0xFFF7F9FC),
       body: Column(
         children: [
-          CabeceraAzul(titulo: titulos[_currentIndex]),
+          // El chat tiene su propia cabecera oscura; no mostrar CabeceraAzul
+          if (!esChat) CabeceraAzul(titulo: titulos[_currentIndex]),
           Expanded(
             child: IndexedStack(
               index: _currentIndex,
               children: [
                 _buildVistaPerfil(),
-                _buildGridServicios(), // Esta vista ahora consumirá datos reales
-                _buildPlaceholder('Chatbot IA de Alcris'),
-                _buildPlaceholder('Ajustes del Sistema'),
+                _buildGridServicios(),
+                const ChatAlcris(),
               ],
             ),
           ),
@@ -240,15 +242,4 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       },
     );
   }
-
-  Widget _buildPlaceholder(String msg) => Center(
-    child: Text(
-      msg,
-      style: const TextStyle(
-        fontSize: 16,
-        color: Colors.grey,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  );
 }

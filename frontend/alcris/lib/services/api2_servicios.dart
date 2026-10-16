@@ -1,46 +1,45 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:alcris/services/api_config.dart';
 
 class ApiService {
-  // IP correcta para el emulador de Android apuntando al puerto 3000 de tu Express
-  static const String baseUrl = "http://10.0.2.2:3000/api";
-  // Esta es la función que debes revisar
+  static String get baseUrl => ApiConfig.baseUrl;
+
   Future<List<dynamic>> obtenerServicios() async {
     final url = Uri.parse('$baseUrl/servicios');
 
     try {
       final respuesta = await http.get(url);
 
-      if (respuesta.statusCode == 200) {
-        final String cuerpoDecodificado = utf8.decode(respuesta.bodyBytes);
-
-        // 1. Primero decodificamos el JSON completo como un Mapa/Objeto
-        final Map<String, dynamic> datosJson = json.decode(cuerpoDecodificado);
-
-        // 2. Extraemos la lista que está guardada dentro.
-        // Si en tu backend pusiste res.json(servicios), la clave suele ser 'servicios'
-        if (datosJson.containsKey('servicios')) {
-          return datosJson['servicios'] as List<dynamic>;
-        }
-
-        // Si en tu backend pusiste res.json({ data: servicios }), la clave es 'data'
-        if (datosJson.containsKey('data')) {
-          return datosJson['data'] as List<dynamic>;
-        }
-
-        // Si tu backend tiene otra estructura o una propiedad diferente,
-        // tomamos el primer valor que sea una lista para evitar que la app se rompa
-        final valorLista = datosJson.values.firstWhere(
-          (value) => value is List,
-          orElse: () => [],
-        );
-
-        return valorLista as List<dynamic>;
-      } else {
-        throw Exception("Error del servidor: ${respuesta.statusCode}");
+      if (respuesta.statusCode != 200) {
+        throw Exception('Error del servidor: ${respuesta.statusCode}');
       }
+
+      final String cuerpo = utf8.decode(respuesta.bodyBytes);
+      final dynamic datos = json.decode(cuerpo);
+
+      // Backend puede devolver List directa o Map con clave 'servicios' / 'data'
+      if (datos is List) {
+        return datos;
+      }
+
+      if (datos is Map<String, dynamic>) {
+        if (datos.containsKey('servicios') && datos['servicios'] is List) {
+          return datos['servicios'] as List<dynamic>;
+        }
+        if (datos.containsKey('data') && datos['data'] is List) {
+          return datos['data'] as List<dynamic>;
+        }
+        final valorLista = datos.values.firstWhere(
+          (value) => value is List,
+          orElse: () => <dynamic>[],
+        );
+        return valorLista as List<dynamic>;
+      }
+
+      return <dynamic>[];
     } catch (e) {
-      throw Exception("No se pudo conectar al backend: $e");
+      throw Exception('No se pudo conectar al backend: $e');
     }
   }
 }

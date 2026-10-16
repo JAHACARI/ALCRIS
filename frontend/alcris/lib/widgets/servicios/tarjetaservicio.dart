@@ -1,4 +1,3 @@
-import 'package:alcris/screen/detallepaquete.dart';
 import 'package:flutter/material.dart';
 
 class TarjetaServicio extends StatelessWidget {
@@ -21,11 +20,11 @@ class TarjetaServicio extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),

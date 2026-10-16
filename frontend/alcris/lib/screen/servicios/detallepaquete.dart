@@ -1,4 +1,4 @@
-import 'package:alcris/screen/agendarcita.dart';
+import 'package:alcris/screen/servicios/agendarcita.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/paquete/cabecera.dart';
 import 'package:alcris/widgets/paquete/tarjetapaquete.dart';
@@ -100,7 +100,7 @@ class _DetalleServicioScreenState extends State<DetalleServicioScreen> {
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 4)),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 4)),
                   ],
                 ),
                 child: ElevatedButton(

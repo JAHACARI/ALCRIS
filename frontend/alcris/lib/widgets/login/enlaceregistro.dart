@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/screen/registro.dart';
+import 'package:alcris/screen/auth/registro.dart';
 
 class EnlaceRegistro extends StatelessWidget {
   const EnlaceRegistro({super.key});

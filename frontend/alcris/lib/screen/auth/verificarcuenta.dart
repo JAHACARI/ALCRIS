@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/screen/login.dart';
+import 'package:alcris/screen/auth/login.dart';
 import 'package:alcris/services/api3_verifycuenta.dart';
 
 class VerificarCuentaScreen extends StatefulWidget {
@@ -83,7 +83,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Verificar Cuenta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color.fromARGB(225, 8, 157, 243),
+        backgroundColor: const Color.fromARGB(255, 48, 145, 209),
         elevation: 0,
         centerTitle: true,
       ),
@@ -136,7 +136,7 @@ class _VerificarCuentaScreenState extends State<VerificarCuentaScreen> {
               child: ElevatedButton(
                 onPressed: _estaCargando ? null : _enviarVerificacion,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:  Colors.redAccent,
+                  backgroundColor: const Color(0xFFC0392B),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: _estaCargando

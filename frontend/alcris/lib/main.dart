@@ -1,4 +1,5 @@
-import 'package:alcris/screen/carga.dart';
+import 'package:alcris/screen/splash/pantalla_carga_alcris.dart';
+import 'package:alcris/screen/auth/registro.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class Alcris extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: AlcrisSplashScreen()),
+      home: RegistroScreen(),
     );
   }
 }
