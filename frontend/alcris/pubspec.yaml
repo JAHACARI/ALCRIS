@@ -9,8 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.0
+  shared_preferences: ^2.5.5
+  google_sign_in: ^7.2.0
+  cupertino_icons: ^2.0.0
+  image_picker: ^1.2.4
+  image_picker_android: ^0.8.13+25
+  image_picker_platform_interface: ^2.11.2
+  photo_manager: ^3.12.0
+  http_parser: ^4.1.2 
   flutter_svg: ^2.0.10
-  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
