@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/servicios/cabeceraazul.dart';
-import 'package:alcris/widgets/common/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/servicios/tarjetaservicio.dart';
 import 'package:alcris/screen/servicios/detallepaquete.dart';
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
@@ -101,12 +101,15 @@ class _PantallaServiciosState extends State<PantallaServicios> {
           ),
         ],
       ),
-      bottomNavigationBar: MenuInferior(
+      bottomNavigationBar: MenuInferior2(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }
+
+
+  
 
   Widget _buildVistaPerfil() {
     return SingleChildScrollView(

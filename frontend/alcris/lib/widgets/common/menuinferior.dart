@@ -4,7 +4,11 @@ class MenuInferior extends StatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const MenuInferior({super.key, required this.currentIndex, required this.onTap});
+  const MenuInferior({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   State<MenuInferior> createState() => _MenuInferiorState();
@@ -16,10 +20,10 @@ class _MenuInferiorState extends State<MenuInferior> {
 
   // Lista de 4 elementos oficiales tras remover "Inicio"
   static const List<Map<String, dynamic>> _items = [
-     {'icon': Icons.home_rounded, 'label': 'Inicio'},
-    {'icon': Icons.person_rounded, 'label': 'Perfil'},
-    {'icon': Icons.assignment_rounded, 'label': 'Servicios'},
-    {'icon': Icons.smart_toy_outlined, 'label': 'Chat'},
+    {'icon': Icons.home_rounded, 'label': 'Inicio'}, // Índice 0
+    {'icon': Icons.person_rounded, 'label': 'Perfil'}, // Índice 1
+    {'icon': Icons.assignment_rounded, 'label': 'Servicios'}, // Índice 2
+    {'icon': Icons.smart_toy_outlined, 'label': 'Chat'}, // Índice 3
   ];
 
   @override
@@ -31,7 +35,10 @@ class _MenuInferiorState extends State<MenuInferior> {
       backgroundColor: Colors.white,
       selectedItemColor: const Color(0xFF0055A5),
       unselectedItemColor: Colors.grey,
-      selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+      selectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+      ),
       unselectedLabelStyle: const TextStyle(fontSize: 11),
       items: List.generate(_items.length, (index) {
         final bool isHovered = _hoveredIndex == index;
@@ -48,12 +55,16 @@ class _MenuInferiorState extends State<MenuInferior> {
               curve: Curves.easeOutCubic,
               // Desplaza el ícono -6 píxeles en el eje Y (hacia arriba) si hay hover
               transform: Matrix4.translationValues(0, isHovered ? -6 : 0, 0),
-              padding: const EdgeInsets.only(bottom: 2), // Evita que se corte la parte inferior
+              padding: const EdgeInsets.only(
+                bottom: 2,
+              ), // Evita que se corte la parte inferior
               child: Icon(
                 _items[index]['icon'],
-                color: isSelected 
-                    ? const Color(0xFF0055A5) 
-                    : (isHovered ? const Color(0xFF0055A5).withValues(alpha: 0.7) : Colors.grey),
+                color: isSelected
+                    ? const Color(0xFF0055A5)
+                    : (isHovered
+                          ? const Color(0xFF0055A5).withValues(alpha: 0.7)
+                          : Colors.grey),
               ),
             ),
           ),

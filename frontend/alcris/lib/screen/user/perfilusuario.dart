@@ -1,7 +1,7 @@
 import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/servicios/cabeceraazul.dart';
-import 'package:alcris/widgets/common/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/perfil/tarjetaestadistica.dart';
 // Nuevos widgets importados
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
@@ -14,7 +14,7 @@ class PerfilScreen extends StatefulWidget {
 }
 
 class _PerfilScreenState extends State<PerfilScreen> {
-  final int _currentIndex = 0; 
+  int _currentIndex = 1; 
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +92,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: MenuInferior(
+       bottomNavigationBar: MenuInferior2(
         currentIndex: _currentIndex,
-        onTap: (indexPulsado) {},
+        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }

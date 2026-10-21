@@ -1,0 +1,76 @@
+import 'package:flutter/material.dart';
+
+class MenuInferior2 extends StatefulWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const MenuInferior2({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  State<MenuInferior2> createState() => _MenuInferiorState();
+}
+
+class _MenuInferiorState extends State<MenuInferior2> {
+  // Guardamos el índice sobre el que está el mouse (-1 = ninguno)
+  int _hoveredIndex = -1;
+
+  // Lista de 4 elementos oficiales tras remover "Inicio"
+  static const List<Map<String, dynamic>> _items = [
+   // Índice 0
+    {'icon': Icons.person_rounded, 'label': 'Perfil'}, // Índice 1
+    {'icon': Icons.assignment_rounded, 'label': 'Servicios'}, // Índice 2
+    {'icon': Icons.smart_toy_outlined, 'label': 'Chat'}, // Índice 3
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: widget.currentIndex,
+      onTap: widget.onTap,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      selectedItemColor: const Color(0xFF0055A5),
+      unselectedItemColor: Colors.grey,
+      selectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+      ),
+      unselectedLabelStyle: const TextStyle(fontSize: 11),
+      items: List.generate(_items.length, (index) {
+        final bool isHovered = _hoveredIndex == index;
+        final bool isSelected = widget.currentIndex == index;
+
+        return BottomNavigationBarItem(
+          icon: MouseRegion(
+            onEnter: (_) => setState(() => _hoveredIndex = index),
+            onExit: (_) => setState(() => _hoveredIndex = -1),
+            cursor: SystemMouseCursors.click,
+            // Usamos AnimatedContainer para animar la traslación y elevación
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              // Desplaza el ícono -6 píxeles en el eje Y (hacia arriba) si hay hover
+              transform: Matrix4.translationValues(0, isHovered ? -6 : 0, 0),
+              padding: const EdgeInsets.only(
+                bottom: 2,
+              ), // Evita que se corte la parte inferior
+              child: Icon(
+                _items[index]['icon'],
+                color: isSelected
+                    ? const Color(0xFF0055A5)
+                    : (isHovered
+                          ? const Color(0xFF0055A5).withValues(alpha: 0.7)
+                          : Colors.grey),
+              ),
+            ),
+          ),
+          label: _items[index]['label'],
+        );
+      }),
+    );
+  }
+}
