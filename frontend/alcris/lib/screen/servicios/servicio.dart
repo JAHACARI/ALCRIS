@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/servicios/cabeceraazul.dart';
+import 'package:alcris/widgets/common/CabeceraServicio.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/servicios/tarjetaservicio.dart';
 import 'package:alcris/screen/servicios/detallepaquete.dart';
@@ -88,7 +88,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       body: Column(
         children: [
           // El chat tiene su propia cabecera oscura; no mostrar CabeceraAzul
-          if (!esChat) CabeceraPremium(titulo: titulos[_currentIndex]),
+          if (!esChat) CabeceraServicio(titulo: titulos[_currentIndex]),
           Expanded(
             child: IndexedStack(
               index: _currentIndex,

@@ -89,7 +89,7 @@ class CabeceraHome extends StatelessWidget {
                         ],
                       ),
                       child: const Icon(
-                        Icons.lock_outline,
+                        Icons.home_outlined,
                         color: Colors.white,
                         size: 26,
                   ),

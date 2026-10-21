@@ -1,7 +1,7 @@
 import 'package:alcris/screen/auth/verificarcuenta.dart';
 import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/common/cabeceraregistro.dart';
+import 'package:alcris/widgets/common/cabeceralogin.dart';
 
 // Importación de los nuevos componentes modulares aislados
 import 'package:alcris/widgets/login/bloquesocial.dart';
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const CabeceraRegistro(titulo: 'Inicia Sesión'),
+            const CabeceraLogin(titulo: 'Inicia Sesión'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
