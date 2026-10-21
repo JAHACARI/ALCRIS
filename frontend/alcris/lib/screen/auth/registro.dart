@@ -151,10 +151,17 @@ class _RegistroScreenState extends State<RegistroScreen> {
         'controller': _telefonoController,
       },
       {
-        'label': 'Ciudad / Departamento', 
+        'label': 'Departamento', 
         'hint': 'Tu ubicación actual...',
         'controller': _localidadController,
       },
+
+       {
+        'label': 'Municipio', 
+        'hint': 'Tu ubicación actual...',
+        'controller': _localidadController,
+      },
+
       {
         'label': 'Contraseña',
         'hint': '*********',
