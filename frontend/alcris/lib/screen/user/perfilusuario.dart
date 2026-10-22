@@ -1,6 +1,6 @@
 import 'package:alcris/screen/servicios/servicio.dart';
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/servicios/cabeceraazul.dart';
+import 'package:alcris/widgets/common/cabeceraperfil.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/perfil/tarjetaestadistica.dart';
 // Nuevos widgets importados
@@ -22,7 +22,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       backgroundColor: const Color(0xFFF7F9FC),
       body: Column(
         children: [
-          const CabeceraPremium(titulo: 'PERFIL'),
+          const Cabeceraperfil(titulo: 'PERFIL'),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),

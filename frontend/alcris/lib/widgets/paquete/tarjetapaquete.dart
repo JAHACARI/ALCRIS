@@ -14,6 +14,19 @@ class TarjetaPaquete extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🛠️ FILTRO ANTICRASH: Si la clave viene nula o no existe, se asigna un string seguro
+    final String nombre = (datos['nombre'] ?? datos['title'] ?? 'Paquete').toString();
+    final String descripcion = (datos['descripcion'] ?? datos['desc'] ?? '').toString();
+    final String tiempo = (datos['tiempo'] ?? '').toString();
+    final String precio = (datos['precio'] ?? '').toString();
+    final String paneles = (datos['paneles'] ?? 'Revisión Completa').toString(); // Respaldo seguro si paneles viene null
+    final String tag = (datos['tag'] ?? '').toString();
+
+    // Filtros de respaldo para colores por si vienen nulos
+    final Color colorTitle = datos['colorTitle'] is Color ? datos['colorTitle'] : const Color(0xFF0F172A);
+    final Color tagBg = datos['tagBg'] is Color ? datos['tagBg'] : const Color(0xFFFFEBEE);
+    final Color tagColor = datos['tagColor'] is Color ? datos['tagColor'] : const Color(0xFFE94560);
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -29,7 +42,7 @@ class TarjetaPaquete extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -42,24 +55,24 @@ class TarjetaPaquete extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  datos['nombre'],
+                  nombre,
                   style: TextStyle(
-                    color: datos['colorTitle'],
+                    color: colorTitle,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (datos['tag'] != null)
+                if (tag.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: datos['tagBg'],
+                      color: tagBg,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      datos['tag'],
+                      tag,
                       style: TextStyle(
-                        color: datos['tagColor'],
+                        color: tagColor,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -69,7 +82,7 @@ class TarjetaPaquete extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              datos['descripcion'],
+              descripcion,
               style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.3),
             ),
             const SizedBox(height: 12),
@@ -80,26 +93,28 @@ class TarjetaPaquete extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      datos['paneles'],
+                      paneles,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
-                    Text(
-                      datos['tiempo'],
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
+                    if (tiempo.isNotEmpty)
+                      Text(
+                        tiempo,
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
+                if (precio.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      precio,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
                   ),
-                  child: Text(
-                    datos['precio'],
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                ),
               ],
             ),
           ],

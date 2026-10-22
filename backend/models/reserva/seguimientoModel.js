@@ -32,3 +32,12 @@ export const actualizarSeguimiento = async (id, campos) => {
     .single();
   return { data, error };
 };
+
+export const obtenerReservasPorRango = async (primerDia, ultimoDia) => {
+  return await supabase
+    .from("reservas") 
+    .select("fecha_cita, estado") // 👈 CORREGIDO: Cambiado 'fecha' por 'fecha_cita'
+    .gte("fecha_cita", primerDia)  // 👈 CORREGIDO
+    .lte("fecha_cita", ultimoDia)  // 👈 CORREGIDO
+    .neq("estado", "cancelado");
+};

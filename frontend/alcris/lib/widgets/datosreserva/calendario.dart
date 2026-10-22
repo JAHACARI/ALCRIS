@@ -1,87 +1,101 @@
 import 'package:flutter/material.dart';
-// Importación exacta de tu proyecto
-import 'package:alcris/widgets/datosreserva/estiloflechas.dart'; 
+import 'package:table_calendar/table_calendar.dart';
 
 class SelectorCalendario extends StatefulWidget {
-  // Añadimos el callback para avisarle a la pantalla madre qué día se pulsó
-  final Function(String) onFechaSeleccionada;
+  final List<String> diasOcupados; // Recibe los días bloqueados de Supabase
+  final Function(int mes, int anio) onMesCambiado; // Avisa al backend al cambiar de mes
+  final ValueChanged<String> onFechaSeleccionada;
 
-  const SelectorCalendario({super.key, required this.onFechaSeleccionada});
+  const SelectorCalendario({
+    super.key,
+    required this.diasOcupados,
+    required this.onMesCambiado,
+    required this.onFechaSeleccionada,
+  });
 
   @override
   State<SelectorCalendario> createState() => _SelectorCalendarioState();
 }
 
 class _SelectorCalendarioState extends State<SelectorCalendario> {
-  // Cambiamos a 11 para que arranque seleccionado tal como en tu emulador
-  int _diaSeleccionado = 11; 
-  final List<String> _diasSemana = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  final List<int> _diasMes = List.generate(27, (index) => index + 1);
+  DateTime _focusedDay = DateTime(2026, 10, 22); // Anclado al mes de tu diseño
+  DateTime? _selectedDay;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 24, offset: const Offset(0, 8)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              BotonFlecha(icon: Icons.arrow_back_ios_new_rounded, onPressed: () {}),
-              const Text('Julio 2026', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), letterSpacing: 0.5)),
-              BotonFlecha(icon: Icons.arrow_forward_ios_rounded, onPressed: () {}),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _diasSemana.map((d) => SizedBox(width: 36, child: Center(child: Text(d, style: TextStyle(color: Colors.grey.shade400, fontSize: 13, fontWeight: FontWeight.bold))))).toList(),
-          ),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: Color(0xFFF1F5F9), thickness: 1.2)),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _diasMes.length + 1,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7, mainAxisSpacing: 10, crossAxisSpacing: 10),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return const Center(child: Text('30', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 14, fontWeight: FontWeight.w500)));
-              }
+      child: TableCalendar(
+        firstDay: DateTime(2026, 1, 1),
+        lastDay: DateTime(2026, 12, 31),
+        focusedDay: _focusedDay,
+        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+        
+        // 🛠️ BLOQUEO REAL: Si el día está en la lista de Supabase, deshabilita el clic
+        enabledDayPredicate: (day) {
+          final String formateado = "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}";
+          return !widget.diasOcupados.contains(formateado);
+        },
 
-              final diaActual = _diasMes[index - 1];
-              final isSelected = _diaSeleccionado == diaActual;
+        onDaySelected: (selectedDay, focusedDay) {
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+          // Devuelve la fecha formateada de forma segura para tu backend
+          final String fechaString = "${selectedDay.year}-${selectedDay.month.toString().padLeft(2, '0')}-${selectedDay.day.toString().padLeft(2, '0')}";
+          widget.onFechaSeleccionada(fechaString);
+        },
 
-              return MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _diaSeleccionado = diaActual);
-                    // Notifica a la pantalla principal el cambio de fecha real
-                    widget.onFechaSeleccionada('$diaActual de Julio, 2026');
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: isSelected ? const LinearGradient(colors: [Color(0xFFE94560), Color(0xFFC0392B)], begin: Alignment.topCenter, end: Alignment.bottomCenter) : null,
-                      boxShadow: [if (isSelected) BoxShadow(color: const Color(0xFFE94560).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
-                    ),
-                    child: Center(
-                      child: Text('$diaActual', style: TextStyle(color: isSelected ? Colors.white : const Color(0xFF1E293B), fontSize: 14, fontWeight: isSelected ? FontWeight.bold : FontWeight.w600)),
-                    ),
-                  ),
+        onPageChanged: (focusedDay) {
+          _focusedDay = focusedDay;
+          // Lanza la petición HTTP al cambiar de mes en el calendario
+          widget.onMesCambiado(focusedDay.month, focusedDay.year);
+        },
+
+        // Mantiene tus estilos limpios de interfaz originales
+        headerStyle: const HeaderStyle(
+          formatButtonVisible: false,
+          titleCentered: true,
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+        ),
+        calendarStyle: const CalendarStyle(
+          todayDecoration: BoxDecoration(color: Color(0xFFFFEBEE), shape: BoxShape.circle),
+          todayTextStyle: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+          selectedDecoration: BoxDecoration(color: Color(0xFFE94560), shape: BoxShape.circle),
+        ),
+
+        // 🛠️ DISEÑO DE INHABILITACIÓN: Pinta de gris los días copados del panel administrativo
+        calendarBuilders: CalendarBuilders(
+          disabledBuilder: (context, day, focusedDay) {
+            return Container(
+              margin: const EdgeInsets.all(4.0),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100, // Fondo gris suave
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '${day.day}',
+                style: TextStyle(
+                  color: Colors.grey.shade400, 
+                  decoration: TextDecoration.lineThrough, // Tacha el número para indicar "Lleno"
                 ),
-              );
-            },
-          ),
-        ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

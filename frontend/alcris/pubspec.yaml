@@ -19,6 +19,7 @@ dependencies:
   photo_manager: ^3.12.0
   http_parser: ^4.1.2 
   flutter_svg: ^2.0.10
+  table_calendar: ^3.3.0
 
 dev_dependencies:
   flutter_test:

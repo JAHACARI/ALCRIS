@@ -10,7 +10,7 @@ class SelectorPago extends StatefulWidget {
 
 class _SelectorPagoState extends State<SelectorPago> {
   int _metodoActivo = 0; // Efectivo por defecto
-  final List<String> _opciones = ['Efectivo', 'Tarjeta', 'Nequi'];
+  final List<String> _opciones = ['Efectivo',  'Transferencia'];
 
   @override
   Widget build(BuildContext context) {

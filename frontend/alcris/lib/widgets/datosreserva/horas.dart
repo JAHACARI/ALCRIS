@@ -1,79 +1,86 @@
 import 'package:flutter/material.dart';
 
 class SelectorHoras extends StatefulWidget {
-  // 1. Añadimos el callback obligatorio para avisar el cambio al padre
-  final Function(String) onHoraSeleccionada;
+  final List<String> horasDisponibles; // Recibe las horas reales enviadas desde Node.js
+  final ValueChanged<String> onHoraSeleccionada;
 
-  const SelectorHoras({super.key, required this.onHoraSeleccionada});
+  const SelectorHoras({
+    super.key,
+    required this.horasDisponibles,
+    required this.onHoraSeleccionada,
+  });
 
   @override
   State<SelectorHoras> createState() => _SelectorHorasState();
 }
 
 class _SelectorHorasState extends State<SelectorHoras> {
-  // Ajustamos a 0 para que coincida con el 8:00 AM seleccionado de tu emulador
-  int _horaSeleccionada = 0; 
-
-  final List<String> _horarios = ['8:00 AM', '9:00 AM', '2:00 PM', '7:20 AM'];
+  String? _horaSeleccionada;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _horarios.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 12,
-        childAspectRatio: 2.8,
-      ),
-      itemBuilder: (context, index) {
-        final isSelected = _horaSeleccionada == index;
+    if (widget.horasDisponibles.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: Text(
+            'No hay horarios configurados para este día.',
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+        ),
+      );
+    }
 
-        return GestureDetector(
-          onTap: () {
-            setState(() => _horaSeleccionada = index);
-            // 2. Notificamos a la pantalla madre el horario string seleccionado
-            widget.onHoraSeleccionada(_horarios[index]);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? null : Colors.white,
-              gradient: isSelected
-                  ? const LinearGradient(
-                      colors: [Color(0xFFE94560), Color(0xFFC0392B)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    )
-                  : null,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected ? Colors.transparent : const Color(0xFFECEFF1),
-                width: 1,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,       // Grilla de dos columnas como tu mockup original
+          childAspectRatio: 2.6,   // Mantiene la proporción geométrica de tus botones
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: widget.horasDisponibles.length,
+        itemBuilder: (context, index) {
+          final hora = widget.horasDisponibles[index];
+          final isSelected = _horaSeleccionada == hora;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() => _horaSeleccionada = hora);
+              widget.onHoraSeleccionada(hora); // Pasa la hora seleccionada al widget padre
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.transparent : Colors.white,
+                gradient: isSelected
+                    ? const LinearGradient(
+                        colors: [Color(0xFFE94560), Color(0xFFC0392B)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected ? Colors.transparent : Colors.black12,
+                ),
               ),
-              boxShadow: [
-                if (isSelected)
-                  BoxShadow(
-                    color: const Color(0xFFE94560).withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
-            ),
-            child: Center(
+              alignment: Alignment.center,
               child: Text(
-                _horarios[index],
+                hora,
                 style: TextStyle(
-                  color: isSelected ? Colors.white : const Color(0xFF0F172A),
-                  fontSize: 14,
+                  color: isSelected ? Colors.white : Colors.black87,
                   fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

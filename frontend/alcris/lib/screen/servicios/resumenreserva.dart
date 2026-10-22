@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/resumenreserva/desglocecostos.dart';
 import 'package:alcris/widgets/resumenreserva/detallereserva.dart';
 import 'package:alcris/widgets/resumenreserva/formasdepago.dart';
-import 'package:alcris/widgets/common/menuinferior.dart';
+import 'package:alcris/widgets/common/menuinf2.dart';
 
 class ResumenReservaScreen extends StatefulWidget {
   final Map<String, dynamic> datosReserva;
@@ -134,7 +134,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
           )
         ],
       ),
-      bottomNavigationBar: MenuInferior(
+      bottomNavigationBar: MenuInferior2(
         currentIndex: _currentIndex, 
         onTap: (i) {
           // Permite que el menú inferior te regrese a las pantallas principales del IndexedStack

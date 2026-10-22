@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/common/CabeceraServicio.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/servicios/tarjetaservicio.dart';
-import 'package:alcris/screen/servicios/detallepaquete.dart';
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
 import 'package:alcris/widgets/perfil/tarjetausuario.dart';
 import 'package:alcris/widgets/perfil/botonperfil.dart';
 import 'package:alcris/widgets/perfil/filaestadisticas.dart';
-
-// 1. IMPORTA TU SERVICIO DE CONEXIÓN
 import 'package:alcris/services/api2_servicios.dart';
 import 'package:alcris/screen/chat/chat_alcris.dart';
+
+// Importación de las tres pantallas específicas de tu carpeta de servicios
+import 'package:alcris/screen/servicios/detallediagnostico.dart';
+import 'package:alcris/screen/servicios/detallelavado.dart';
+import 'package:alcris/screen/servicios/detallepaquete.dart';
 
 class PantallaServicios extends StatefulWidget {
   const PantallaServicios({super.key});
@@ -19,27 +21,20 @@ class PantallaServicios extends StatefulWidget {
 }
 
 class _PantallaServiciosState extends State<PantallaServicios> {
-  int _currentIndex =
-      1; // Empezamos en la pestaña de servicios (index 1) para ver la carga
+  int _currentIndex = 1; 
 
-  // 2. INSTANCIAMOS EL SERVICIO DE LA API Y EL FUTURE
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _futureServicios;
 
   @override
   void initState() {
     super.initState();
-    // 3. LLAMAMOS AL BACKEND AL INICIAR LA PANTALLA
     _futureServicios = _apiService.obtenerServicios();
   }
 
-  // 4. FUNCIÓN AUXILIAR PARA ASIGNAR DISEÑO SEGÚN LO QUE VENGA DE LA BASE DE DATOS
-  Map<String, dynamic> _mapearDisenoServicio(
-    Map<String, dynamic> servicioBackend,
-  ) {
+  Map<String, dynamic> _mapearDisenoServicio(Map<String, dynamic> servicioBackend) {
     String nombre = (servicioBackend['nombre'] ?? '').toLowerCase();
 
-    // Valores por defecto si la base de datos no coincide
     IconData icon = Icons.build_rounded;
     Color color = Colors.blueGrey;
     Color bg = const Color(0xFFECEFF1);
@@ -63,7 +58,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     }
 
     return {
-      'id': servicioBackend['id'], // Importante para cuando hagas la reserva
+      'id': servicioBackend['id'],
       'title': servicioBackend['nombre'] ?? 'Servicio Alcris',
       'subtitle': servicioBackend['subtitulo'] ?? 'Calidad Premium',
       'desc': servicioBackend['descripcion'] ?? 'Sin descripción disponible.',
@@ -76,18 +71,13 @@ class _PantallaServiciosState extends State<PantallaServicios> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> titulos = [
-      'PERFIL',
-      'SERVICIOS',
-      'ASISTENTE CHAT',
-    ];
+    final List<String> titulos = ['PERFIL', 'SERVICIOS', 'ASISTENTE CHAT'];
     final bool esChat = _currentIndex == 2;
 
     return Scaffold(
       backgroundColor: esChat ? const Color(0xFF0B1220) : const Color(0xFFF7F9FC),
       body: Column(
         children: [
-          // El chat tiene su propia cabecera oscura; no mostrar CabeceraAzul
           if (!esChat) CabeceraServicio(titulo: titulos[_currentIndex]),
           Expanded(
             child: IndexedStack(
@@ -108,26 +98,16 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     );
   }
 
-
-  
-
   Widget _buildVistaPerfil() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          const TarjetaUsuario(
-            nombre: 'User_Name',
-            eslogan: 'Cliente registrado en Alcris',
-            localidad: 'Localidad',
-          ),
+          const TarjetaUsuario(nombre: 'User_Name', eslogan: 'Cliente registrado en Alcris', localidad: 'Localidad'),
           const SizedBox(height: 16),
           const FilaEstadisticas(),
           const SizedBox(height: 16),
-          const TarjetaSeguridad(
-            titulo: 'Name_Card',
-            subtitulo: 'crea una nueva contraseña segura',
-          ),
+          const TarjetaSeguridad(titulo: 'Name_Card', subtitulo: 'crea una nueva contraseña segura'),
           const SizedBox(height: 28),
           BotonPerfil(onPressed: () => setState(() => _currentIndex = 1)),
         ],
@@ -135,50 +115,24 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     );
   }
 
-  // 5. MODIFICAMOS EL DIV DE SERVICIOS PARA USAR EL FUTUREBUILDER
   Widget _buildGridServicios() {
     return FutureBuilder<List<dynamic>>(
       future: _futureServicios,
       builder: (context, snapshot) {
-        // A. Mientras el backend responde, muestra un indicador de carga redondo
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: CircularProgressIndicator(color: Colors.blueAccent),
-            ),
-          );
+          return const Center(child: Padding(padding: EdgeInsets.all(40.0), child: CircularProgressIndicator(color: Colors.blueAccent)));
         }
 
-        // B. Si el backend falló o está apagado
         if (snapshot.hasError) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                "Error al conectar con Alcris Backend:\n${snapshot.error}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          );
+          return Center(child: Padding(padding: const EdgeInsets.all(20.0), child: Text("Error al conectar con Alcris Backend:\n${snapshot.error}", textAlign: TextAlign.center, style: const TextStyle(color: Colors.redAccent))));
         }
 
-        // C. Éxito: Cuando el JSON llega correctamente
         if (snapshot.hasData) {
           final datosBackend = snapshot.data!;
-
-          if (datosBackend.isEmpty) {
-            return const Center(
-              child: Text("No hay servicios disponibles en el catálogo."),
-            );
-          }
+          if (datosBackend.isEmpty) return const Center(child: Text("No hay servicios disponibles en el catálogo."));
 
           final List<Map<String, dynamic>> serviciosFormateados = datosBackend
-              .map(
-                (s) =>
-                    _mapearDisenoServicio(Map<String, dynamic>.from(s as Map)),
-              )
+              .map((s) => _mapearDisenoServicio(Map<String, dynamic>.from(s as Map)))
               .toList();
 
           return SingleChildScrollView(
@@ -189,59 +143,41 @@ class _PantallaServiciosState extends State<PantallaServicios> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Nuestros servicios',
-                      style: TextStyle(
-                        color: Color(0xFF1E293B),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time_rounded,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Reserva en línea',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                      ],
-                    ),
+                    Text('Nuestros servicios', style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.bold)),
+                    Row(children: [Icon(Icons.access_time_rounded, size: 16, color: Colors.grey), SizedBox(width: 4), Text('Reserva en línea', style: TextStyle(color: Colors.grey, fontSize: 12))]),
                   ],
                 ),
                 const SizedBox(height: 16),
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 0.64,
-                  children: serviciosFormateados
-                      .map(
-                        (s) => TarjetaServicio(
-                          datos: s,
-                          onReservar: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetalleServicioScreen(servicio: s),
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
+                  crossAxisCount: 2, crossAxisSpacing: 14, mainAxisSpacing: 14, childAspectRatio: 0.64,
+                  children: serviciosFormateados.map((s) {
+                    return TarjetaServicio(
+                      datos: s,
+                      onReservar: () {
+                        final String nombre = (s['title'] ?? '').toString().toLowerCase();
+                        Widget pantallaDestino;
+
+                        // Enrutador inteligente según el título del servicio de la API
+                        if (nombre.contains('diagnóstico') || nombre.contains('diagnostico')) {
+                          pantallaDestino = DetalleServiciodi(servicio: s);
+                        } else if (nombre.contains('lavado') || nombre.contains('limpieza')) {
+                          pantallaDestino = DetalleServiciolav(servicio: s);
+                        } else {
+                          pantallaDestino = DetalleServicioScreen(servicio: s);
+                        }
+
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => pantallaDestino));
+                      },
+                    );
+                  }).toList(),
                 ),
               ],
             ),
           );
         }
-
-        return const Center(child: Text("No se encontraron servicios."));
+        return const SizedBox();
       },
     );
   }
