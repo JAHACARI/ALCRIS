@@ -11,7 +11,8 @@ import tecnicoRoutes from "./routes/tecnico/tecnicoRoutes.js";
 import reservaRoutes from "./routes/reserva/reservaRoutes.js";
 import catalogoRoutes from "./routes/catalogo/catalogoRoutes.js";
 import chatRoutes from "./routes/chat/chatRoutes.js";
-
+import { verificarToken, soloAdmin } from "../backend/middleware/authMiddleware.js";
+import adminRoutes from "./routes/admin.js";
 const app = express();
 
 // ---------- Middlewares ----------
@@ -30,7 +31,7 @@ app.use("/api/tecnicos", tecnicoRoutes);
 app.use("/api/reservas", reservaRoutes);
 app.use("/api", catalogoRoutes); // /api/colores y /api/acabados
 app.use("/api/chat", chatRoutes);
-
+app.use("/api/admin", verificarToken, soloAdmin, adminRoutes);
 // ---------- Ruta de bienvenida ----------
 app.get("/", (req, res) => {
   res.json({

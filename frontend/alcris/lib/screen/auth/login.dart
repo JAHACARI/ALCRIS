@@ -10,6 +10,8 @@ import 'package:alcris/widgets/login/formulariologin.dart';
 
 // Capa de infraestructura
 import 'package:alcris/services/api3_verifycuenta.dart';
+import 'package:alcris/screen/admin/admin_shell.dart';
+import 'package:alcris/services/admin_api.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -62,28 +64,55 @@ class _LoginScreenState extends State<LoginScreen> {
       _mostrarAlerta(respuesta['message'] ?? '¡Login exitoso!');
 
       if (mounted) {
-        // 1. Extraemos el rol que devuelve tu backend en el JSON (ajusta si es 'rol' o 'role')
-        final String rol = respuesta['rol'] ?? 'usuario';
+        debugPrint('LOGIN: $respuesta'); // temporal: para ver qué campos llegan
 
-        // 2. Evaluamos el rol para decidir la redirección con pushAndRemoveUntil
+        final String rol =
+            (respuesta['rol'] ?? respuesta['usuario']?['rol'] ?? 'usuario')
+                .toString();
+        AdminApi.token = (respuesta['token'] ?? '').toString();
+
         if (rol == 'admin') {
+          // El admin elige a dónde entrar
+          final entrarPanel = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Bienvenido, administrador'),
+              content: const Text('¿Qué quieres abrir?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('App de clientes'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Panel administrativo'),
+                ),
+              ],
+            ),
+          );
+
+          if (!mounted) return;
           Navigator.pushAndRemoveUntil(
             context,
-            // REEMPLAZA 'PantallaServicios()' por el Widget real de tu panel de Administrador si es diferente
-            MaterialPageRoute(builder: (context) => const PantallaServicios()), 
+            MaterialPageRoute(
+              builder: (_) => entrarPanel == true
+                  ? const AdminShell()
+                  : const PantallaServicios(),
+            ),
             (route) => false,
           );
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const PantallaServicios()),
+            MaterialPageRoute(builder: (_) => const PantallaServicios()),
             (route) => false,
           );
         }
       }
     } catch (e) {
       if (mounted) Navigator.pop(context);
-      
+
       final String mensajeError = e.toString().replaceAll('Exception: ', '');
 
       // Redirección forzada hacia la verificación si el backend responde con error de activación (403)
@@ -104,7 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _mostrarAlerta(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
@@ -130,7 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
             size: 18,
             color: Colors.grey.shade600,
           ),
-          onPressed: () => setState(() => _ocultarContrasena = !_ocultarContrasena),
+          onPressed: () =>
+              setState(() => _ocultarContrasena = !_ocultarContrasena),
         ),
       },
     ];
@@ -147,22 +179,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text(
                     'Unete a nuestro mundo hoy',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Componente 1: Bloque de Inputs y acciones de credenciales
                   FormularioLogin(
                     campos: camposLogin,
                     onLoginPressed: _procesarLogin,
                   ),
-                  
+
                   // Componente 2: Separador e inicios alternativos (Oauth2)
-                  BloqueSocial(
-                    onGoogleTap: () {},
-                  ),
+                  BloqueSocial(onGoogleTap: () {}),
                   const SizedBox(height: 24),
-                  
+
                   // Componente 3: Enlace plano inferior
                   const EnlaceRegistro(),
                 ],

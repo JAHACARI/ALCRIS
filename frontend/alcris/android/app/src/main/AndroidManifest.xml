@@ -5,7 +5,7 @@
     <application
         android:label="alcris"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <!-- 2. TRÁFICO HTTP PERMITIDO ADICIONADO AQUÍ -->
         android:usesCleartextTraffic="true"
         
