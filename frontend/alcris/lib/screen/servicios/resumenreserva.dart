@@ -112,7 +112,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '¡Reserva confirmada! Pago: $_metodoPagoSeleccionado',
+                              '¡Reserva en espera!: $_metodoPagoSeleccionado',
                             ),
                           ),
                         );

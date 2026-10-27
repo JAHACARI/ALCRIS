@@ -24,3 +24,14 @@ class PagoAdmin {
 
 String cop(int n) =>
     '\$${n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => '.')}';
+class ReservaAdmin {
+  final int id, total;
+  final String codigo, fecha, hora, estado, cliente, vehiculo, servicio;
+  ReservaAdmin({required this.id, required this.total, required this.codigo, required this.fecha,
+      required this.hora, required this.estado, required this.cliente, required this.vehiculo,
+      required this.servicio});
+  factory ReservaAdmin.fromJson(Map<String, dynamic> j) => ReservaAdmin(
+        id: j['id'], total: (j['total'] as num).toInt(), codigo: j['codigo'] ?? '',
+        fecha: j['fecha'] ?? '', hora: (j['hora'] ?? '').toString(), estado: j['estado'] ?? '',
+        cliente: j['cliente'] ?? '', vehiculo: j['vehiculo'] ?? '', servicio: j['servicio'] ?? '');
+}

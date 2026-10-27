@@ -32,6 +32,12 @@ app.use("/api/reservas", reservaRoutes);
 app.use("/api", catalogoRoutes); // /api/colores y /api/acabados
 app.use("/api/chat", chatRoutes);
 app.use("/api/admin", verificarToken, soloAdmin, adminRoutes);
+
+
+//Rutas de la API
+app.get('/health', (req, res) => {
+  res.status(200).send('OK')
+})
 // ---------- Ruta de bienvenida ----------
 app.get("/", (req, res) => {
   res.json({

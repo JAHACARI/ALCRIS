@@ -1,25 +1,30 @@
-// Montar en app.js:  app.use("/api/admin", verificarToken, adminRoutes);
-// El middleware de auth debe poner req.user = { id, rol }.
 import { Router } from "express";
-import { supabase } from "../config/supabase.js";
+import { supabase } from "../config/supabase.js"; // cliente con SERVICE_ROLE_KEY
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+
+// Configuración de Cloudinary (Asegúrate de definir estas variables en tu archivo .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() }); // Manejo en memoria para enviar directo a Cloudinary
 
 // ───────── AJUSTA ESTOS VALORES A TU BASE ─────────
-// Deben coincidir EXACTAMENTE con los valores de tu enum estado_reserva.
 const ESTADOS = ['pendiente','confirmada','recibido','diagnostico','en_proceso','pintura','listo','entregado','rechazada'];
 const ESTADO_CONFIRMADA = 'confirmada';
 const ESTADO_RECHAZADA  = 'rechazada';
 const ESTADOS_FINALES   = ['entregado','rechazada'];
-// categoria_id (FK de servicios). Si tu columna es obligatoria, pon aquí una categoría por defecto.
 const CATEGORIA_POR_DEFECTO = null;
-// Columnas de nombre en usuario / vehiculos (ajusta si se llaman distinto).
 const nombreUsuario = u => u?.nombre ?? '';
 const textoVehiculo = v => v ? [v.marca, v.modelo, v.placa].filter(Boolean).join(' ') : '';
 // ────────────────────────────────────────────────────
 
 const fail = (res, e, code = 500) => res.status(code).json({ error: e.message || e });
-const num = x => Math.round(Number(x));  // numeric llega como 1500000.0; Flutter espera int
+const num = x => Math.round(Number(x));
 
 // ───────── SERVICIOS ─────────
 const outServicio = s => ({ id: s.id, nombre: s.nombre, descripcion: s.descripcion, precio: num(s.precio_base) });
@@ -58,7 +63,6 @@ router.put('/servicios/:id', async (req, res) => {
   res.json(outServicio(data));
 });
 
-// Baja lógica: las reservas anteriores conservan su servicio y precio.
 router.delete('/servicios/:id', async (req, res) => {
   const { count, error: e1 } = await supabase.from('reservas')
     .select('id', { count: 'exact', head: true })
@@ -72,6 +76,59 @@ router.delete('/servicios/:id', async (req, res) => {
 });
 
 // ───────── PAGOS NEQUI ─────────
+
+// NUEVO ENDPOINT: Para que el cliente suba la captura a Cloudinary
+router.post('/pagos/comprobante', upload.single('comprobante'), async (req, res) => {
+  try {
+    const { codigo_reserva, monto, ref_nequi } = req.body;
+    
+    if (!req.file) return res.status(400).json({ error: 'La imagen del comprobante es obligatoria' });
+    if (!codigo_reserva || !monto) return res.status(400).json({ error: 'Código de reserva y monto son obligatorios' });
+
+    // 1. Obtener la reserva vinculada
+    const { data: reserva, error: resError } = await supabase
+      .from('reservas')
+      .select('id')
+      .eq('codigo_reserva', codigo_reserva)
+      .single();
+
+    if (resError || !reserva) return res.status(404).json({ error: 'No se encontró la reserva indicada' });
+
+    // 2. Subir el buffer del archivo a Cloudinary
+    const streamSubida = new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: "comprobantes_nequi" },
+        (error, resultado) => {
+          if (error) reject(error);
+          else resolve(resultado);
+        }
+      ).end(req.file.buffer);
+    });
+
+    const resultadoCloudinary = await streamSubida;
+
+    // 3. Registrar el pago en Supabase usando la URL de Cloudinary
+    const { data: nuevoPago, error: pagoError } = await supabase
+      .from('pagos')
+      .insert({
+        reserva_id: reserva.id,
+        monto: Math.round(Number(monto)),
+        ref_nequi: ref_nequi || null,
+        comprobante_path: resultadoCloudinary.secure_url, // URL directa de Cloudinary
+        estado: 'revision'
+      })
+      .select()
+      .single();
+
+    if (pagoError) throw pagoError;
+
+    res.status(201).json({ ok: true, pagoId: nuevoPago.id });
+  } catch (e) {
+    fail(res, e);
+  }
+});
+
+// ACTUALIZADO: Lee directamente la URL de Cloudinary sin firmar de Supabase
 router.get('/pagos', async (req, res) => {
   const estado = req.query.estado || 'revision';
   const { data, error } = await supabase.from('pagos')
@@ -79,23 +136,29 @@ router.get('/pagos', async (req, res) => {
              reserva:reservas(codigo_reserva, total, usuario(nombre), vehiculos(marca, modelo, placa), servicios(nombre))`)
     .eq('estado', estado).order('creado_en');
   if (error) return fail(res, error);
-  const out = await Promise.all(data.map(async p => {
-    const { data: s } = await supabase.storage.from('comprobantes').createSignedUrl(p.comprobante_path, 3600);
+  
+  const out = data.map(p => {
     const r = p.reserva;
     return {
-      id: p.id, monto: num(p.monto), refNequi: p.ref_nequi, creadoEn: p.creado_en,
-      comprobanteUrl: s?.signedUrl ?? '',
-      referencia: r.codigo_reserva, cliente: nombreUsuario(r.usuario), vehiculo: textoVehiculo(r.vehiculos),
-      servicio: r.servicios?.nombre ?? '', precioServicio: num(r.total),
+      id: p.id, 
+      monto: num(p.monto), 
+      refNequi: p.ref_nequi, 
+      creadoEn: p.creado_en,
+      comprobanteUrl: p.comprobante_path, // Cloudinary provee URLs públicas estables
+      referencia: r.codigo_reserva, 
+      cliente: nombreUsuario(r.usuario), 
+      vehiculo: textoVehiculo(r.vehiculos),
+      servicio: r.servicios?.nombre ?? '', 
+      precioServicio: num(r.total),
     };
-  }));
+  });
   res.json(out);
 });
 
 async function revisarPago(id, estadoPago, estadoReserva, motivo) {
   const { data: pago, error } = await supabase.from('pagos')
     .update({ estado: estadoPago, motivo: motivo ?? null })
-    .eq('id', id).eq('estado', 'revision')            // evita revisar dos veces
+    .eq('id', id).eq('estado', 'revision')
     .select('reserva_id').single();
   if (error || !pago) throw new Error('El pago ya fue revisado o no existe');
   const { error: e2 } = await supabase.from('reservas').update({ estado: estadoReserva }).eq('id', pago.reserva_id);
@@ -117,21 +180,37 @@ router.post('/pagos/:id/rechazar', async (req, res) => {
 // ───────── RESERVAS ─────────
 router.get('/reservas', async (req, res) => {
   const { data, error } = await supabase.from('reservas')
-    .select('*, servicios(nombre)').order('fecha_cita');
+    .select('id, codigo_reserva, fecha_cita, hora_cita, total, estado, usuario(nombre), vehiculos(marca, modelo, placa), servicios(nombre)')
+    .order('fecha_cita', { ascending: false });
   if (error) return fail(res, error);
-  res.json(data);
+  res.json(data.map(r => ({
+    id: r.id, codigo: r.codigo_reserva, fecha: r.fecha_cita, hora: r.hora_cita,
+    total: num(r.total), estado: r.estado,
+    cliente: nombreUsuario(r.usuario), vehiculo: textoVehiculo(r.vehiculos),
+    servicio: r.servicios?.nombre ?? '',
+  })));
 });
 
-router.patch('/reservas/:id', async (req, res) => {
-  const cambios = {};
-  if (req.body.estado !== undefined) {
-    if (!ESTADOS.includes(req.body.estado)) return res.status(400).json({ error: 'Estado inválido' });
-    cambios.estado = req.body.estado;
-  }
-  if (req.body.tecnico_id !== undefined) cambios.tecnico_id = req.body.tecnico_id;
-  const { data, error } = await supabase.from('reservas').update(cambios).eq('id', req.params.id).select().single();
-  if (error) return fail(res, error);
-  res.json(data);
+router.get('/estados', (req, res) => res.json(ESTADOS));
+
+// ───────── RESUMEN ─────────
+router.get('/resumen', async (req, res) => {
+  const [r, p, s] = await Promise.all([
+    supabase.from('reservas').select('estado'),
+    supabase.from('pagos').select('estado, monto'),
+    supabase.from('servicios').select('id', { count: 'exact', head: true }).eq('activo', true),
+  ]);
+  const err = r.error || p.error || s.error;
+  if (err) return fail(res, err);
+  const porEstado = {};
+  r.data.forEach(x => { porEstado[x.estado] = (porEstado[x.estado] || 0) + 1; });
+  res.json({
+    totalReservas: r.data.length,
+    reservasPorEstado: porEstado,
+    pagosPendientes: p.data.filter(x => x.estado === 'revision').length,
+    ingresosAprobados: p.data.filter(x => x.estado === 'aprobado').reduce((a, x) => a + num(x.monto), 0),
+    serviciosActivos: s.count,
+  });
 });
 
 export default router;

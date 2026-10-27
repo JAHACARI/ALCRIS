@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/common/cabeceraperfil.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/perfil/tarjetaestadistica.dart';
-// Nuevos widgets importados
 import 'package:alcris/widgets/perfil/tarjetaseguridad.dart';
 import 'package:alcris/widgets/perfil/tarjetausuario.dart';
+import 'package:alcris/screen/admin/admin_shell.dart';
 
 class PerfilScreen extends StatefulWidget {
   const PerfilScreen({super.key});
@@ -15,6 +15,8 @@ class PerfilScreen extends StatefulWidget {
 
 class _PerfilScreenState extends State<PerfilScreen> {
   int _currentIndex = 1; 
+  // 1. Cambiamos a true para que el botón sea visible
+  bool esAdmin = true; 
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +55,41 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     titulo: 'Name_Card',
                     subtitulo: 'crea una nueva contraseña segura',
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
 
-                  // 4. Botón Solicitar Servicio con Degradado Lineal
+                  // 4. Panel administrativo (Diseño mejorado tipo tarjeta)
+                  if (esAdmin) ...[
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0B2A6B),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.admin_panel_settings, color: Color(0xFF0B2A6B)),
+                        ),
+                        title: const Text(
+                          'Panel Administrativo', 
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        ),
+                        subtitle: const Text('Gestionar pagos, reservas y precios'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AdminShell()),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // 5. Botón Solicitar Servicio con Degradado Lineal
                   Container(
                     width: double.infinity,
                     height: 50,

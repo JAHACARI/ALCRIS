@@ -11,6 +11,7 @@ import 'package:alcris/widgets/registro/formulario.dart';
 // Conexión con el servicio de infraestructura de la API
 import 'package:alcris/services/api3_verifycuenta.dart';
 
+
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
   @override

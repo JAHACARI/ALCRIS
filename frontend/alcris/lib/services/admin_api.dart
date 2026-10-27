@@ -10,7 +10,7 @@ class AdminApiError implements Exception {
 }
 
 class AdminApi {
-  static const base =  'http://10.0.2.2:3000/api/admin'; // emulador Android; // <- cambia por tu URL
+  static const base =  'http://127.0.0.1:3000/api/admin'; // emulador Android; // <- cambia por tu URL
   static String token = '';     
   static bool esAdmin = false;                   // <- JWT del admin tras el login
 
@@ -23,7 +23,15 @@ class AdminApi {
     if (res.statusCode >= 400) throw AdminApiError(data?['error'] ?? 'Error ${res.statusCode}');
     return data;
   }
-
+  // Resumen y reservas
+  static Future<Map<String, dynamic>> resumen() async =>
+      Map<String, dynamic>.from(await _send('GET', '/resumen'));
+  static Future<List<ReservaAdmin>> reservas() async =>
+      [for (final j in await _send('GET', '/reservas')) ReservaAdmin.fromJson(j)];
+  static Future<List<String>> estados() async =>
+      List<String>.from(await _send('GET', '/estados'));
+  static Future<void> cambiarEstado(int id, String estado) =>
+      _send('PATCH', '/reservas/$id', {'estado': estado});
   // Servicios
   static Future<List<ServicioAdmin>> servicios() async =>
       [for (final j in await _send('GET', '/servicios')) ServicioAdmin.fromJson(j)];

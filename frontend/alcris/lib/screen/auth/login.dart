@@ -66,10 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         debugPrint('LOGIN: $respuesta'); // temporal: para ver qué campos llegan
 
+        // Rol y token que devuelve el backend
         final String rol =
             (respuesta['rol'] ?? respuesta['usuario']?['rol'] ?? 'usuario')
                 .toString();
         AdminApi.token = (respuesta['token'] ?? '').toString();
+        AdminApi.esAdmin = rol == 'admin'; // se reinicia en cada login
 
         if (rol == 'admin') {
           // El admin elige a dónde entrar
