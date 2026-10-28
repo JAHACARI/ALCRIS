@@ -10,7 +10,7 @@ class AdminApiError implements Exception {
 }
 
 class AdminApi {
-  static const base =  'http://127.0.0.1:3000/api/admin'; // emulador Android; // <- cambia por tu URL
+  static const base =  'https://127.0.0.1:3000/api/admin'; // emulador Android; // <- cambia por tu URL
   static String token = '';     
   static bool esAdmin = false;                   // <- JWT del admin tras el login
 

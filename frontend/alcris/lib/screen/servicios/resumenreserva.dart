@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:alcris/widgets/resumenreserva/desglocecostos.dart';
 import 'package:alcris/widgets/resumenreserva/detallereserva.dart';
 import 'package:alcris/widgets/resumenreserva/formasdepago.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
+import 'package:alcris/services/admin_api.dart';
+import 'package:alcris/services/api_pagos.dart';
+import 'package:alcris/screen/pagos/pagos.dart';
 
 class ResumenReservaScreen extends StatefulWidget {
   final Map<String, dynamic> datosReserva;
@@ -16,6 +21,81 @@ class ResumenReservaScreen extends StatefulWidget {
 class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
   final int _currentIndex = 1; // Ajustado al índice de Servicios para tu barra de 4 ítems
   String _metodoPagoSeleccionado = 'Efectivo';
+  bool _enviando = false;
+
+  // ⚠️ AJUSTA a la URL de tu endpoint real para crear reservas
+  static const _urlCrearReserva = 'http://10.0.2.2:3000/api/reservas';
+
+  bool get _esTransferencia {
+    final m = _metodoPagoSeleccionado.toLowerCase();
+    return m.contains('transfer') || m.contains('nequi');
+  }
+
+  // Solo valores serializables (el mapa trae IconData y Color, que jsonEncode no acepta)
+  Map<String, dynamic> get _datosJson => {
+        for (final e in widget.datosReserva.entries)
+          if (e.value is String || e.value is num || e.value is bool) e.key: e.value,
+      };
+
+  // ⚠️ ÚNICO PUNTO A AJUSTAR: nombres de campos que espera tu backend
+  Future<Map<String, dynamic>> _crearReserva() async {
+    final res = await http.post(
+      Uri.parse(_urlCrearReserva),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${AdminApi.token}',
+      },
+      body: jsonEncode({
+        ..._datosJson,
+        'servicio_id': widget.datosReserva['id'],
+        'forma_pago': _esTransferencia ? 'transferencia' : 'efectivo',
+      }),
+    );
+    final data = jsonDecode(res.body);
+    if (res.statusCode >= 400) {
+      throw Exception(data['error'] ?? data['message'] ?? 'Error ${res.statusCode}');
+    }
+    // Acepta { id, ... } o { reserva: { id, ... } }
+    return Map<String, dynamic>.from(data['reserva'] ?? data);
+  }
+
+  Future<void> _confirmar() async {
+    if (_enviando) return;
+    setState(() => _enviando = true);
+    try {
+      final r = await _crearReserva();
+      if (!mounted) return;
+
+      if (_esTransferencia) {
+        // Transferencia: abre directo la pantalla para subir el comprobante
+        final reserva = ReservaPago.fromJson({
+          'id': r['id'],
+          'codigo': r['codigo_reserva'] ?? r['codigo'] ?? '',
+          'total': r['total'] ?? 0,
+          'servicio': widget.datosReserva['title'] ?? widget.datosReserva['servicio'] ?? '',
+          'fecha': widget.datosReserva['fecha'] ?? '',
+          'hora': widget.datosReserva['hora'] ?? '',
+        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => SubirComprobanteScreen(reserva: reserva)),
+        );
+      } else {
+        // Efectivo u otros: queda en espera
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('¡Reserva en espera!: $_metodoPagoSeleccionado')),
+        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) setState(() => _enviando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,18 +131,18 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
                   style: IconButton.styleFrom(
-                    backgroundColor: Colors.white12, 
+                    backgroundColor: Colors.white12,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Resumen de Reserva', 
+                  'Resumen de Reserva',
                   style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Revisa los detalles de tu cita antes de confirmar.', 
+                  'Revisa los detalles de tu cita antes de confirmar.',
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
                 ),
               ],
@@ -78,7 +158,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                   // Pasamos los datos perfectamente adaptados sin valores nulos
                   TarjetaCitaDetalle(datosCita: datosAdaptadosCita),
                   const SizedBox(height: 16),
-                  
+
                   // Desglose dinámico de costos (usa valores por defecto si vienen vacíos de la API)
                   DesgloseCostos(
                     servicioBasico: widget.datosReserva['costo_basico'] ?? '\$80.000',
@@ -87,7 +167,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                     total: widget.datosReserva['costo_total'] ?? '\$90.000',
                   ),
                   const SizedBox(height: 20),
-                  
+
                   SelectorPago(onMetodoSeleccionado: (metodo) => _metodoPagoSeleccionado = metodo),
                   const SizedBox(height: 28),
 
@@ -97,8 +177,8 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                     height: 50,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFE94560), Color(0xFFC0392B)], 
-                        begin: Alignment.topCenter, 
+                        colors: [Color(0xFFE94560), Color(0xFFC0392B)],
+                        begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
                       borderRadius: BorderRadius.circular(14),
@@ -107,25 +187,22 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Aquí enviarías widget.datosReserva + método de pago al backend
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '¡Reserva en espera!: $_metodoPagoSeleccionado',
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: _enviando ? null : _confirmar,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent, 
-                        shadowColor: Colors.transparent, 
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text(
-                        'CONFIRMAR RESERVA', 
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
-                      ),
+                      child: _enviando
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text(
+                              'CONFIRMAR RESERVA',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                            ),
                     ),
                   ),
                 ],
@@ -135,7 +212,7 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
         ],
       ),
       bottomNavigationBar: MenuInferior2(
-        currentIndex: _currentIndex, 
+        currentIndex: _currentIndex,
         onTap: (i) {
           // Permite que el menú inferior te regrese a las pantallas principales del IndexedStack
           Navigator.of(context).popUntil((route) => route.isFirst);

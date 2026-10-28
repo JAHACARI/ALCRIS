@@ -17,6 +17,6 @@ class ApiConfig {
     if (!kIsWeb && Platform.isAndroid) {
       return 'https://127.0.0.1:3000'; // Dispositivos Android locales / Genymotion
     }
-    return 'http://localhost:3000/api'; // iOS, Web y Escritorio
+    return 'https://localhost:3000/api'; // iOS, Web y Escritorio
   }
 }

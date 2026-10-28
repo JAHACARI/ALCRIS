@@ -13,6 +13,8 @@ import catalogoRoutes from "./routes/catalogo/catalogoRoutes.js";
 import chatRoutes from "./routes/chat/chatRoutes.js";
 import { verificarToken, soloAdmin } from "../backend/middleware/authMiddleware.js";
 import adminRoutes from "./routes/admin.js";
+import pagosRoutes from "./routes/pagos.js";
+
 const app = express();
 
 // ---------- Middlewares ----------
@@ -32,7 +34,7 @@ app.use("/api/reservas", reservaRoutes);
 app.use("/api", catalogoRoutes); // /api/colores y /api/acabados
 app.use("/api/chat", chatRoutes);
 app.use("/api/admin", verificarToken, soloAdmin, adminRoutes);
-
+app.use("/api/pagos", verificarToken, pagosRoutes);
 
 //Rutas de la API
 app.get('/health', (req, res) => {
