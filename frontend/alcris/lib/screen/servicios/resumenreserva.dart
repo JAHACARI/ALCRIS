@@ -8,6 +8,8 @@ import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/services/admin_api.dart';
 import 'package:alcris/services/api_pagos.dart';
 import 'package:alcris/screen/pagos/pagos.dart';
+import 'package:alcris/services/api_config.dart';
+
 
 class ResumenReservaScreen extends StatefulWidget {
   final Map<String, dynamic> datosReserva;
@@ -24,7 +26,8 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
   bool _enviando = false;
 
   // ⚠️ AJUSTA a la URL de tu endpoint real para crear reservas
-  static const _urlCrearReserva = 'http://10.0.2.2:3000/api/reservas';
+  String get _urlCrearReserva => '${ApiConfig.baseUrl}/reservas';
+
 
   bool get _esTransferencia {
     final m = _metodoPagoSeleccionado.toLowerCase();
