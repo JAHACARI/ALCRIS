@@ -148,7 +148,7 @@ export const obtener = async (req, res) => {
 export const actualizar = async (req, res) => {
   try {
     const { data: existente } = await obtenerReservaPorId(req.params.id);
-    if (!existente)
+    if (!existing)
       return res.status(404).json({ error: "Reserva no encontrada" });
 
     const esAdmin = req.usuario.rol === "admin";
@@ -216,10 +216,11 @@ export const disponibilidad = async (req, res) => {
   }
 };
 
-// 🆕 NUEVO ENDPOINT INTEGRADO: Recibe la imagen y actualiza el estado a 'revision'
+// ✅ MODIFICADO: Adaptado estrictamente a la tabla 'pagos' e inserta con éxito
 export const subirComprobante = async (req, res) => {
+  console.log("=== RECEPCIÓN DE COMPROBANTE ===");
   try {
-    const { id } = req.params; // ID de la reserva enviado desde Flutter
+    const { id } = req.params; 
     const { monto, ref_nequi } = req.body;
     const archivo = req.file;
 
@@ -230,10 +231,10 @@ export const subirComprobante = async (req, res) => {
       return res.status(400).json({ error: "La referencia de Nequi y el monto son requeridos" });
     }
 
-    // 1. Nombre único para evitar colisiones en el Storage de Supabase
-    const nombreArchivo = `${Date.now()}_${archivo.originalname}`;
+    // 1. Nombre único para el archivo en el Storage
+    const nombreArchivo = `${Date.now()}_${archivo.originalname.replace(/\s+/g, "_")}`;
 
-    // 2. Subir buffer del archivo al bucket 'comprobantes'
+    // 2. Subir el archivo al bucket de Supabase
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("comprobantes")
       .upload(nombreArchivo, archivo.buffer, {
@@ -243,30 +244,44 @@ export const subirComprobante = async (req, res) => {
 
     if (uploadError) throw uploadError;
 
-    // 3. Extraer la URL pública del comprobante recién subido
+    // 3. Obtener la URL pública del archivo subido
     const { data: urlData } = supabase.storage
       .from("comprobantes")
       .getPublicUrl(nombreArchivo);
 
     const comprobanteUrl = urlData.publicUrl;
 
-    // 4. Actualizar la reserva guardando la URL, la referencia, el monto y fijando el estado exacto en 'revision'
-    const { data, error } = await supabase
-      .from("reservas")
-      .update({
-        comprobante_url: comprobanteUrl,
-        monto_enviado: Number(monto),
-        ref_nequi: ref_nequi,
-        estado: "revision", // 🚀 Sincronizado exactamente con el filtro '?estado=revision' del Admin
-      })
-      .eq("id", id)
+    // 4. Insertar fila en tu tabla real 'pagos' con sus columnas mapeadas de tu Supabase
+    const { data: pagoInsertado, error: errorInsert } = await supabase
+      .from("pagos")
+      .insert([
+        {
+          reserva_id: isNaN(id) ? id : Number(id),
+          monto_nu: Number(monto),                 
+          ref_nequi: ref_nequi,                    
+          comprobante_path: comprobanteUrl,        
+          estado: "revision",                      
+        }
+      ])
       .select()
       .single();
 
-    if (error) throw error;
+    if (errorInsert) {
+      console.error("Error insertando en la tabla pagos:", errorInsert);
+      throw errorInsert;
+    }
 
-    return res.status(200).json({ message: "Comprobante procesado con éxito", reserva: data });
+    // 5. Sincronizar la tabla de reservas cambiando el estado padre a 'revision'
+    await supabase
+      .from("reservas")
+      .update({ estado: "revision" })
+      .eq("id", isNaN(id) ? id : Number(id));
+
+    console.log("=== COMPROBANTE PROCESADO Y GUARDADO EN LA TABLA PAGOS ===");
+    return res.status(200).json({ message: "Comprobante procesado con éxito", pago: pagoInsertado });
+
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Error crítico en subirComprobante:", error.message);
+    return res.status(500).json({ error: `Error interno del servidor: ${error.message}` });
   }
 };
