@@ -13,6 +13,7 @@ import {
 import { obtenerEtapas } from "../../models/catalogo/etapaModel.js";
 import { supabase } from "../../config/supabase.js";
 import { validarHorario, calcularDisponibilidad } from "../disponibilidad.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const FORMAS_PAGO = ["efectivo", "transferencia"];
 
@@ -202,23 +203,16 @@ export const eliminar = async (req, res) => {
   }
 };
 
-export const disponibilidad = async (req, res) => {
-  try {
-    const mes = Number(req.query.mes);
-    const anio = Number(req.query.anio);
-    if (!(mes >= 1 && mes <= 12) || !(anio >= 2000)) {
-      return res.status(400).json({ error: "mes y anio inválidos" });
-    }
-    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(req.query.fecha ?? "") ? req.query.fecha : null;
-    return res.status(200).json(await calcularDisponibilidad(mes, anio, fecha));
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+// Configuración de Cloudinary (Usa las variables de entorno de tu .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// ✅ MODIFICADO: Adaptado estrictamente a la tabla 'pagos' e inserta con éxito
+// 🔄 Reemplaza la función 'subirComprobante' al final de tu archivo reservaController.js
 export const subirComprobante = async (req, res) => {
-  console.log("=== RECEPCIÓN DE COMPROBANTE ===");
+  console.log("=== INICIO DE RECEPCIÓN DE COMPROBANTE (CLOUDINARY) ===");
   try {
     const { id } = req.params; 
     const { monto, ref_nequi } = req.body;
@@ -231,35 +225,41 @@ export const subirComprobante = async (req, res) => {
       return res.status(400).json({ error: "La referencia de Nequi y el monto son requeridos" });
     }
 
-    // 1. Nombre único para el archivo en el Storage
-    const nombreArchivo = `${Date.now()}_${archivo.originalname.replace(/\s+/g, "_")}`;
-
-    // 2. Subir el archivo al bucket de Supabase
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("comprobantes")
-      .upload(nombreArchivo, archivo.buffer, {
-        contentType: archivo.mimetype,
-        upsert: true,
+    // 1. Promesa para subir el buffer de Multer directamente a Cloudinary
+    const subirACloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "comprobantes_alcris", // Carpeta organizada en tu Cloudinary
+            resource_type: "image",
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        // Escribe el buffer del archivo en el stream de Cloudinary
+        uploadStream.end(archivo.buffer);
       });
+    };
 
-    if (uploadError) throw uploadError;
+    // Executamos la subida
+    const resultadoCloudinary = await subirACloudinary();
+    
+    // 2. Extraemos la URL segura optimizada por Cloudinary
+    const comprobanteUrl = resultadoCloudinary.secure_url;
+    console.log("URL de Cloudinary generada con éxito:", comprobanteUrl);
 
-    // 3. Obtener la URL pública del archivo subido
-    const { data: urlData } = supabase.storage
-      .from("comprobantes")
-      .getPublicUrl(nombreArchivo);
-
-    const comprobanteUrl = urlData.publicUrl;
-
-    // 4. Insertar fila en tu tabla real 'pagos' con sus columnas mapeadas de tu Supabase
+    // 3. Insertar fila en tu tabla 'pagos' con la nueva URL de Cloudinary
     const { data: pagoInsertado, error: errorInsert } = await supabase
       .from("pagos")
       .insert([
         {
           reserva_id: isNaN(id) ? id : Number(id),
+          usuario_id: req.usuario?.id,             // Vincula el usuario logueado
           monto_nu: Number(monto),                 
           ref_nequi: ref_nequi,                    
-          comprobante_path: comprobanteUrl,        
+          comprobante_path: comprobanteUrl,        // Se guarda la URL de Cloudinary
           estado: "revision",                      
         }
       ])
@@ -271,7 +271,7 @@ export const subirComprobante = async (req, res) => {
       throw errorInsert;
     }
 
-    // 5. Sincronizar la tabla de reservas cambiando el estado padre a 'revision'
+    // 4. Sincronizar la tabla de reservas cambiando el estado padre a 'revision'
     await supabase
       .from("reservas")
       .update({ estado: "revision" })
@@ -281,7 +281,7 @@ export const subirComprobante = async (req, res) => {
     return res.status(200).json({ message: "Comprobante procesado con éxito", pago: pagoInsertado });
 
   } catch (error) {
-    console.error("Error crítico en subirComprobante:", error.message);
+    console.error("Error crítico en subirComprobante con Cloudinary:", error.message);
     return res.status(500).json({ error: `Error interno del servidor: ${error.message}` });
   }
 };
