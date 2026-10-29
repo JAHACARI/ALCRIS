@@ -4,11 +4,11 @@ import { supabase } from "../config/supabase.js"; // cliente con SERVICE_ROLE_KE
 const router = Router();
 
 // ───────── AJUSTA ESTOS VALORES A TU BASE ─────────
-const ESTADOS = ['pendiente','confirmada','recibido','diagnostico','en_proceso','pintura','listo','entregado','rechazada'];
+const ESTADOS = ['pendiente','confirmada','recibido','diagnostico','en_proceso','pintura','listo','entregado','rechazada','cancelada'];
+const ESTADOS_FINALES = ['entregado','rechazada','cancelada'];
 const ESTADO_PENDIENTE  = 'pendiente';
 const ESTADO_CONFIRMADA = 'confirmada';
 const ESTADO_RECHAZADA  = 'rechazada';
-const ESTADOS_FINALES   = ['entregado','rechazada'];
 const FORMA_EFECTIVO    = 'efectivo';
 const CATEGORIA_POR_DEFECTO = null;
 const nombreUsuario = u => u?.nombre ?? '';

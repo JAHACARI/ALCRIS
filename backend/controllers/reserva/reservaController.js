@@ -11,6 +11,9 @@ import {
   obtenerSeguimientoPorReserva,
 } from "../../models/reserva/seguimientoModel.js";
 import { obtenerEtapas } from "../../models/catalogo/etapaModel.js";
+import { supabase } from "../../config/supabase.js";
+
+const FORMAS_PAGO = ["efectivo", "transferencia"];
 
 export const crear = async (req, res) => {
   try {
@@ -23,10 +26,6 @@ export const crear = async (req, res) => {
       acabado_id,
       fecha_cita,
       hora_cita,
-      subtotal = 0,
-      materiales = 0,
-      descuento = 0,
-      total = 0,
       forma_pago = "efectivo",
       notas,
     } = req.body;
@@ -36,6 +35,26 @@ export const crear = async (req, res) => {
         .status(400)
         .json({ error: "servicio_id, fecha_cita y hora_cita son requeridos" });
     }
+    if (!FORMAS_PAGO.includes(forma_pago)) {
+      return res.status(400).json({ error: "Forma de pago inválida" });
+    }
+
+    // El precio sale de la base de datos, nunca del cliente
+    const { data: servicio, error: eServ } = await supabase
+      .from("servicios")
+      .select("precio_base")
+      .eq("id", servicio_id)
+      .eq("activo", true)
+      .single();
+    if (eServ || !servicio) {
+      return res
+        .status(404)
+        .json({ error: "El servicio no existe o ya no está disponible" });
+    }
+    const subtotal = Math.round(Number(servicio.precio_base));
+    const materiales = 0;
+    const descuento = 0;
+    const total = subtotal + materiales - descuento;
 
     const { data, error } = await crearReserva({
       usuario_id: req.usuario.id,
@@ -118,15 +137,33 @@ export const actualizar = async (req, res) => {
     if (!existente)
       return res.status(404).json({ error: "Reserva no encontrada" });
 
-    const campos = { ...req.body };
-    if (req.usuario.rol !== "admin") {
-      delete campos.estado;
-      delete campos.tecnico_id;
-      if (req.body.estado && req.body.estado !== "cancelada") {
-        return res
-          .status(403)
-          .json({ error: "Solo puedes cancelar tu reserva" });
+    const esAdmin = req.usuario.rol === "admin";
+    if (!esAdmin && String(existente.usuario_id) !== String(req.usuario.id)) {
+      return res.status(403).json({ error: "No tienes permiso" });
+    }
+
+    let campos;
+    if (esAdmin) {
+      campos = { ...req.body };
+    } else {
+      // El cliente solo puede editar notas o cancelar una reserva pendiente
+      campos = {};
+      if (req.body.notas !== undefined) campos.notas = req.body.notas;
+      if (req.body.estado !== undefined) {
+        if (req.body.estado !== "cancelada") {
+          return res.status(403).json({ error: "Solo puedes cancelar tu reserva" });
+        }
+        if (existente.estado !== "pendiente") {
+          return res
+            .status(409)
+            .json({ error: "Solo puedes cancelar reservas pendientes" });
+        }
+        campos.estado = "cancelada";
       }
+    }
+
+    if (Object.keys(campos).length === 0) {
+      return res.status(400).json({ error: "No hay nada que actualizar" });
     }
 
     const { data, error } = await actualizarReserva(req.params.id, campos);

@@ -5,11 +5,10 @@ import 'package:alcris/widgets/resumenreserva/desglocecostos.dart';
 import 'package:alcris/widgets/resumenreserva/detallereserva.dart';
 import 'package:alcris/widgets/resumenreserva/formasdepago.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
+import 'package:alcris/services/api_config.dart';
 import 'package:alcris/services/admin_api.dart';
 import 'package:alcris/services/api_pagos.dart';
 import 'package:alcris/screen/pagos/pagos.dart';
-import 'package:alcris/services/api_config.dart';
-
 
 class ResumenReservaScreen extends StatefulWidget {
   final Map<String, dynamic> datosReserva;
@@ -25,40 +24,67 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
   String _metodoPagoSeleccionado = 'Efectivo';
   bool _enviando = false;
 
-  // ⚠️ AJUSTA a la URL de tu endpoint real para crear reservas
   String get _urlCrearReserva => '${ApiConfig.baseUrl}/reservas';
-
 
   bool get _esTransferencia {
     final m = _metodoPagoSeleccionado.toLowerCase();
     return m.contains('transfer') || m.contains('nequi');
   }
 
-  // Solo valores serializables (el mapa trae IconData y Color, que jsonEncode no acepta)
-  Map<String, dynamic> get _datosJson => {
-        for (final e in widget.datosReserva.entries)
-          if (e.value is String || e.value is num || e.value is bool) e.key: e.value,
-      };
+  // Precio real del servicio (el servidor calcula el mismo valor al crear la reserva)
+  int? get _precio {
+    final p = widget.datosReserva['precio'] ?? widget.datosReserva['precio_base'];
+    if (p is num) return p.round();
+    if (p is String) return int.tryParse(p.replaceAll(RegExp(r'[^0-9]'), ''));
+    return null;
+  }
 
-  // ⚠️ ÚNICO PUNTO A AJUSTAR: nombres de campos que espera tu backend
+  String _cop(int n) =>
+      '\$${n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => '.')}';
+
+  // "9:00 AM" -> "09:00:00" (formato que espera una columna time)
+  String _hora24(String h) {
+    final m = RegExp(r'^\s*(\d{1,2}):(\d{2})\s*([AaPp])?\.?[Mm]?\.?\s*$').firstMatch(h);
+    if (m == null) return h;
+    var hh = int.parse(m.group(1)!);
+    final mm = m.group(2)!;
+    final ap = m.group(3)?.toLowerCase();
+    if (ap == 'p' && hh < 12) hh += 12;
+    if (ap == 'a' && hh == 12) hh = 0;
+    return '${hh.toString().padLeft(2, '0')}:$mm:00';
+  }
+
   Future<Map<String, dynamic>> _crearReserva() async {
+    final d = widget.datosReserva;
+    debugPrint('RESERVA datos: ${d.keys.toList()}'); // temporal: ver qué llaves llegan
+
+    final servicioId = d['servicio_id'] ?? d['id'] ?? d['servicioId'];
+    if (servicioId == null) {
+      throw Exception('No se pudo identificar el servicio. Vuelve a elegirlo.');
+    }
+
+    final body = {
+      'servicio_id': servicioId,
+      'fecha_cita': (d['fecha_cita'] ?? d['fecha']).toString(),
+      'hora_cita': _hora24((d['hora_cita'] ?? d['hora']).toString()),
+      'forma_pago': _esTransferencia ? 'transferencia' : 'efectivo',
+      for (final k in ['vehiculo_id', 'paquete_id', 'color_id', 'acabado_id', 'notas'])
+        if (d[k] != null) k: d[k],
+    };
+    debugPrint('RESERVA body: $body');
+
     final res = await http.post(
       Uri.parse(_urlCrearReserva),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${AdminApi.token}',
       },
-      body: jsonEncode({
-        ..._datosJson,
-        'servicio_id': widget.datosReserva['id'],
-        'forma_pago': _esTransferencia ? 'transferencia' : 'efectivo',
-      }),
+      body: jsonEncode(body),
     );
     final data = jsonDecode(res.body);
     if (res.statusCode >= 400) {
       throw Exception(data['error'] ?? data['message'] ?? 'Error ${res.statusCode}');
     }
-    // Acepta { id, ... } o { reserva: { id, ... } }
     return Map<String, dynamic>.from(data['reserva'] ?? data);
   }
 
@@ -84,9 +110,9 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
           MaterialPageRoute(builder: (_) => SubirComprobanteScreen(reserva: reserva)),
         );
       } else {
-        // Efectivo u otros: queda en espera
+        // Efectivo: queda pendiente hasta que el admin confirme el pago en el taller
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('¡Reserva en espera!: $_metodoPagoSeleccionado')),
+          const SnackBar(content: Text('Reserva registrada. Pagas en efectivo en el taller.')),
         );
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -110,6 +136,9 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
       'encargado': widget.datosReserva['encargado'] ?? 'Por asignar',
       'duracion': widget.datosReserva['tiempo'] ?? widget.datosReserva['duracion'] ?? '1-2 Días',
     };
+
+    final precio = _precio;
+    final txtPrecio = precio != null ? _cop(precio) : 'Por definir';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
@@ -158,16 +187,15 @@ class _ResumenReservaScreenState extends State<ResumenReservaScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Pasamos los datos perfectamente adaptados sin valores nulos
                   TarjetaCitaDetalle(datosCita: datosAdaptadosCita),
                   const SizedBox(height: 16),
 
-                  // Desglose dinámico de costos (usa valores por defecto si vienen vacíos de la API)
+                  // Costos reales: coinciden con lo que cobra el servidor
                   DesgloseCostos(
-                    servicioBasico: widget.datosReserva['costo_basico'] ?? '\$80.000',
-                    materiales: widget.datosReserva['costo_materiales'] ?? '\$15.000',
-                    descuento: widget.datosReserva['costo_descuento'] ?? '-\$10.000',
-                    total: widget.datosReserva['costo_total'] ?? '\$90.000',
+                    servicioBasico: txtPrecio,
+                    materiales: '\$0',
+                    descuento: '\$0',
+                    total: txtPrecio,
                   ),
                   const SizedBox(height: 20),
 
