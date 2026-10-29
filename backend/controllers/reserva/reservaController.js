@@ -160,7 +160,6 @@ export const actualizar = async (req, res) => {
     if (esAdmin) {
       campos = { ...req.body };
     } else {
-      // El cliente solo puede editar notas o cancelar una reserva pendiente
       campos = {};
       if (req.body.notas !== undefined) campos.notas = req.body.notas;
       if (req.body.estado !== undefined) {
@@ -212,6 +211,61 @@ export const disponibilidad = async (req, res) => {
     }
     const fecha = /^\d{4}-\d{2}-\d{2}$/.test(req.query.fecha ?? "") ? req.query.fecha : null;
     return res.status(200).json(await calcularDisponibilidad(mes, anio, fecha));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// 🆕 NUEVO ENDPOINT INTEGRADO: Recibe la imagen y actualiza el estado a 'revision'
+export const subirComprobante = async (req, res) => {
+  try {
+    const { id } = req.params; // ID de la reserva enviado desde Flutter
+    const { monto, ref_nequi } = req.body;
+    const archivo = req.file;
+
+    if (!archivo) {
+      return res.status(400).json({ error: "La foto del comprobante es requerida" });
+    }
+    if (!ref_nequi || !monto) {
+      return res.status(400).json({ error: "La referencia de Nequi y el monto son requeridos" });
+    }
+
+    // 1. Nombre único para evitar colisiones en el Storage de Supabase
+    const nombreArchivo = `${Date.now()}_${archivo.originalname}`;
+
+    // 2. Subir buffer del archivo al bucket 'comprobantes'
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("comprobantes")
+      .upload(nombreArchivo, archivo.buffer, {
+        contentType: archivo.mimetype,
+        upsert: true,
+      });
+
+    if (uploadError) throw uploadError;
+
+    // 3. Extraer la URL pública del comprobante recién subido
+    const { data: urlData } = supabase.storage
+      .from("comprobantes")
+      .getPublicUrl(nombreArchivo);
+
+    const comprobanteUrl = urlData.publicUrl;
+
+    // 4. Actualizar la reserva guardando la URL, la referencia, el monto y fijando el estado exacto en 'revision'
+    const { data, error } = await supabase
+      .from("reservas")
+      .update({
+        comprobante_url: comprobanteUrl,
+        monto_enviado: Number(monto),
+        ref_nequi: ref_nequi,
+        estado: "revision", // 🚀 Sincronizado exactamente con el filtro '?estado=revision' del Admin
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: "Comprobante procesado con éxito", reserva: data });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

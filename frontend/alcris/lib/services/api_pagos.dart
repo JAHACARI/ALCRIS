@@ -25,7 +25,8 @@ class PagoApiError implements Exception {
 }
 
 class PagoApi {
-  static const base = 'https://127.0.0.1:3000/api/pagos';
+  // ✅ Corregido: Apunta a tu API específica en Render y a la sección de pagos
+  static const base = 'https://onrender.com';
   static Map<String, String> get _h => {'Authorization': 'Bearer ${AdminApi.token}'};
 
   static Future<List<ReservaPago>> misReservas() async {
@@ -41,7 +42,8 @@ class PagoApi {
     required String ref,
     required File foto,
   }) async {
-    final req = http.MultipartRequest('POST', Uri.parse('$base/$reservaId'))
+    // ✅ Corregido: Se añade '/comprobante' para emparejar la ruta con el backend en Node.js
+    final req = http.MultipartRequest('POST', Uri.parse('$base/$reservaId/comprobante'))
       ..headers.addAll(_h)
       ..fields['monto'] = '$monto'
       ..fields['ref_nequi'] = ref
