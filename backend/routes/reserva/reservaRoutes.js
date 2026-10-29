@@ -8,6 +8,7 @@ const router = Router();
 router.use(verificarToken);
 
 router.get("/etapas", seguimiento.listarEtapas);
+router.get("/disponibilidad", reserva.disponibilidad);
 router.post("/", reserva.crear);
 router.get("/", reserva.listar);
 router.get("/:id", reserva.obtener);

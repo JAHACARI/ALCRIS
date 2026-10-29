@@ -171,5 +171,65 @@ router.patch('/reservas/:id', async (req, res) => {
   if (error) return fail(res, error);
   res.json(data);
 });
+// ───────── HORARIOS DEL TALLER ─────────
+const HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const FECHA_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+router.get('/horarios', async (req, res) => {
+  const hoy = new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 10);
+  const [h, b] = await Promise.all([
+    supabase.from('horario_base').select('dia_semana, hora, cupo').order('hora'),
+    supabase.from('dias_bloqueados').select('fecha, motivo').gte('fecha', hoy).order('fecha'),
+  ]);
+  const err = h.error || b.error;
+  if (err) return fail(res, err);
+  const semana = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+  h.data.forEach(r => semana[r.dia_semana].push({ hora: String(r.hora).slice(0, 5), cupo: r.cupo }));
+  res.json({ semana, bloqueados: b.data });
+});
+
+// Reemplaza las horas de un día de la semana (0 = domingo ... 6 = sábado)
+router.put('/horarios/:dia', async (req, res) => {
+  const dia = Number(req.params.dia);
+  const horas = Array.isArray(req.body.horas) ? [...new Set(req.body.horas)] : null;
+  const cupo = Number(req.body.cupo ?? 1);
+  if (!Number.isInteger(dia) || dia < 0 || dia > 6) return res.status(400).json({ error: 'Día inválido' });
+  if (!horas || horas.length > 24 || !horas.every(h => HORA_RE.test(h)))
+    return res.status(400).json({ error: 'Horas inválidas (formato HH:MM)' });
+  if (!Number.isInteger(cupo) || cupo < 1 || cupo > 20)
+    return res.status(400).json({ error: 'El cupo debe estar entre 1 y 20' });
+
+  if (horas.length) {
+    const { error } = await supabase.from('horario_base')
+      .upsert(horas.map(hora => ({ dia_semana: dia, hora, cupo })), { onConflict: 'dia_semana,hora' });
+    if (error) return fail(res, error);
+  }
+  let q = supabase.from('horario_base').delete().eq('dia_semana', dia);
+  if (horas.length) q = q.not('hora', 'in', `(${horas.map(h => `"${h}"`).join(',')})`);
+  const { error: e2 } = await q;
+  if (e2) return fail(res, e2);
+  res.json({ ok: true });
+});
+
+// Bloquear una fecha completa (festivo, cierre, etc.)
+router.post('/dias-bloqueados', async (req, res) => {
+  const fecha = String(req.body.fecha ?? '');
+  const motivo = String(req.body.motivo ?? '').trim() || null;
+  if (!FECHA_RE.test(fecha)) return res.status(400).json({ error: 'Fecha inválida' });
+  const { error } = await supabase.from('dias_bloqueados').upsert({ fecha, motivo });
+  if (error) return fail(res, error);
+  // No cancela reservas existentes: avisa cuántas hay para que el admin decida
+  const { count } = await supabase.from('reservas')
+    .select('id', { count: 'exact', head: true })
+    .eq('fecha_cita', fecha)
+    .not('estado', 'in', `(${ESTADOS_FINALES.join(',')})`);
+  res.status(201).json({ ok: true, reservasExistentes: count ?? 0 });
+});
+
+router.delete('/dias-bloqueados/:fecha', async (req, res) => {
+  if (!FECHA_RE.test(req.params.fecha)) return res.status(400).json({ error: 'Fecha inválida' });
+  const { error } = await supabase.from('dias_bloqueados').delete().eq('fecha', req.params.fecha);
+  if (error) return fail(res, error);
+  res.status(204).end();
+});
 export default router;

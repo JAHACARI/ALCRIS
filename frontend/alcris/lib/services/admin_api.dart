@@ -51,4 +51,16 @@ class AdminApi {
   static Future<void> aceptarPago(int id) => _send('POST', '/pagos/$id/aceptar');
   static Future<void> rechazarPago(int id, String motivo) =>
       _send('POST', '/pagos/$id/rechazar', {'motivo': motivo});
+
+        // Horarios del taller
+  static Future<Map<String, dynamic>> horarios() async =>
+      Map<String, dynamic>.from(await _send('GET', '/horarios'));
+  static Future<void> guardarDia(int dia, List<String> horas, int cupo) =>
+      _send('PUT', '/horarios/$dia', {'horas': horas, 'cupo': cupo});
+  static Future<int> bloquearDia(String fecha, String motivo) async {
+    final r = await _send('POST', '/dias-bloqueados', {'fecha': fecha, 'motivo': motivo});
+    return (r['reservasExistentes'] ?? 0) as int;
+  }
+  static Future<void> desbloquearDia(String fecha) =>
+      _send('DELETE', '/dias-bloqueados/$fecha');
 }

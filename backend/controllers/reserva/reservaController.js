@@ -12,6 +12,7 @@ import {
 } from "../../models/reserva/seguimientoModel.js";
 import { obtenerEtapas } from "../../models/catalogo/etapaModel.js";
 import { supabase } from "../../config/supabase.js";
+import { validarHorario, calcularDisponibilidad } from "../disponibilidad.js";
 
 const FORMAS_PAGO = ["efectivo", "transferencia"];
 
@@ -37,6 +38,19 @@ export const crear = async (req, res) => {
     }
     if (!FORMAS_PAGO.includes(forma_pago)) {
       return res.status(400).json({ error: "Forma de pago inválida" });
+    }
+
+    // Fecha pasada (hoy en Colombia, UTC-5)
+    const hoy = new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 10);
+    if (String(fecha_cita) < hoy) {
+      return res.status(400).json({ error: "La fecha de la cita no puede ser pasada" });
+    }
+
+    // Validación integrada del horario y cupo mediante la función externa
+    const horaFormateada = hora_cita ? String(hora_cita).slice(0, 5) : '';
+    const v = await validarHorario(fecha_cita, horaFormateada);
+    if (!v.ok) {
+      return res.status(v.codigo || 400).json({ error: v.error });
     }
 
     // El precio sale de la base de datos, nunca del cliente
@@ -184,6 +198,20 @@ export const eliminar = async (req, res) => {
     return res
       .status(200)
       .json({ message: "Reserva eliminada", reserva: data });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const disponibilidad = async (req, res) => {
+  try {
+    const mes = Number(req.query.mes);
+    const anio = Number(req.query.anio);
+    if (!(mes >= 1 && mes <= 12) || !(anio >= 2000)) {
+      return res.status(400).json({ error: "mes y anio inválidos" });
+    }
+    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(req.query.fecha ?? "") ? req.query.fecha : null;
+    return res.status(200).json(await calcularDisponibilidad(mes, anio, fecha));
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
