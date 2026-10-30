@@ -1,52 +1,39 @@
-import nodemailer from "nodemailer";
+import * as SibApiV3Sdk from "@getbrevo/brevo";
 import "dotenv/config";
 
-// 1. Sanitización forzada: Limpia cualquier residuo de "://" de las variables de entorno de Render
-const limpiarVariable = (valor) => {
-  if (!valor) return "";
-  // Remueve http://, https://, smtp://, :// y espacios en blanco accidentales
-  return valor.replace(/^https?:\/\/|^\/\/|smtp:\/\//i, "").trim();
+// Inicializamos el cliente de la API de Brevo
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+// Configuramos la Clave API (Asegúrate de que process.env.EMAIL_PASS sea tu API KEY de Brevo)
+const apiKey = apiInstance.authentications['apiKey'];
+apiKey.apiKey = process.env.EMAIL_PASS?.trim();
+
+/**
+ * Función auxiliar para enviar correos vía HTTP API (Evita bloqueos de Render)
+ */
+const enviarEmailPorAPI = async (mailOptions) => {
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+  sendSmtpEmail.subject = mailOptions.subject;
+  sendSmtpEmail.htmlContent = mailOptions.html;
+  sendSmtpEmail.sender = { name: "Alcris", email: "alcrislatoneriaypintura@gmail.com" }; // Remitente verificado en Brevo
+  sendSmtpEmail.to = [{ email: mailOptions.to }];
+
+  try {
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("✨ Correo enviado con éxito mediante la API de Brevo. ID:", data.messageId);
+    return { success: true, messageId: data.messageId };
+  } catch (error) {
+    console.error("❌ ERROR CRÍTICO EN LA API DE BREVO:", error.message || error);
+    return { success: false, error: error.message || error };
+  }
 };
-
-const hostFijo = "smtp-relay.brevo.com";
-const usuarioLimpio = limpiarVariable(process.env.EMAIL_USER);
-const claveLimpia = (process.env.EMAIL_PASS || "").trim();
-
-// Configuración SMTP segura (Puerto 465) para evitar el bloqueo de red de Render
-const transporter = nodemailer.createTransport({
-  host: hostFijo,           
-  port: 465,                // Cambiamos de 587 a 465 (Evita el bloqueo en Render)
-  secure: true,             // Debe ser true obligatoriamente para el puerto 465 (SSL)
-  connectionTimeout: 15000, 
-  greetingTimeout: 15000,   
-  auth: {
-    user: usuarioLimpio, 
-    pass: claveLimpia,   
-  },
-});
-
-
-// Verificación automática de la conexión SMTP al arrancar el backend
-transporter.verify()
-  .then(() => {
-    console.log("✨ Servidor SMTP listo: ¡La autenticación con Brevo ha sido EXITOSA!");
-  })
-  .catch((err) => {
-    console.error("❌ ERROR CRÍTICO DE AUTENTICACIÓN SMTP CON BREVO EN RENDER:");
-    console.error(`Detalle del fallo: ${err.message}`);
-    console.error(`Valores procesados -> Host: "${hostFijo}" | User: "${usuarioLimpio}"`);
-  });
 
 /**
  * Envía el código de verificación de cuenta
  */
 export const enviarCodigoVerificacion = async (email, codigo, nombre = "Usuario") => {
-  const mailOptions = {
-    // Usamos el remitente con formato estricto y limpio de texto
-    from: '"Alcris" <alcrislatoneriaypintura@gmail.com>', 
-    to: email,
-    subject: "Código de verificación - Alcris",
-    html: `
+  const htmlContent = `
    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
   
   <!-- Encabezado con Degradado Azul Marino / Negro -->
@@ -84,28 +71,20 @@ export const enviarCodigoVerificacion = async (email, codigo, nombre = "Usuario"
     <p style="color: #64748b; font-size: 11px; margin: 0;">Alcris - Latonería y Pintura</p>
   </div>
 </div>
-    `,
-  };
+  `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Correo de verificación enviado con éxito a través de Brevo. ID:", info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("Error crítico enviando email de verificación:", error);
-    return { success: false, error: error.message };
-  }
+  return await enviarEmailPorAPI({
+    to: email,
+    subject: "Código de verificación - Alcris",
+    html: htmlContent
+  });
 };
 
 /**
  * Envía el código de recuperación de contraseña
  */
 export const enviarCodigoRecuperacion = async (email, codigo, nombre = "Usuario") => {
-  const mailOptions = {
-    from: '"Alcris" <alcrislatoneriaypintura@gmail.com>', 
-    to: email,
-    subject: "Recuperación de contraseña - Alcris",
-    html: `
+  const htmlContent = `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e8ed; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center;">
@@ -142,15 +121,11 @@ export const enviarCodigoRecuperacion = async (email, codigo, nombre = "Usuario"
         </div>
 
       </div>
-    `,
-  };
+  `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Correo de recuperación enviado con éxito a través de Brevo. ID:", info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("Error crítico enviando email de recuperación:", error);
-    return { success: false, error: error.message };
-  }
+  return await enviarEmailPorAPI({
+    to: email,
+    subject: "Recuperación de contraseña - Alcris",
+    html: htmlContent
+  });
 };
