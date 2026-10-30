@@ -212,25 +212,30 @@ cloudinary.config({
 
 // 🔄 Reemplaza la función 'subirComprobante' al final de tu archivo reservaController.js
 export const subirComprobante = async (req, res) => {
-  console.log("=== INICIO DE RECEPCIÓN DE COMPROBANTE (CLOUDINARY) ===");
+  console.log("=== INICIO DE RECEPCIÓN DE COMPROBANTE ===");
   try {
     const { id } = req.params; 
     const { monto, ref_nequi } = req.body;
     const archivo = req.file;
 
+    // Validación de entrada de datos
     if (!archivo) {
-      return res.status(400).json({ error: "La foto del comprobante es requerida" });
+      console.log("Error: No se recibió ningún archivo en req.file");
+      return res.status(400).json({ ok: false, error: "La foto del comprobante es requerida" });
     }
     if (!ref_nequi || !monto) {
-      return res.status(400).json({ error: "La referencia de Nequi y el monto son requeridos" });
+      console.log("Error: Datos faltantes en req.body:", { monto, ref_nequi });
+      return res.status(400).json({ ok: false, error: "La referencia de Nequi y el monto son requeridos" });
     }
+
+    console.log("Procesando subida a Cloudinary... Reserva ID:", id);
 
     // 1. Promesa para subir el buffer de Multer directamente a Cloudinary
     const subirACloudinary = () => {
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: "comprobantes_alcris", // Carpeta organizada en tu Cloudinary
+            folder: "comprobantes_alcris",
             resource_type: "image",
           },
           (error, result) => {
@@ -238,50 +243,51 @@ export const subirComprobante = async (req, res) => {
             resolve(result);
           }
         );
-        // Escribe el buffer del archivo en el stream de Cloudinary
         uploadStream.end(archivo.buffer);
       });
     };
 
-    // Executamos la subida
+    // Ejecutamos la subida a Cloudinary
     const resultadoCloudinary = await subirACloudinary();
-    
-    // 2. Extraemos la URL segura optimizada por Cloudinary
     const comprobanteUrl = resultadoCloudinary.secure_url;
     console.log("URL de Cloudinary generada con éxito:", comprobanteUrl);
 
-    // 3. Insertar fila en tu tabla 'pagos' con la nueva URL de Cloudinary
+    // 2. Insertar fila en la tabla 'pagos' de Supabase con los nombres exactos de tus columnas
     const { data: pagoInsertado, error: errorInsert } = await supabase
       .from("pagos")
       .insert([
         {
           reserva_id: isNaN(id) ? id : Number(id),
-          usuario_id: req.usuario?.id,             // Vincula el usuario logueado
-          monto_nu: Number(monto),                 
-          ref_nequi: ref_nequi,                    
-          comprobante_path: comprobanteUrl,        // Se guarda la URL de Cloudinary
-          estado: "revision",                      
+          monto: Number(monto),
+          ref_nequi: ref_nequi,                // ✅ Nombre exacto de tu columna en Postgres
+          comprobante_path: comprobanteUrl,    // ✅ Vinculado correctamente con la URL de Cloudinary
+          estado: "revision",                  // ✅ Forzamos el estado inicial requerido (is_nullable = NO)
         }
       ])
-      .select()
+      .select("id, estado")
       .single();
 
-    if (errorInsert) {
-      console.error("Error insertando en la tabla pagos:", errorInsert);
-      throw errorInsert;
+    // Si Supabase falla al guardar, borramos la foto de Cloudinary para no dejar basura
+    if (errorInsert || !pagoInsertado) {
+      console.error("Error en Supabase INSERT:", errorInsert?.message);
+      await cloudinary.uploader.destroy(resultadoCloudinary.public_id).catch(() => {});
+      return res.status(500).json({ 
+        ok: false, 
+        error: errorInsert?.message || "No se pudo registrar el pago en la base de datos." 
+      });
     }
 
-    // 4. Sincronizar la tabla de reservas cambiando el estado padre a 'revision'
-    await supabase
-      .from("reservas")
-      .update({ estado: "revision" })
-      .eq("id", isNaN(id) ? id : Number(id));
+    console.log("✅ Pago registrado con éxito en la BD. Pago ID:", pagoInsertado.id);
 
-    console.log("=== COMPROBANTE PROCESADO Y GUARDADO EN LA TABLA PAGOS ===");
-    return res.status(200).json({ message: "Comprobante procesado con éxito", pago: pagoInsertado });
+    // 3. Respuesta exitosa estructurada para Flutter
+    return res.status(201).json({ 
+      ok: true, 
+      message: "Comprobante procesado y guardado con éxito.",
+      pagoId: pagoInsertado.id 
+    });
 
   } catch (error) {
-    console.error("Error crítico en subirComprobante con Cloudinary:", error.message);
-    return res.status(500).json({ error: `Error interno del servidor: ${error.message}` });
+    console.error("❌ Error crítico en subirComprobante:", error.message);
+    return res.status(500).json({ ok: false, error: error.message });
   }
 };
