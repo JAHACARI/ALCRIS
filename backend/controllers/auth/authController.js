@@ -76,11 +76,16 @@ export const registro = async (req, res) => {
         .json({ error: "Error al crear el usuario", detalle: error.message });
     }
 
-    try {
-      await enviarCodigoVerificacion(email, codigo, nombre);
-    } catch (emailErr) {
-      console.error("Error enviando email de verificación:", emailErr.message);
-      // No frenamos el registro si falla el email
+    // Control optimizado del servicio de emails basado en la respuesta del transporter
+    const resultadoEmail = await enviarCodigoVerificacion(email, codigo, nombre);
+    
+    if (!resultadoEmail || !resultadoEmail.success) {
+      console.error("❌ El servicio de Nodemailer reportó un fallo:", resultadoEmail?.error || "Fallo desconocido");
+      return res.status(201).json({
+        message: "Usuario registrado, pero hubo un problema al enviar el correo de verificación. Revisa la consola.",
+        codigo_debug: codigo,
+        usuario: nuevo,
+      });
     }
 
     return res.status(201).json({
@@ -171,10 +176,11 @@ export const reenviarCodigo = async (req, res) => {
       return res.status(500).json({ error: "No se pudo generar un nuevo código" });
     }
 
-    try {
-      await enviarCodigoVerificacion(email, codigo, usuario.nombre);
-    } catch (emailErr) {
-      console.error("Error enviando email de verificación:", emailErr.message);
+    // Control optimizado del servicio de emails basado en la respuesta del transporter
+    const resultadoEmail = await enviarCodigoVerificacion(email, codigo, usuario.nombre);
+    
+    if (!resultadoEmail || !resultadoEmail.success) {
+      console.error("❌ Fallo al reenviar el código de verificación:", resultadoEmail?.error || "Fallo desconocido");
       return res.status(200).json({
         message: "Código generado. Si no llega el correo, revisa spam o usa el código de prueba.",
         codigo_debug: codigo,
@@ -266,10 +272,8 @@ export const googleAuth = async (req, res) => {
     let { data: usuario } = await obtenerPorGoogleId(google_id);
 
     if (!usuario) {
-      // ¿Ya existe con ese email?
       const { data: porEmail } = await obtenerPorEmail(email);
       if (porEmail) {
-        // Vincular Google a cuenta existente
         await actualizarUsuario(porEmail.id, {
           google_id,
           avatar: picture || porEmail.avatar,
@@ -283,34 +287,17 @@ export const googleAuth = async (req, res) => {
           avatar: picture,
         });
         if (error) {
-          return res.status(500).json({
-            error: "Error al crear usuario con Google",
-            detalle: error.message,
-          });
+          return res.status(500).json({ error: "Error al crear usuario con Google" });
         }
         usuario = nuevo;
       }
     }
 
     const token = generarToken(usuario);
-
-    return res.status(200).json({
-      message: "Login con Google exitoso",
-      token,
-      usuario: {
-        id: usuario.id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
-        avatar: usuario.avatar,
-      },
-    });
+    return res.status(200).json({ token, usuario });
   } catch (error) {
     console.error("Error en googleAuth:", error);
-    return res.status(500).json({
-      error: "Error en autenticación con Google",
-      detalle: error.message,
-    });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -318,77 +305,41 @@ export const googleAuth = async (req, res) => {
 export const solicitarRecuperacion = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email es requerido" });
-    }
+    if (!email) return res.status(400).json({ error: "Email requerido" });
 
     const { data: usuario } = await obtenerPorEmail(email);
-    if (!usuario) {
-      // Por seguridad no revelamos si el email existe
-      return res.status(200).json({
-        message: "Si el email existe, recibirás un código de recuperación.",
-      });
-    }
+    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
 
     const codigo = generarCodigo();
-    const fecha_expira = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const expira = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    await crearRecuperacion({ usuario_id: usuario.id, codigo, fecha_expira });
+    await crearRecuperacion(usuario.id, codigo, expira);
+    await enviarCodigoRecuperacion(email, codigo, usuario.nombre);
 
-    try {
-      await enviarCodigoRecuperacion(email, codigo, usuario.nombre);
-    } catch (emailErr) {
-      console.error("Error enviando email de recuperación:", emailErr.message);
-    }
-
-    return res.status(200).json({
-      message: "Si el email existe, recibirás un código de recuperación.",
-    });
+    return res.status(200).json({ message: "Código de recuperación enviado" });
   } catch (error) {
     console.error("Error en solicitarRecuperacion:", error);
     return res.status(500).json({ error: error.message });
   }
 };
 
-// ---------- RESTABLECER CONTRASEÑA ----------
+// ---------- RESTABLECER PASSWORD ----------
 export const restablecerPassword = async (req, res) => {
   try {
-    const { email, codigo, nueva_contrasena } = req.body;
-
-    if (!email || !codigo || !nueva_contrasena) {
-      return res
-        .status(400)
-        .json({ error: "Email, código y nueva_contrasena son requeridos" });
-    }
-
-    if (nueva_contrasena.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "La contraseña debe tener al menos 6 caracteres" });
-    }
-
-    const { data: usuario } = await obtenerPorEmail(email);
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const { data: recuperacion } = await obtenerRecuperacionValida(
-      usuario.id,
-      codigo,
-    );
-    if (!recuperacion) {
-      return res.status(400).json({ error: "Código inválido o expirado" });
-    }
-
-    const hashed = await bcrypt.hash(nueva_contrasena, 10);
-    await actualizarUsuario(usuario.id, { contrasena: hashed });
-    await marcarRecuperacionUsada(recuperacion.id);
-
-    return res
-      .status(200)
-      .json({ message: "Contraseña actualizada correctamente" });
-  } catch (error) {
-    console.error("Error en restablecerPassword:", error);
-    return res.status(500).json({ error: error.message });
-  }
+    const { email, codigo, nuevaContrasena } = req.body;
+if (!email || !codigo || !nuevaContrasena) {
+return res.status(400).json({ error: "Todos los campos son requeridos" });
+}
+const { data: usuario } = await obtenerPorEmail(email);
+if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+const { data: rec } = await obtenerRecuperacionValida(usuario.id, codigo);
+if (!rec) return res.status(400).json({ error: "Código inválido o expirado" });
+const hashed = await bcrypt.hash(nuevaContrasena, 10);
+await actualizarUsuario(usuario.id, { contrasena: hashed });
+await marcarRecuperacionUsada(rec.id);
+return res.status(200).json({ message: "Contraseña restablecida correctamente" });
+} catch (error) {
+console.error("Error en restablecerPassword:", error);
+return res.status(500).json({ error: error.message });
+}
 };

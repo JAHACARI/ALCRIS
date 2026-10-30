@@ -2,13 +2,16 @@ import nodemailer from "nodemailer";
 import "dotenv/config";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "://gmail.com",
+  port: 465,
+  secure: true,
+  logger: true, // <-- Agrega esto para ver el flujo en la consola
+  debug: true,  // <-- Agrega esto para ver errores detallados
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
-
 /**
  * Envía el código de verificación de cuenta
  */
@@ -60,7 +63,14 @@ export const enviarCodigoVerificacion = async (email, codigo, nombre = "Usuario"
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Correo de verificación enviado con éxito. ID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error crítico enviando email de verificación:", error);
+    return { success: false, error: error.message };
+  }
 };
 
 /**
@@ -118,5 +128,13 @@ export const enviarCodigoRecuperacion = async (email, codigo, nombre = "Usuario"
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Correo de recuperación enviado con éxito. ID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error crítico enviando email de recuperación:", error);
+    return { success: false, error: error.message };
+  }
 };
+
