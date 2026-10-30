@@ -3,16 +3,15 @@ import "dotenv/config";
 
 // Configuración SMTP oficial y purgada de Brevo (Evita errores queryA EBADNAME)
 const transporter = nodemailer.createTransport({
-  host: "://brevo.com", // Host directo en texto limpio, sin "://" de ningún tipo
-  port: 587,                    // Puerto TLS recomendado para Brevo
-  secure: false,                // Debe ser false para el puerto 587 (STARTTLS)
-  connectionTimeout: 15000,     // 15 segundos máximos de intento de conexión
-  greetingTimeout: 15000,       // 15 segundos máximos de espera del saludo SMTP
+  host: "://brevo.com", // El servidor de Brevo va aquí fijo en texto limpio
+  port: 587,
+  secure: false, // false para usar STARTTLS
   auth: {
-    user: process.env.EMAIL_USER, // Recuerda configurar b79076001@smtp-brevo.com
-    pass: process.env.EMAIL_PASS, // Tu nueva clave SMTP generada en Brevo
+    user: process.env.EMAIL_USER, // Aquí llegará tu correo real desde Render
+    pass: process.env.EMAIL_PASS, // Tu clave SMTP de Brevo
   },
 });
+
 
 // Verificación automática de la conexión SMTP al arrancar el backend
 transporter.verify()
