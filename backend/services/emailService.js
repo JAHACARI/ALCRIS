@@ -1,31 +1,33 @@
-import * as SibApiV3Sdk from "@getbrevo/brevo";
+import { Resend } from "resend";
 import "dotenv/config";
 
-// Inicializamos el cliente de la API de Brevo
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-
-// Configuramos la Clave API (Asegúrate de que process.env.EMAIL_PASS sea tu API KEY de Brevo)
-const apiKey = apiInstance.authentications['apiKey'];
-apiKey.apiKey = process.env.EMAIL_PASS?.trim();
+// Inicialización limpia y directa sin constructores conflictivos
+// (Asegúrate de que process.env.EMAIL_PASS sea tu API Key de Resend)
+const resend = new Resend(process.env.EMAIL_PASS?.trim());
 
 /**
- * Función auxiliar para enviar correos vía HTTP API (Evita bloqueos de Render)
+ * Función auxiliar para enviar correos vía la API oficial de Resend
+ * (Evita bloqueos de red en Render y fallos de librerías antiguas)
  */
 const enviarEmailPorAPI = async (mailOptions) => {
-  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
-  sendSmtpEmail.subject = mailOptions.subject;
-  sendSmtpEmail.htmlContent = mailOptions.html;
-  sendSmtpEmail.sender = { name: "Alcris", email: "alcrislatoneriaypintura@gmail.com" }; // Remitente verificado en Brevo
-  sendSmtpEmail.to = [{ email: mailOptions.to }];
-
   try {
-    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log("✨ Correo enviado con éxito mediante la API de Brevo. ID:", data.messageId);
-    return { success: true, messageId: data.messageId };
+    const { data, error } = await resend.emails.send({
+      from: '"Alcris" <onboarding@resend.dev>', // Correo de prueba gratuito de Resend
+      to: [mailOptions.to],
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
+
+    if (error) {
+      console.error("❌ ERROR EN LA API DE RESEND:", error.message || error);
+      return { success: false, error: error.message };
+    }
+
+    console.log("✨ Correo enviado con éxito mediante Resend. ID:", data?.id);
+    return { success: true, messageId: data?.id };
   } catch (error) {
-    console.error("❌ ERROR CRÍTICO EN LA API DE BREVO:", error.message || error);
-    return { success: false, error: error.message || error };
+    console.error("❌ ERROR CRÍTICO EN EL SERVICIO DE RESEND:", error.message);
+    return { success: false, error: error.message };
   }
 };
 
@@ -117,7 +119,7 @@ export const enviarCodigoRecuperacion = async (email, codigo, nombre = "Usuario"
         </div>
 
         <div style="background-color: #f8fafc; padding: 16px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #64748b; font-size: 11px; margin: 0;">&copy; ${new Date().getFullYear()} Alcris. Todos los derechos reservados.</p>
+          <p style="color: #64748b; font-size: 11px; margin: 0;">&copy; 2026 Alcris. Todos los derechos reservados.</p>
         </div>
 
       </div>
