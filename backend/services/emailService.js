@@ -1,17 +1,29 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
 
-// Configuración SMTP oficial y purgada de Brevo (Evita errores queryA EBADNAME)
+// 1. Sanitización forzada: Limpia cualquier residuo de "://" de las variables de entorno de Render
+const limpiarVariable = (valor) => {
+  if (!valor) return "";
+  // Remueve http://, https://, smtp://, :// y espacios en blanco accidentales
+  return valor.replace(/^https?:\/\/|^\/\/|smtp:\/\//i, "").trim();
+};
+
+const hostFijo = "smtp-relay.brevo.com";
+const usuarioLimpio = limpiarVariable(process.env.EMAIL_USER);
+const claveLimpia = (process.env.EMAIL_PASS || "").trim();
+
+// 2. Configuración SMTP limpia y purgada de Brevo
 const transporter = nodemailer.createTransport({
-  host: "://brevo.com", // El servidor de Brevo va aquí fijo en texto limpio
-  port: 587,
-  secure: false, // false para usar STARTTLS
+  host: hostFijo,           
+  port: 587,                
+  secure: false,            // false para usar STARTTLS en el puerto 587
+  connectionTimeout: 15000, // 15 segundos máximos de intento de conexión
+  greetingTimeout: 15000,   // 15 segundos máximos de espera del saludo SMTP
   auth: {
-    user: process.env.EMAIL_USER, // Aquí llegará tu correo real desde Render
-    pass: process.env.EMAIL_PASS, // Tu clave SMTP de Brevo
+    user: usuarioLimpio, 
+    pass: claveLimpia,   
   },
 });
-
 
 // Verificación automática de la conexión SMTP al arrancar el backend
 transporter.verify()
@@ -21,7 +33,7 @@ transporter.verify()
   .catch((err) => {
     console.error("❌ ERROR CRÍTICO DE AUTENTICACIÓN SMTP CON BREVO EN RENDER:");
     console.error(`Detalle del fallo: ${err.message}`);
-    console.error("👉 Asegúrate de que tu EMAIL_PASS sea la clave SMTP generada y no una clave API estándar.");
+    console.error(`Valores procesados -> Host: "${hostFijo}" | User: "${usuarioLimpio}"`);
   });
 
 /**
@@ -29,7 +41,8 @@ transporter.verify()
  */
 export const enviarCodigoVerificacion = async (email, codigo, nombre = "Usuario") => {
   const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || "Alcris"}" <alcrislatoneriaypintura@gmail.com>`, // Reemplaza con tu remitente verificado en Brevo
+    // Usamos el remitente con formato estricto y limpio de texto
+    from: '"Alcris" <alcrislatoneriaypintura@gmail.com>', 
     to: email,
     subject: "Código de verificación - Alcris",
     html: `
@@ -88,7 +101,7 @@ export const enviarCodigoVerificacion = async (email, codigo, nombre = "Usuario"
  */
 export const enviarCodigoRecuperacion = async (email, codigo, nombre = "Usuario") => {
   const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || "Alcris"}" <alcrislatoneriaypintura@gmail.com>`, // Reemplaza con tu remitente verificado en Brevo
+    from: '"Alcris" <alcrislatoneriaypintura@gmail.com>', 
     to: email,
     subject: "Recuperación de contraseña - Alcris",
     html: `
