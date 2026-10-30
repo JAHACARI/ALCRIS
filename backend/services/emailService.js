@@ -12,18 +12,19 @@ const hostFijo = "smtp-relay.brevo.com";
 const usuarioLimpio = limpiarVariable(process.env.EMAIL_USER);
 const claveLimpia = (process.env.EMAIL_PASS || "").trim();
 
-// 2. Configuración SMTP limpia y purgada de Brevo
+// Configuración SMTP segura (Puerto 465) para evitar el bloqueo de red de Render
 const transporter = nodemailer.createTransport({
   host: hostFijo,           
-  port: 587,                
-  secure: false,            // false para usar STARTTLS en el puerto 587
-  connectionTimeout: 15000, // 15 segundos máximos de intento de conexión
-  greetingTimeout: 15000,   // 15 segundos máximos de espera del saludo SMTP
+  port: 465,                // Cambiamos de 587 a 465 (Evita el bloqueo en Render)
+  secure: true,             // Debe ser true obligatoriamente para el puerto 465 (SSL)
+  connectionTimeout: 15000, 
+  greetingTimeout: 15000,   
   auth: {
     user: usuarioLimpio, 
     pass: claveLimpia,   
   },
 });
+
 
 // Verificación automática de la conexión SMTP al arrancar el backend
 transporter.verify()
