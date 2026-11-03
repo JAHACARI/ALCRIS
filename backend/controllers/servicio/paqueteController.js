@@ -1,5 +1,16 @@
 import * as model from "../../models/servicio/paqueteModel.js";
-const CAMPOS = ["servicio_id", "nombre", "descripcion", "etiqueta", "precio", "duracion_horas", "activo"];
+
+const CAMPOS = [
+  "servicio_id",
+  "nombre",
+  "descripcion",
+  "precio",
+  "duracion_dias_min",
+  "duracion_dias_max",
+  "destacado",
+  "activo",
+];
+
 const pick = (obj) =>
   Object.fromEntries(Object.entries(obj).filter(([k]) => CAMPOS.includes(k)));
 
@@ -44,23 +55,33 @@ export const obtener = async (req, res) => {
   }
 };
 
-export const actualizarPaquete = async (id, campos) => {
-  const { data, error } = await supabase
-    .from("paquetes_servicio")
-    .update(campos)
-    .eq("id", id)
-    .select("*")
-    .maybeSingle();
-  return { data, error };
+export const actualizar = async (req, res) => {
+  try {
+    const { data, error } = await model.actualizarPaquete(
+      req.params.id,
+      pick(req.body),
+    );
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data)
+      return res.status(404).json({ error: "Paquete no encontrado" });
+    return res
+      .status(200)
+      .json({ message: "Paquete actualizado", paquete: data });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
 
-export const eliminarPaquete = async (id) => {
-  const { data, error } = await supabase
-    .from("paquetes_servicio")
-    .update({ activo: false })
-    .eq("id", id)
-    .select("*")
-    .maybeSingle();
-  return { data, error };
+export const eliminar = async (req, res) => {
+  try {
+    const { data, error } = await model.eliminarPaquete(req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data)
+      return res.status(404).json({ error: "Paquete no encontrado" });
+    return res
+      .status(200)
+      .json({ message: "Paquete eliminado", paquete: data });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
-if (!data) return res.status(404).json({ error: "Paquete no encontrado" });

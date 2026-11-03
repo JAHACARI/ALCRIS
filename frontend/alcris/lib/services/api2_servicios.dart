@@ -39,8 +39,7 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> obtenerPaquetes(dynamic servicioId) async {
-    final url = Uri.parse('$baseUrl/paquetes?servicio_id=$servicioId');
-
+   final url = Uri.parse('$baseUrl/servicios/paquetes?servicio_id=$servicioId');
     try {
       final respuesta = await http.get(url);
 

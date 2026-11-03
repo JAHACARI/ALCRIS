@@ -11,7 +11,7 @@ import tecnicoRoutes from "./routes/tecnico/tecnicoRoutes.js";
 import reservaRoutes from "./routes/reserva/reservaRoutes.js";
 import catalogoRoutes from "./routes/catalogo/catalogoRoutes.js";
 import chatRoutes from "./routes/chat/chatRoutes.js";
-import { verificarToken, soloAdmin } from "../backend/middleware/authMiddleware.js";
+import { verificarToken, soloAdmin } from "./middleware/authMiddleware.js";
 import adminRoutes from "./routes/admin.js";
 import pagosRoutes from "./routes/pagos.js";
 
@@ -49,6 +49,7 @@ app.get("/", (req, res) => {
   });
 });
 
+
 // ---------- 404 ----------
 app.use((req, res) => {
   res.status(404).json({
@@ -56,6 +57,7 @@ app.use((req, res) => {
     mensaje: `La ruta ${req.method} ${req.path} no existe`,
   });
 });
+
 
 // ---------- Iniciar servidor ----------
 const PORT = process.env.PORT || 3000;

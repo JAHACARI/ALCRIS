@@ -1,17 +1,20 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  console.error("❌ Falta JWT_SECRET en el archivo .env");
-  process.exit(1);
-}
+// Eliminamos el process.exit(1) global de aquí arriba ❌
 
 /**
  * Verifica que el request traiga un JWT válido.
  * Agrega req.usuario = { id, email, rol }
  */
 export const verificarToken = (req, res, next) => {
+  const JWT_SECRET = process.env.JWT_SECRET;
+
+  // Validamos la variable de entorno de forma segura al momento del request
+  if (!JWT_SECRET) {
+    console.error("❌ Falta la configuración de JWT_SECRET en el servidor.");
+    return res.status(500).json({ error: "Error interno de configuración en el servidor" });
+  }
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
