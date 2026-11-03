@@ -46,3 +46,12 @@ export const eliminarPaquete = async (id) => {
     .single();
   return { data, error };
 };
+export const obtenerPaquetesPorServicio = async (servicioId) => {
+  const { data, error } = await supabase
+    .from("paquetes_servicio")
+    .select("*")
+    .eq("servicio_id", servicioId)
+    .eq("activo", true)
+    .order("precio", { ascending: true });
+  return { data, error };
+};

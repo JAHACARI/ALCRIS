@@ -5,15 +5,15 @@ export const crearServicio = async ({
   nombre,
   descripcion,
   precio_base,
+  tipo,
 }) => {
   const { data, error } = await supabase
     .from("servicios")
-    .insert({ categoria_id, nombre, descripcion, precio_base })
+    .insert({ categoria_id, nombre, descripcion, precio_base, tipo })
     .select("*")
     .single();
   return { data, error };
 };
-
 export const obtenerServicios = async () => {
   const { data, error } = await supabase
     .from("servicios")

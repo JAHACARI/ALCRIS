@@ -1,22 +1,18 @@
 import * as model from "../../models/servicio/servicioModel.js";
 
-export const crear = async (req, res) => {
-  try {
-    const { categoria_id, nombre, descripcion, precio_base } = req.body;
-    if (!nombre)
-      return res.status(400).json({ error: "El nombre es obligatorio" });
-
-    const { data, error } = await model.crearServicio({
-      categoria_id,
-      nombre,
-      descripcion,
-      precio_base,
-    });
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(201).json({ message: "Servicio creado", servicio: data });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
+export const crearServicio = async ({
+  categoria_id,
+  nombre,
+  descripcion,
+  precio_base,
+  tipo,
+}) => {
+  const { data, error } = await supabase
+    .from("servicios")
+    .insert({ categoria_id, nombre, descripcion, precio_base, tipo })
+    .select("*")
+    .single();
+  return { data, error };
 };
 
 export const listar = async (req, res) => {
