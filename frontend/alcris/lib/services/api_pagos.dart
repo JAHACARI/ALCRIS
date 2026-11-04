@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart'; // Para debugPrint
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:alcris/services/api_config.dart';
 import 'admin_api.dart';
-import 'api_config.dart'; // ✅ Importamos tu configuración global automatizada
 
 class ReservaPago {
   final int id, total;
@@ -27,42 +27,43 @@ class PagoApiError implements Exception {
 }
 
 class PagoApi {
-  // ✅ ENLAZADO: Ahora consume dinámicamente tu URL configurada en ApiConfig
-  static String get base => '${ApiConfig.baseUrl}/reservas';
   static Map<String, String> get _h => {'Authorization': 'Bearer ${AdminApi.token}'};
 
+  // GET /api/pagos/mis-reservas
   static Future<List<ReservaPago>> misReservas() async {
-    final res = await http.get(Uri.parse('$base/'), headers: _h);
-    final data = jsonDecode(res.body);
-    if (res.statusCode >= 400) throw PagoApiError(data['error'] ?? 'Error ${res.statusCode}');
+    final res = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/pagos/mis-reservas'),
+      headers: _h,
+    );
+    dynamic data;
+    try {
+      data = jsonDecode(res.body);
+    } catch (_) {
+      throw PagoApiError('Respuesta inesperada del servidor (${res.statusCode})');
+    }
+    if (res.statusCode >= 400) {
+      throw PagoApiError(data['error'] ?? 'Error ${res.statusCode}');
+    }
     return [for (final j in data) ReservaPago.fromJson(j)];
   }
 
+  // POST /api/reservas/:id/comprobante
   static Future<void> subir({
     required int reservaId,
     required int monto,
     required String ref,
     required File foto,
   }) async {
-    // ✅ Genera con total precisión la ruta limpia: https://onrender.com
-    final urlFinal = '$base/$reservaId/comprobante';
-    
-    debugPrint('Petición directa de subida hacia: $urlFinal');
-    
-    final req = http.MultipartRequest('POST', Uri.parse(urlFinal))
+    final req = http.MultipartRequest(
+      'POST',
+      Uri.parse('${ApiConfig.baseUrl}/reservas/$reservaId/comprobante'),
+    )
       ..headers.addAll(_h)
       ..fields['monto'] = '$monto'
-      ..fields['ref_nequi'] = ref 
+      ..fields['ref_nequi'] = ref
       ..files.add(await http.MultipartFile.fromPath('comprobante', foto.path));
-      
-    // Le indicamos explícitamente al cliente de streams que mantenga la carga binaria
-    req.followRedirects = true;
-    req.maxRedirects = 5;
 
-    final streamedRes = await req.send();
-    final res = await http.Response.fromStream(streamedRes);
-    
-    // Imprime la respuesta exacta del backend en tu terminal
+    final res = await http.Response.fromStream(await req.send());
     debugPrint('SUBIR comprobante -> ${res.statusCode}: ${res.body}');
 
     Map<String, dynamic>? data;
@@ -70,6 +71,7 @@ class PagoApi {
       data = Map<String, dynamic>.from(jsonDecode(res.body));
     } catch (_) {}
 
+    // Solo es éxito si el servidor confirma con ok: true
     if (res.statusCode >= 400 || data?['ok'] != true) {
       throw PagoApiError(
           data?['error'] ?? 'El servidor no confirmó el envío (${res.statusCode})');

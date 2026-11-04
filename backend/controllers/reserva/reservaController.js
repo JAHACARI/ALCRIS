@@ -15,7 +15,15 @@ import { supabase } from "../../config/supabase.js";
 import { validarHorario, calcularDisponibilidad } from "../disponibilidad.js";
 import { v2 as cloudinary } from "cloudinary";
 
+// Configuración de Cloudinary (variables de entorno del .env / Render)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const FORMAS_PAGO = ["efectivo", "transferencia"];
+const EXTENSIONES_IMG = ["jpg", "jpeg", "png", "webp"];
 
 export const crear = async (req, res) => {
   try {
@@ -47,9 +55,8 @@ export const crear = async (req, res) => {
       return res.status(400).json({ error: "La fecha de la cita no puede ser pasada" });
     }
 
-    // Validación integrada del horario y cupo mediante la función externa
-    const horaFormateada = hora_cita ? String(hora_cita).slice(0, 5) : '';
-    const v = await validarHorario(fecha_cita, horaFormateada);
+    // Horario de atención y cupo
+    const v = await validarHorario(fecha_cita, String(hora_cita).slice(0, 5));
     if (!v.ok) {
       return res.status(v.codigo || 400).json({ error: v.error });
     }
@@ -66,7 +73,30 @@ export const crear = async (req, res) => {
         .status(404)
         .json({ error: "El servicio no existe o ya no está disponible" });
     }
-    const subtotal = Math.round(Number(servicio.precio_base));
+
+    const { data: paquetesActivos } = await supabase
+      .from("paquetes_servicio")
+      .select("id, precio")
+      .eq("servicio_id", servicio_id)
+      .eq("activo", true);
+
+    let subtotal;
+    if (paquetesActivos && paquetesActivos.length > 0) {
+      // El servicio tiene paquetes: hay que elegir uno y se cobra SU precio
+      if (!paquete_id) {
+        return res.status(400).json({ error: "Elige un paquete para continuar" });
+      }
+      const paq = paquetesActivos.find((p) => String(p.id) === String(paquete_id));
+      if (!paq) {
+        return res
+          .status(404)
+          .json({ error: "El paquete no existe o ya no está disponible" });
+      }
+      subtotal = Math.round(Number(paq.precio));
+    } else {
+      // Servicio antiguo sin paquetes
+      subtotal = Math.round(Number(servicio.precio_base));
+    }
     const materiales = 0;
     const descuento = 0;
     const total = subtotal + materiales - descuento;
@@ -149,7 +179,7 @@ export const obtener = async (req, res) => {
 export const actualizar = async (req, res) => {
   try {
     const { data: existente } = await obtenerReservaPorId(req.params.id);
-    if (!existing)
+    if (!existente)
       return res.status(404).json({ error: "Reserva no encontrada" });
 
     const esAdmin = req.usuario.rol === "admin";
@@ -161,6 +191,7 @@ export const actualizar = async (req, res) => {
     if (esAdmin) {
       campos = { ...req.body };
     } else {
+      // El cliente solo puede editar notas o cancelar una reserva pendiente
       campos = {};
       if (req.body.notas !== undefined) campos.notas = req.body.notas;
       if (req.body.estado !== undefined) {
@@ -203,89 +234,117 @@ export const eliminar = async (req, res) => {
   }
 };
 
-// Configuración de Cloudinary (Usa las variables de entorno de tu .env)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// GET /api/reservas/disponibilidad?mes=11&anio=2026&fecha=2026-11-20
+export const disponibilidad = async (req, res) => {
+  try {
+    const mes = Number(req.query.mes);
+    const anio = Number(req.query.anio);
+    if (!(mes >= 1 && mes <= 12) || !(anio >= 2000)) {
+      return res.status(400).json({ error: "mes y anio inválidos" });
+    }
+    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(req.query.fecha ?? "") ? req.query.fecha : null;
+    return res.status(200).json(await calcularDisponibilidad(mes, anio, fecha));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
-// 🔄 Reemplaza la función 'subirComprobante' al final de tu archivo reservaController.js
+// POST /api/reservas/:id/comprobante  (multipart: comprobante, monto, ref_nequi)
 export const subirComprobante = async (req, res) => {
   console.log("=== INICIO DE RECEPCIÓN DE COMPROBANTE ===");
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
     const { monto, ref_nequi } = req.body;
     const archivo = req.file;
 
     // Validación de entrada de datos
     if (!archivo) {
-      console.log("Error: No se recibió ningún archivo en req.file");
       return res.status(400).json({ ok: false, error: "La foto del comprobante es requerida" });
     }
-    if (!ref_nequi || !monto) {
-      console.log("Error: Datos faltantes en req.body:", { monto, ref_nequi });
+    const ref = String(ref_nequi ?? "").trim();
+    const montoNum = Math.round(Number(monto));
+    if (!ref || !(montoNum > 0)) {
       return res.status(400).json({ ok: false, error: "La referencia de Nequi y el monto son requeridos" });
+    }
+    const ext = (archivo.originalname.split(".").pop() || "").toLowerCase();
+    if (!EXTENSIONES_IMG.includes(ext)) {
+      return res.status(400).json({ ok: false, error: "Solo se aceptan imágenes JPG, PNG o WEBP" });
+    }
+
+    // La reserva debe ser del usuario que sube, pagarse por transferencia y seguir pendiente
+    const { data: reserva } = await supabase
+      .from("reservas")
+      .select("id, usuario_id, estado, forma_pago")
+      .eq("id", id)
+      .single();
+    if (!reserva || String(reserva.usuario_id) !== String(req.usuario.id)) {
+      return res.status(404).json({ ok: false, error: "Reserva no encontrada" });
+    }
+    if (reserva.forma_pago !== "transferencia") {
+      return res.status(409).json({ ok: false, error: "Esta reserva se paga en efectivo" });
+    }
+    if (reserva.estado !== "pendiente") {
+      return res.status(409).json({ ok: false, error: "Esta reserva ya no admite pagos" });
+    }
+
+    // Evita comprobantes duplicados
+    const { data: previos } = await supabase
+      .from("pagos")
+      .select("id")
+      .eq("reserva_id", reserva.id)
+      .in("estado", ["revision", "aprobado"]);
+    if (previos?.length) {
+      return res.status(409).json({ ok: false, error: "Esta reserva ya tiene un comprobante en revisión" });
     }
 
     console.log("Procesando subida a Cloudinary... Reserva ID:", id);
 
-    // 1. Promesa para subir el buffer de Multer directamente a Cloudinary
-    const subirACloudinary = () => {
-      return new Promise((resolve, reject) => {
+    // 1. Subir el buffer de Multer directamente a Cloudinary
+    const subirACloudinary = () =>
+      new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: "comprobantes_alcris",
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
+          { folder: "comprobantes_alcris", resource_type: "image" },
+          (error, result) => (error ? reject(error) : resolve(result))
         );
         uploadStream.end(archivo.buffer);
       });
-    };
 
-    // Ejecutamos la subida a Cloudinary
     const resultadoCloudinary = await subirACloudinary();
     const comprobanteUrl = resultadoCloudinary.secure_url;
     console.log("URL de Cloudinary generada con éxito:", comprobanteUrl);
 
-    // 2. Insertar fila en la tabla 'pagos' de Supabase con los nombres exactos de tus columnas
+    // 2. Insertar fila en la tabla 'pagos'
     const { data: pagoInsertado, error: errorInsert } = await supabase
       .from("pagos")
       .insert([
         {
-          reserva_id: isNaN(id) ? id : Number(id),
-          monto: Number(monto),
-          ref_nequi: ref_nequi,                // ✅ Nombre exacto de tu columna en Postgres
-          comprobante_path: comprobanteUrl,    // ✅ Vinculado correctamente con la URL de Cloudinary
-          estado: "revision",                  // ✅ Forzamos el estado inicial requerido (is_nullable = NO)
-        }
+          reserva_id: reserva.id,
+          monto: montoNum,
+          ref_nequi: ref,
+          comprobante_path: comprobanteUrl,
+          estado: "revision",
+        },
       ])
       .select("id, estado")
       .single();
 
-    // Si Supabase falla al guardar, borramos la foto de Cloudinary para no dejar basura
+    // Si Supabase falla, borramos la foto de Cloudinary para no dejar basura
     if (errorInsert || !pagoInsertado) {
       console.error("Error en Supabase INSERT:", errorInsert?.message);
       await cloudinary.uploader.destroy(resultadoCloudinary.public_id).catch(() => {});
-      return res.status(500).json({ 
-        ok: false, 
-        error: errorInsert?.message || "No se pudo registrar el pago en la base de datos." 
+      return res.status(500).json({
+        ok: false,
+        error: errorInsert?.message || "No se pudo registrar el pago en la base de datos.",
       });
     }
 
-    console.log("✅ Pago registrado con éxito en la BD. Pago ID:", pagoInsertado.id);
+    console.log("✅ Pago registrado. Pago ID:", pagoInsertado.id);
 
-    // 3. Respuesta exitosa estructurada para Flutter
-    return res.status(201).json({ 
-      ok: true, 
+    return res.status(201).json({
+      ok: true,
       message: "Comprobante procesado y guardado con éxito.",
-      pagoId: pagoInsertado.id 
+      pagoId: pagoInsertado.id,
     });
-
   } catch (error) {
     console.error("❌ Error crítico en subirComprobante:", error.message);
     return res.status(500).json({ ok: false, error: error.message });

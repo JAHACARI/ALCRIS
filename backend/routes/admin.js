@@ -39,41 +39,117 @@ router.get('/resumen', async (req, res) => {
   });
 });
 
-// ───────── SERVICIOS ─────────
-const outServicio = s => ({ id: s.id, nombre: s.nombre, descripcion: s.descripcion, precio: num(s.precio_base) });
+// ───────── SERVICIOS (con paquetes) ─────────
+const tiempoTexto = (min, max) => {
+  if (min == null && max == null) return '';
+  const a = min ?? max, b = max ?? min;
+  return a === b ? `${a} ${a === 1 ? 'día' : 'días'}` : `${a}-${b} días`;
+};
+const outPaquete = p => ({
+  id: p.id, nombre: p.nombre, descripcion: p.descripcion ?? '', precio: num(p.precio),
+  diasMin: p.duracion_dias_min, diasMax: p.duracion_dias_max, destacado: !!p.destacado,
+  tiempo: tiempoTexto(p.duracion_dias_min, p.duracion_dias_max),
+});
+const outServicio = s => ({
+  id: s.id, nombre: s.nombre, descripcion: s.descripcion, precio: num(s.precio_base),
+  paquetes: (s.paquetes_servicio ?? []).filter(p => p.activo).sort((a, b) => a.precio - b.precio).map(outPaquete),
+});
+const SELECT_SERVICIO =
+  '*, paquetes_servicio(id, nombre, descripcion, precio, duracion_dias_min, duracion_dias_max, destacado, activo)';
+
+async function servicioCompleto(id) {
+  const { data, error } = await supabase.from('servicios').select(SELECT_SERVICIO).eq('id', id).single();
+  if (error) throw error;
+  return outServicio(data);
+}
 
 router.get('/servicios', async (req, res) => {
-  const { data, error } = await supabase.from('servicios').select('*').eq('activo', true).order('id');
+  const { data, error } = await supabase.from('servicios').select(SELECT_SERVICIO).eq('activo', true).order('id');
   if (error) return fail(res, error);
   res.json(data.map(outServicio));
 });
 
+// Valida el cuerpo. Si hay paquetes, el precio base del servicio es el del paquete más barato.
 function validarServicio(b) {
   const nombre = String(b.nombre ?? '').trim();
   const descripcion = String(b.descripcion ?? '').trim();
-  const precio = Number(b.precio);
-  if (!nombre || !descripcion || !(precio > 0)) return null;
-  return { nombre, descripcion, precio_base: Math.round(precio) };
+  if (!nombre || !descripcion) return { error: 'Nombre y descripción son obligatorios' };
+
+  let paquetes = null;
+  if (Array.isArray(b.paquetes)) {
+    if (b.paquetes.length > 10) return { error: 'Máximo 10 paquetes por servicio' };
+    paquetes = [];
+    for (const p of b.paquetes) {
+      const pn = String(p.nombre ?? '').trim();
+      const pd = String(p.descripcion ?? '').trim();
+      const precio = Math.round(Number(p.precio));
+      if (!pn || !(precio > 0)) return { error: 'Cada paquete necesita nombre y un precio mayor a 0' };
+      const id = p.id == null ? null : Number(p.id);
+      if (id !== null && !Number.isInteger(id)) return { error: 'Paquete inválido' };
+      const dmin = Number(p.dias_min), dmax = Number(p.dias_max);
+      if (![dmin, dmax].every(x => Number.isInteger(x) && x >= 1 && x <= 365))
+        return { error: 'Los días de cada paquete deben ser enteros entre 1 y 365' };
+      if (dmin > dmax) return { error: 'Los días mínimos no pueden superar a los máximos' };
+      paquetes.push({ id, nombre: pn, descripcion: pd, precio, dias_min: dmin, dias_max: dmax, destacado: !!p.destacado });
+    }
+  }
+
+  let precio_base;
+  if (paquetes && paquetes.length) precio_base = Math.min(...paquetes.map(p => p.precio));
+  else {
+    precio_base = Math.round(Number(b.precio));
+    if (!(precio_base > 0)) return { error: 'Pon un precio o agrega al menos un paquete' };
+  }
+  return { servicio: { nombre, descripcion, precio_base }, paquetes };
+}
+
+// Sincroniza: actualiza los existentes, crea los nuevos y desactiva los que ya no vienen.
+// (Se desactivan, no se borran, porque las reservas antiguas pueden apuntar a ellos.)
+async function guardarPaquetes(servicioId, paquetes) {
+  const ids = paquetes.filter(p => p.id).map(p => p.id);
+  let q = supabase.from('paquetes_servicio').update({ activo: false }).eq('servicio_id', servicioId);
+  if (ids.length) q = q.not('id', 'in', `(${ids.join(',')})`);
+  const { error: e0 } = await q;
+  if (e0) throw e0;
+
+  for (const p of paquetes) {
+    const fila = {
+      nombre: p.nombre, descripcion: p.descripcion, precio: p.precio,
+      duracion_dias_min: p.dias_min, duracion_dias_max: p.dias_max,
+      destacado: p.destacado, activo: true,
+    };
+    const { error } = p.id
+      ? await supabase.from('paquetes_servicio').update(fila).eq('id', p.id).eq('servicio_id', servicioId)
+      : await supabase.from('paquetes_servicio').insert({ ...fila, servicio_id: servicioId });
+    if (error) throw error;
+  }
 }
 
 router.post('/servicios', async (req, res) => {
-  const s = validarServicio(req.body);
-  if (!s) return res.status(400).json({ error: 'Nombre, descripción y precio son obligatorios' });
+  const v = validarServicio(req.body);
+  if (v.error) return res.status(400).json({ error: v.error });
+  const s = v.servicio;
   const categoria_id = req.body.categoria_id ?? CATEGORIA_POR_DEFECTO;
   if (categoria_id != null) s.categoria_id = categoria_id;
-  const { data, error } = await supabase.from('servicios').insert(s).select().single();
+  const { data, error } = await supabase.from('servicios').insert(s).select('id').single();
   if (error) return fail(res, error.code === '23505' ? 'Ya existe un servicio con ese nombre' : error,
                          error.code === '23505' ? 409 : 500);
-  res.status(201).json(outServicio(data));
+  try {
+    if (v.paquetes?.length) await guardarPaquetes(data.id, v.paquetes);
+    res.status(201).json(await servicioCompleto(data.id));
+  } catch (e) { fail(res, e); }
 });
 
 router.put('/servicios/:id', async (req, res) => {
-  const s = validarServicio(req.body);
-  if (!s) return res.status(400).json({ error: 'Nombre, descripción y precio son obligatorios' });
-  const { data, error } = await supabase.from('servicios').update(s).eq('id', req.params.id).select().single();
+  const v = validarServicio(req.body);
+  if (v.error) return res.status(400).json({ error: v.error });
+  const { error } = await supabase.from('servicios').update(v.servicio).eq('id', req.params.id);
   if (error) return fail(res, error.code === '23505' ? 'Ya existe un servicio con ese nombre' : error,
                          error.code === '23505' ? 409 : 500);
-  res.json(outServicio(data));
+  try {
+    if (v.paquetes) await guardarPaquetes(Number(req.params.id), v.paquetes);
+    res.json(await servicioCompleto(req.params.id));
+  } catch (e) { fail(res, e); }
 });
 
 // Baja lógica: las reservas anteriores conservan su servicio y precio.
@@ -88,7 +164,6 @@ router.delete('/servicios/:id', async (req, res) => {
   if (error) return fail(res, error);
   res.status(204).end();
 });
-
 // ───────── PAGOS NEQUI (transferencia) ─────────
 // Los comprobantes los sube el cliente en /api/pagos (ver pagos.js).
 router.get('/pagos', async (req, res) => {

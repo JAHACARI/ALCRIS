@@ -194,11 +194,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     campos: camposLogin,
                     onLoginPressed: _procesarLogin,
                   ),
-
-                  // Componente 2: Separador e inicios alternativos (Oauth2)
-                  BloqueSocial(onGoogleTap: () {}),
-                  const SizedBox(height: 24),
-
                   // Componente 3: Enlace plano inferior
                   const EnlaceRegistro(),
                 ],
