@@ -39,10 +39,21 @@ class AdminApi {
   // Servicios
   static Future<List<ServicioAdmin>> servicios() async =>
       [for (final j in await _send('GET', '/servicios')) ServicioAdmin.fromJson(j)];
-  static Future<void> crearServicio(String n, String d, int p) =>
-      _send('POST', '/servicios', {'nombre': n, 'descripcion': d, 'precio': p});
-  static Future<void> editarServicio(int id, String n, String d, int p) =>
-      _send('PUT', '/servicios/$id', {'nombre': n, 'descripcion': d, 'precio': p});
+  
+  static Future<void> crearServicio(String n, String d, List<PaqueteAdmin> paq) =>
+      _send('POST', '/servicios', {
+        'nombre': n, 
+        'descripcion': d, 
+        'paquetes': [for (final x in paq) x.toJson()],
+      });
+
+  static Future<void> editarServicio(int id, String n, String d, List<PaqueteAdmin> paq) =>
+      _send('PUT', '/servicios/$id', {
+        'nombre': n, 
+        'descripcion': d, 
+        'paquetes': [for (final x in paq) x.toJson()],
+      });
+
   static Future<void> eliminarServicio(int id) => _send('DELETE', '/servicios/$id');
 
   // Pagos
@@ -52,7 +63,7 @@ class AdminApi {
   static Future<void> rechazarPago(int id, String motivo) =>
       _send('POST', '/pagos/$id/rechazar', {'motivo': motivo});
 
-        // Horarios del taller
+  // Horarios del taller
   static Future<Map<String, dynamic>> horarios() async =>
       Map<String, dynamic>.from(await _send('GET', '/horarios'));
   static Future<void> guardarDia(int dia, List<String> horas, int cupo) =>

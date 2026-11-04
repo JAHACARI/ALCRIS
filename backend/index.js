@@ -10,6 +10,7 @@ import servicioRoutes from "./routes/servicio/servicioRoutes.js";
 import tecnicoRoutes from "./routes/tecnico/tecnicoRoutes.js";
 import reservaRoutes from "./routes/reserva/reservaRoutes.js";
 import catalogoRoutes from "./routes/catalogo/catalogoRoutes.js";
+import paqueteRoutes from "./routes/servicio/paqueteRoutes.js"; // 👈 Ajusta la ruta exacta de tu carpeta si es otra
 import chatRoutes from "./routes/chat/chatRoutes.js";
 import { verificarToken, soloAdmin } from "./middleware/authMiddleware.js";
 import adminRoutes from "./routes/admin.js";
@@ -35,6 +36,7 @@ app.use("/api", catalogoRoutes); // /api/colores y /api/acabados
 app.use("/api/chat", chatRoutes);
 app.use("/api/admin", verificarToken, soloAdmin, adminRoutes);
 app.use("/api/pagos", verificarToken, pagosRoutes);
+app.use("/api/paquetes", paqueteRoutes); 
 
 //Rutas de la API
 app.get('/health', (req, res) => {

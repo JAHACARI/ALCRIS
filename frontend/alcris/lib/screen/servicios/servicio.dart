@@ -9,9 +9,7 @@ import 'package:alcris/widgets/perfil/filaestadisticas.dart';
 import 'package:alcris/services/api2_servicios.dart';
 import 'package:alcris/screen/chat/chat_alcris.dart';
 
-// Importación de las tres pantallas específicas de tu carpeta de servicios
-import 'package:alcris/screen/servicios/detallediagnostico.dart';
-import 'package:alcris/screen/servicios/detallelavado.dart';
+// Importación unificada de la pantalla de servicios
 import 'package:alcris/screen/servicios/detallepaquete.dart';
 
 class PantallaServicios extends StatefulWidget {
@@ -68,6 +66,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       'icon': icon,
       'color': color,
       'bg': bg,
+      'paquetes': servicioBackend['paquetes'] ?? [], // 👈 Se inyectan los paquetes dinámicos de la API
     };
   }
 
@@ -154,15 +153,15 @@ class _PantallaServiciosState extends State<PantallaServicios> {
 
         if (snapshot.hasData) {
           final datosBackend = snapshot.data!;
-          if (datosBackend.isEmpty)
+          if (datosBackend.isEmpty) {
             return const Center(
               child: Text("No hay servicios disponibles en el catálogo."),
             );
+          }
 
           final List<Map<String, dynamic>> serviciosFormateados = datosBackend
               .map(
-                (s) =>
-                    _mapearDisenoServicio(Map<String, dynamic>.from(s as Map)),
+                (s) => _mapearDisenoServicio(Map<String, dynamic>.from(s as Map)),
               )
               .toList();
 
@@ -210,26 +209,12 @@ class _PantallaServiciosState extends State<PantallaServicios> {
                     return TarjetaServicio(
                       datos: s,
                       onReservar: () {
-                        final String nombre = (s['title'] ?? '')
-                            .toString()
-                            .toLowerCase();
-                        Widget pantallaDestino;
-
-                        // Enrutador inteligente según el título del servicio de la API
-                        if (nombre.contains('diagnóstico') ||
-                            nombre.contains('diagnostico')) {
-                          pantallaDestino = DetalleServiciodi(servicio: s);
-                        } else if (nombre.contains('lavado') ||
-                            nombre.contains('limpieza')) {
-                          pantallaDestino = DetalleServiciolav(servicio: s);
-                        } else {
-                          pantallaDestino = DetalleServicioScreen(servicio: s);
-                        }
-
+                        // Se remueven los condicionales antiguos. 
+                        // Todos los tipos de servicio abren la pantalla unificada.
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => pantallaDestino,
+                            builder: (context) => DetalleServicioScreen(servicio: s),
                           ),
                         );
                       },
@@ -240,7 +225,8 @@ class _PantallaServiciosState extends State<PantallaServicios> {
             ),
           );
         }
-        return const SizedBox();
+
+        return const Center(child: Text("Estado desconocido en el catálogo."));
       },
     );
   }

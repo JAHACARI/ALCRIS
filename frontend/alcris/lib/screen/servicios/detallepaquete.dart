@@ -2,6 +2,7 @@ import 'package:alcris/screen/servicios/agendarcita.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/paquete/cabecera.dart';
 import 'package:alcris/widgets/paquete/tarjetapaquete.dart';
+import 'package:alcris/services/api2_servicios.dart';
 
 class DetalleServicioScreen extends StatefulWidget {
   final Map<String, dynamic> servicio;
@@ -14,129 +15,163 @@ class DetalleServicioScreen extends StatefulWidget {
 
 class _DetalleServicioScreenState extends State<DetalleServicioScreen> {
   int _paqueteSeleccionado = 0;
+  final ApiService _apiService = ApiService();
+  Future<List<Map<String, dynamic>>>? _futurePaquetes;
 
-  final List<Map<String, dynamic>> _paquetes = [
-    {
-      'nombre': 'Básico',
-      'descripcion': 'reparación de golpes leves, masilla y pintura de zona.',
-      'paneles': '1 panel',
-      'tiempo': '1-2 días',
-      'precio': '\$2.500',
-      'tag': 'Popular',
-      'tagBg': const Color(0xFFFFEBEE),
-      'tagColor': const Color(0xFFE94560),
-      'colorTitle': const Color(0xFFB32646),
-    },
-    {
-      'nombre': 'Premium',
-      'descripcion': 'latonería completa, pintura total y pulido espejo.',
-      'paneles': 'múltiples paneles',
-      'tiempo': '3-5 días',
-      'precio': '\$6.900',
-      'tag': 'Completo',
-      'tagBg': const Color(0xFFFEF3C7),
-      'tagColor': const Color(0xFFD97706),
-      'colorTitle': const Color(0xFF855D2B),
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final dynamic servicioId = widget.servicio['id'] ?? 0;
+    _futurePaquetes = _apiService.obtenerPaquetes(servicioId);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
-      body: Column(
-        children: [
-          // Cabecera azul superior
-          CabeceraDetalle(
-            titulo: widget.servicio['title'] ?? 'Servicio',
-            subtitulo: widget.servicio['subtitle'] ?? '',
-            icono: widget.servicio['icon'] ?? Icons.build_rounded,
-          ),
-          
-          // Contenido scrollable restaurado (Soluciona la pantalla en blanco)
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'ELIGE TU PAQUETE', 
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Selecciona el alcance ideal para tu vehículo y continúa con la reserva.',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Bucle que dibuja las tarjetas dinámicamente usando tu componente TarjetaPaquete
-                  ...List.generate(_paquetes.length, (index) {
-                    return TarjetaPaquete(
-                      datos: _paquetes[index],
-                      isSelected: _paqueteSeleccionado == index,
-                      onTap: () => setState(() => _paqueteSeleccionado = index),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _futurePaquetes,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.blueAccent),
+            );
+          }
 
-          // Botón Continuar estilizado con el degradado real de tu diseño
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE94560), Color(0xFFC0392B)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 4)),
-                  ],
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  "Error al cargar paquetes reales:\n${snapshot.error}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.redAccent),
                 ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    final paquete = _paquetes[_paqueteSeleccionado];
-                    final datosAcumulados = <String, dynamic>{
-                      ...widget.servicio,
-                      'paquete_nombre': paquete['nombre'],
-                      'descripcion': paquete['descripcion'],
-                      'paneles': paquete['paneles'],
-                      'tiempo': paquete['tiempo'],
-                    };
+              ),
+            );
+          }
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AgendarCitaScreen(
-                          datosRecopilados: datosAcumulados,
+          final List<Map<String, dynamic>> paquetesRaw = snapshot.data ?? [];
+
+          return Column(
+            children: [
+              CabeceraDetalle(
+                titulo: widget.servicio['title'] ?? 'Servicio',
+                subtitulo: widget.servicio['subtitle'] ?? '',
+                icono: widget.servicio['icon'] ?? Icons.build_rounded,
+              ),
+
+              Expanded(
+                child: paquetesRaw.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No hay paquetes configurados para este servicio.',
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'ELIGE TU PAQUETE',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Selecciona el alcance ideal para tu vehículo y continúa con la reserva.',
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                            const SizedBox(height: 20),
+
+                            ...List.generate(paquetesRaw.length, (index) {
+                              final Map<String, dynamic> p = paquetesRaw[index];
+
+                              // Mapeo directo y ultra limpio de la respuesta de Express
+                              final Map<String, dynamic> paqueteFormateado = {
+                                'id': p['id'],
+                                'nombre': p['nombre'],
+                                'descripcion': p['descripcion'] ?? '',
+                                'precio': p['precio'],
+                                'destacado': p['destacado'] ?? false,
+                                'tiempo': p['tiempo'] ?? '1 día',
+                              };
+
+                              return TarjetaPaquete(
+                                datos: paqueteFormateado,
+                                isSelected: _paqueteSeleccionado == index,
+                                onTap: () => setState(() => _paqueteSeleccionado = index),
+                              );
+                            }),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  ),
-                  child: const Text(
-                    'Continuar',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+
+              if (paquetesRaw.isNotEmpty)
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE94560), Color(0xFFC0392B)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final Map<String, dynamic> paqueteElegido = paquetesRaw[_paqueteSeleccionado];
+
+                          final datosAcumulados = <String, dynamic>{
+                            ...widget.servicio,
+                            'paquete_id': paqueteElegido['id'],
+                            'paquete_nombre': paqueteElegido['nombre'],
+                            'precio_final': paqueteElegido['precio'],
+                            'tiempo': paqueteElegido['tiempo'],
+                          };
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AgendarCitaScreen(
+                                datosRecopilados: datosAcumulados,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          'Continuar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

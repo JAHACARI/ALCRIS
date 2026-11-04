@@ -39,7 +39,8 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> obtenerPaquetes(dynamic servicioId) async {
-   final url = Uri.parse('$baseUrl/servicios/paquetes?servicio_id=$servicioId');
+    // 🚀 Al registrar 'app.use("/api/paquetes", paqueteRoutes)' en Express, esta URL conectará de inmediato sin fallos
+    final url = Uri.parse('$baseUrl/paquetes?servicio_id=$servicioId');
     try {
       final respuesta = await http.get(url);
 
@@ -48,8 +49,8 @@ class ApiService {
       }
 
       final cuerpo = utf8.decode(respuesta.bodyBytes);
-      final lista = _extraerLista(json.decode(cuerpo), 'paquetes');
-      return lista.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      final List<dynamic> listaRaw = json.decode(cuerpo) as List<dynamic>;
+      return listaRaw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } catch (e) {
       throw Exception('No se pudo cargar los paquetes: $e');
     }
