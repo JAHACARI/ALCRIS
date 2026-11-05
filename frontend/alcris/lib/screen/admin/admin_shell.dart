@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:alcris/screen/auth/login.dart'; // <- pantalla de login (LoginScreen)
 import 'resumen_page.dart';
 import 'pagos_page.dart';
 import 'reservas_page.dart';
 import 'servicios_page.dart';
-import 'horarios_page.dart'; // 1. Nueva importación agregada
+import 'horarios_page.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -15,7 +16,6 @@ class AdminShell extends StatefulWidget {
 class _AdminShellState extends State<AdminShell> {
   int _i = 0;
 
-  // 2. Títulos actualizados (5 en total)
   static const _titulos = [
     'Resumen',
     'Pagos Nequi',
@@ -24,7 +24,6 @@ class _AdminShellState extends State<AdminShell> {
     'Horarios',
   ];
 
-  // 3. Páginas actualizadas en el mismo orden (5 en total)
   final _pages = const [
     ResumenPage(),
     PagosPage(),
@@ -32,6 +31,35 @@ class _AdminShellState extends State<AdminShell> {
     ServiciosPage(),
     HorariosPage(),
   ];
+
+  Future<void> _cerrarSesion() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Seguro que quieres salir?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Salir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true && mounted) {
+      // Aquí limpia tu sesión (SharedPreferences, FirebaseAuth.signOut(), token, etc.)
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Theme(
@@ -47,14 +75,23 @@ class _AdminShellState extends State<AdminShell> {
           ),
         ),
         child: Scaffold(
-          appBar: AppBar(title: Text(_titulos[_i])),
-          // Nota opcional: Cambiar '_pages[_i]' por 'IndexedStack(index: _i, children: _pages)' 
-          // evitará que las pestañas se destruyan y recarguen cada vez que cambias de vista.
+          appBar: AppBar(
+            title: Text(_titulos[_i]),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                tooltip: 'Cerrar sesión',
+                onPressed: _cerrarSesion,
+              ),
+            ],
+          ),
+          // Nota opcional: cambiar '_pages[_i]' por
+          // 'IndexedStack(index: _i, children: _pages)' evita que las
+          // pestañas se destruyan y recarguen al cambiar de vista.
           body: _pages[_i],
           bottomNavigationBar: NavigationBar(
             selectedIndex: _i,
             onDestinationSelected: (v) => setState(() => _i = v),
-            // 4. Destinos actualizados que coinciden en cantidad exacta (5 en total)
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.dashboard_outlined),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alcris/widgets/perfil/editarperfil.dart';
+import 'package:alcris/widgets/common/perfil/editarperfil.dart';
 
 class TarjetaUsuario extends StatefulWidget {
   final String nombre;
@@ -33,11 +33,14 @@ class _TarjetaUsuarioState extends State<TarjetaUsuario> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => ModalEditarPerfil(
         nombreInicial: _currentName,
         localidadInicial: _currentLocation,
         onGuardar: (nuevoNombre, nuevaLocalidad) {
+          Navigator.pop(context); // Cierra el modal de inmediato
           setState(() {
             if (nuevoNombre.trim().isNotEmpty) _currentName = nuevoNombre;
             if (nuevaLocalidad.trim().isNotEmpty) _currentLocation = nuevaLocalidad;
@@ -52,38 +55,57 @@ class _TarjetaUsuarioState extends State<TarjetaUsuario> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04), 
+            blurRadius: 10, 
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: Row(
         children: [
+          // Inicial del usuario con fondo circular limpio
           CircleAvatar(
-            radius: 32, backgroundColor: const Color(0xFFECEFF1),
+            radius: 32, 
+            backgroundColor: const Color(0xFFECEFF1),
             child: Text(
               _currentName.isNotEmpty ? _currentName[0].toUpperCase() : 'U',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
             ),
           ),
           const SizedBox(width: 16),
+          // Textos informativos ordenados verticalmente
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_currentName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                Text(
+                  _currentName, 
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                ),
                 const SizedBox(height: 2),
-                Text(widget.eslogan, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                Text(
+                  widget.eslogan, 
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text(_currentLocation, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500)),
+                    Text(
+                      _currentLocation, 
+                      style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          // Cambiamos el ícono estático por un botón interactivo de edición con lápiz
+          // Botón del lápiz estilizado para edición rápida
           IconButton(
             onPressed: _abrirEditor,
             icon: const Icon(Icons.edit_note_rounded, color: Color(0xFFE94560), size: 28),
