@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alcris/widgets/common/cabecerahome.dart';
 import 'package:alcris/widgets/common/menuinferior.dart';
 import 'package:alcris/screen/auth/registro.dart';
+import 'package:alcris/screen/auth/login.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _currentIndex = 0;
+  int _currentIndex = 0;
 
   final List<Map<String, dynamic>> _pilaresTaller = [
     {
@@ -29,12 +30,92 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
-  // SOLUCIÓN: Extensión corregida a .png para que se renderice la tercera imagen
   final List<String> _imagenesGaleria = [
     'assets/images/abolladura.jpg',
     'assets/images/pintura y polichado.jpg',
     'assets/images/lijado.png',
   ];
+
+  // NUEVO MÉTODO: Muestra el banner de confirmación antes de redirigir
+  void _mostrarBannerCuenta(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          title: const Row(
+            children: [
+              Icon(Icons.account_circle_rounded, color: Color(0xFF0055A5)),
+              SizedBox(width: 10),
+              Text(
+                '¿Tienes cuenta?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Para agendar tu cita en línea necesitamos verificar si ya estás registrado en ALCRIS.',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          actions: [
+            // BOTÓN NO -> Va a RegistroScreen
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF0F172A),
+                side: const BorderSide(color: Colors.grey),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext); // Cierra el banner
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegistroScreen(),
+                  ),
+                );
+              },
+              child: const Text('No, registrarme'),
+            ),
+            // BOTÓN SÍ -> Va a LoginScreen
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE94560),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext); // Cierra el banner
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    // REEMPLAZA LoginScreen() con el nombre exacto de tu clase de Login
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              },
+              child: const Text('Sí, iniciar sesión'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 20),
 
+                  // BOTÓN AGENDAR CITA ACTUALIZADO
                   GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegistroScreen(),
-                      ),
-                    ),
+                    onTap: () => _mostrarBannerCuenta(context),
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -168,98 +245,57 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ..._pilaresTaller
-                      .map(
-                        (p) => Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.01),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                  ..._pilaresTaller.map(
+                    (p) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.01),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: p['color'].withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  p['icon'],
-                                  color: p['color'],
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      p['title'],
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF0F172A),
-                                      ),
-                                    ),
-                                    Text(
-                                      p['desc'],
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey,
-                                        height: 1.2,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  const SizedBox(height: 16),
-
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF003366), Color(0xFF0055A5)],
-                        begin: Alignment.topLeft,
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Garantía Alcris Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: p['color'].withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(p['icon'], color: p['color'], size: 24),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Todos nuestros trabajos de latonería y pintura cuentan con cobertura certificada contra imperfecciones en el taller.',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                            height: 1.3,
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p['title'],
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0F172A),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  p['desc'],
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -270,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: MenuInferior(
         currentIndex: _currentIndex,
-        onTap: (i) {},
+        onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }
