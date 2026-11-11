@@ -22,13 +22,17 @@ const enviarCorreo = async ({ para, nombre, asunto, html }) => {
   }
 };
 
-export const notificarReservaAceptada = async (reserva) => {
-  const { data: usuario } = await supabase
-    .from("usuario") // ajusta al nombre real de tu tabla
+const obtenerUsuario = async (usuarioId) => {
+  const { data } = await supabase
+    .from("usuario")
     .select("nombre, email")
-    .eq("id", reserva.usuario_id)
+    .eq("id", usuarioId)
     .single();
+  return data;
+};
 
+export const notificarReservaAceptada = async (reserva) => {
+  const usuario = await obtenerUsuario(reserva.usuario_id);
   if (!usuario?.email) return;
 
   await enviarCorreo({
@@ -40,6 +44,24 @@ export const notificarReservaAceptada = async (reserva) => {
       <p>Tu reserva para el <b>${reserva.fecha_cita}</b> a las
       <b>${String(reserva.hora_cita).slice(0, 5)}</b> fue aceptada.</p>
       <p>¡Te esperamos!</p>
+    `,
+  });
+};
+
+export const notificarReservaRechazada = async (reserva, motivo) => {
+  const usuario = await obtenerUsuario(reserva.usuario_id);
+  if (!usuario?.email) return;
+
+  await enviarCorreo({
+    para: usuario.email,
+    nombre: usuario.nombre,
+    asunto: "Tu reserva fue rechazada",
+    html: `
+      <p>Hola ${usuario.nombre},</p>
+      <p>Lamentablemente tu reserva del <b>${reserva.fecha_cita}</b> a las
+      <b>${String(reserva.hora_cita).slice(0, 5)}</b> fue rechazada.</p>
+      <p><b>Motivo:</b> ${motivo || "No especificado"}</p>
+      <p>Puedes hacer una nueva reserva cuando quieras.</p>
     `,
   });
 };

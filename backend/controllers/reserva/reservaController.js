@@ -14,7 +14,10 @@ import { obtenerEtapas } from "../../models/catalogo/etapaModel.js";
 import { supabase } from "../../config/supabase.js";
 import { validarHorario, calcularDisponibilidad } from "../disponibilidad.js";
 import { v2 as cloudinary } from "cloudinary";
-import { notificarReservaAceptada } from "../../services/notificaciones.js";
+import {
+  notificarReservaAceptada,
+  notificarReservaRechazada,
+} from "../../services/notificaciones.js";
 
 // Configuración de Cloudinary (variables de entorno del .env / Render)
 cloudinary.config({
@@ -25,7 +28,7 @@ cloudinary.config({
 
 const FORMAS_PAGO = ["efectivo", "transferencia"];
 const EXTENSIONES_IMG = ["jpg", "jpeg", "png", "webp"];
-
+const ESTADOS_ACEPTADA = ["confirmada"];
 export const crear = async (req, res) => {
   try {
     const {
@@ -189,8 +192,9 @@ export const actualizar = async (req, res) => {
     }
 
     let campos;
+    let motivo; // solo se usa para el correo, no se guarda en la reserva
     if (esAdmin) {
-      campos = { ...req.body };
+      ({ motivo, ...campos } = req.body);
     } else {
       // El cliente solo puede editar notas o cancelar una reserva pendiente
       campos = {};
@@ -215,15 +219,23 @@ export const actualizar = async (req, res) => {
     const { data, error } = await actualizarReserva(req.params.id, campos);
     if (error) return res.status(500).json({ error: error.message });
 
-    // ── Notificar al cliente cuando el admin acepta la reserva ──
-    if (
-      esAdmin &&
-      campos.estado === "aceptada" &&
-      existente.estado !== "aceptada"
-    ) {
-      notificarReservaAceptada({ ...existente, ...data }).catch((err) =>
-        console.error("Error enviando notificación:", err.message)
-      );
+    // ── Notificar al cliente según el nuevo estado ──
+    console.log("DEBUG actualizar:", {
+      esAdmin,
+      estadoNuevo: campos.estado,
+      estadoAnterior: existente.estado,
+    });
+
+    if (esAdmin && campos.estado && existente.estado !== campos.estado) {
+      if (campos.estado === "confirmada") {
+        notificarReservaAceptada({ ...existente, ...data }).catch((err) =>
+          console.error("Error enviando notificación:", err.message)
+        );
+      } else if (campos.estado === "rechazada") {
+        notificarReservaRechazada({ ...existente, ...data }, motivo).catch(
+          (err) => console.error("Error enviando notificación:", err.message)
+        );
+      }
     }
 
     return res
