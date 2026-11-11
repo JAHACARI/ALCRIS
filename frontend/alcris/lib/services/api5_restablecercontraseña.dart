@@ -27,7 +27,7 @@ class ApiService {
         body: jsonEncode({
           'email': email.trim(), // req.body.email
           'codigo': codigo.trim(), // req.body.codigo
-          'nueva_contrasena': nuevaContrasena, // req.body.nueva_contrasena
+          'nuevaContrasena': nuevaContrasena, // CORREGIDO: coincide con req.body.nuevaContrasena
         }),
       ).timeout(const Duration(seconds: 45)); // Tiempo amplio por si Render está despertando
 
