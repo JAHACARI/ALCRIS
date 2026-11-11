@@ -313,7 +313,17 @@ export const solicitarRecuperacion = async (req, res) => {
     const codigo = generarCodigo();
     const expira = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    await crearRecuperacion(usuario.id, codigo, expira);
+    const { error: errorRec } = await crearRecuperacion({
+      usuario_id: usuario.id,
+      codigo: codigo,
+      fecha_expira: expira,
+    });
+
+    if (errorRec) {
+      console.error("Error al guardar código en Supabase:", errorRec);
+      return res.status(500).json({ error: "No se pudo generar el código de recuperación" });
+    }
+
     await enviarCodigoRecuperacion(email, codigo, usuario.nombre);
 
     return res.status(200).json({ message: "Código de recuperación enviado" });
