@@ -2,7 +2,7 @@ import 'package:alcris/screen/auth/verificarcuenta.dart';
 import 'package:flutter/material.dart';
 import 'package:alcris/screen/auth/login.dart';
 import 'package:alcris/widgets/common/cabeceraregistro.dart';
-
+import 'package:alcris/screen/home.dart';
 // Importación de los componentes modulares en archivos independientes
 import 'package:alcris/widgets/registro/botoncrear.dart';
 import 'package:alcris/widgets/registro/enlacelogin.dart';
@@ -311,40 +311,67 @@ class _RegistroScreenState extends State<RegistroScreen> {
         'controller': _confirmarPasswordController,
       },
     ];
-
-    return Scaffold(
+ return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const CabeceraRegistro(titulo: 'Crear Cuenta'),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const Text(
-                    'Únete a nuestro mundo hoy',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B),
-                    ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const CabeceraRegistro(titulo: 'Crear Cuenta'),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Únete a nuestro mundo hoy',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      FormularioRegistro(
+                        campos: campos,
+                        aceptoValue: _acepto,
+                        onAceptoChanged: (v) => setState(() => _acepto = v),
+                      ),
+                      const SizedBox(height: 24),
+                      BotonCrearCuenta(onPressed: _procesarRegistro),
+                      const SizedBox(height: 16),
+                      const EnlaceLogin(),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  FormularioRegistro(
-                    campos: campos,
-                    aceptoValue: _acepto,
-                    onAceptoChanged: (v) => setState(() => _acepto = v),
-                  ),
-                  const SizedBox(height: 24),
-                  BotonCrearCuenta(onPressed: _procesarRegistro),
-                  const SizedBox(height: 16),
-                  const EnlaceLogin(),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          // Flecha flotante arriba a la izquierda para volver atrás / Home
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 50,
+            right: 22,
+            child: Material(
+              color: const Color.fromARGB(255, 219, 218, 218).withOpacity(0.25),
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                tooltip: 'Volver al inicio',
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

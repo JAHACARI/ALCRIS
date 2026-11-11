@@ -1,5 +1,6 @@
 import 'package:alcris/screen/auth/verificarcuenta.dart';
 import 'package:alcris/screen/servicios/servicio.dart';
+import 'package:alcris/screen/auth/registro.dart'; // Ajusta esta ruta según la ubicación real de tu archivo HomeScreen
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/common/cabeceralogin.dart';
 
@@ -171,36 +172,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const CabeceraLogin(titulo: 'Inicia Sesión'),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                children: [
-                  const Text(
-                    'Unete a nuestro mundo hoy',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B),
-                    ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const CabeceraLogin(titulo: 'Inicia Sesión'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
                   ),
-                  const SizedBox(height: 20),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Unete a nuestro mundo hoy',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
-                  // Componente 1: Bloque de Inputs y acciones de credenciales
-                  FormularioLogin(
-                    campos: camposLogin,
-                    onLoginPressed: _procesarLogin,
+                      // Componente 1: Bloque de Inputs y acciones de credenciales
+                      FormularioLogin(
+                        campos: camposLogin,
+                        onLoginPressed: _procesarLogin,
+                      ),
+                      // Componente 3: Enlace plano inferior
+                      const EnlaceRegistro(),
+                    ],
                   ),
-                  // Componente 3: Enlace plano inferior
-                  const EnlaceRegistro(),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          // Flecha flotante arriba a la izquierda para volver directamente a HomeScreen
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 50,
+            right: 22,
+            child: Material(
+              color: const Color.fromARGB(255, 219, 216, 216).withOpacity(0.25),
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                tooltip: 'Volver al inicio',
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegistroScreen()),
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
