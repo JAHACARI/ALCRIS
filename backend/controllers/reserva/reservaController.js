@@ -14,6 +14,7 @@ import { obtenerEtapas } from "../../models/catalogo/etapaModel.js";
 import { supabase } from "../../config/supabase.js";
 import { validarHorario, calcularDisponibilidad } from "../disponibilidad.js";
 import { v2 as cloudinary } from "cloudinary";
+import { notificarReservaAceptada } from "../../services/notificaciones.js";
 
 // Configuración de Cloudinary (variables de entorno del .env / Render)
 cloudinary.config({
@@ -213,6 +214,17 @@ export const actualizar = async (req, res) => {
 
     const { data, error } = await actualizarReserva(req.params.id, campos);
     if (error) return res.status(500).json({ error: error.message });
+
+    // ── Notificar al cliente cuando el admin acepta la reserva ──
+    if (
+      esAdmin &&
+      campos.estado === "aceptada" &&
+      existente.estado !== "aceptada"
+    ) {
+      notificarReservaAceptada({ ...existente, ...data }).catch((err) =>
+        console.error("Error enviando notificación:", err.message)
+      );
+    }
 
     return res
       .status(200)
