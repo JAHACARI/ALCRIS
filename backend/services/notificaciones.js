@@ -1,6 +1,10 @@
 import { supabase } from "../config/supabase.js";
 
 const enviarCorreo = async ({ para, nombre, asunto, html }) => {
+  if (!process.env.BREVO_API_KEY_NOTIFICACIONES || !process.env.BREVO_SENDER_EMAIL) {
+    throw new Error("Faltan variables de entorno de Brevo en el servidor");
+  }
+
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -10,7 +14,7 @@ const enviarCorreo = async ({ para, nombre, asunto, html }) => {
     },
     body: JSON.stringify({
       sender: { name: "Alcris", email: process.env.BREVO_SENDER_EMAIL },
-      to: [{ email: para, name: nombre }],
+      to: [{ email: para, name: nombre || "Cliente" }],
       subject: asunto,
       htmlContent: html,
     }),
@@ -20,20 +24,33 @@ const enviarCorreo = async ({ para, nombre, asunto, html }) => {
     const detalle = await resp.text();
     throw new Error(`Brevo ${resp.status}: ${detalle}`);
   }
+
+  console.log(`Correo enviado exitosamente a ${para}`);
 };
 
 const obtenerUsuario = async (usuarioId) => {
-  const { data } = await supabase
-    .from("usuario")
+  const { data, error } = await supabase
+    .from("usuario") // Verifica si en Supabase es "usuario" o "usuarios"
     .select("nombre, email")
     .eq("id", usuarioId)
     .single();
+
+  if (error) {
+    console.error("Error consultando usuario en Supabase:", error.message);
+    return null;
+  }
+
   return data;
 };
 
 export const notificarReservaAceptada = async (reserva) => {
+  console.log("Iniciando notificación para reserva:", reserva.id, "usuario_id:", reserva.usuario_id);
+
   const usuario = await obtenerUsuario(reserva.usuario_id);
-  if (!usuario?.email) return;
+  if (!usuario?.email) {
+    console.warn("Notificación cancelada: No se encontró email para el usuario", reserva.usuario_id);
+    return;
+  }
 
   await enviarCorreo({
     para: usuario.email,
@@ -50,7 +67,10 @@ export const notificarReservaAceptada = async (reserva) => {
 
 export const notificarReservaRechazada = async (reserva, motivo) => {
   const usuario = await obtenerUsuario(reserva.usuario_id);
-  if (!usuario?.email) return;
+  if (!usuario?.email) {
+    console.warn("Notificación cancelada: No se encontró email para el usuario", reserva.usuario_id);
+    return;
+  }
 
   await enviarCorreo({
     para: usuario.email,
