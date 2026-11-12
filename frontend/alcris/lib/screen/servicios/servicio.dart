@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // Paquete para abrir el PDF
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:alcris/widgets/common/CabeceraServicio.dart';
 import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/servicios/tarjetaservicio.dart';
@@ -9,8 +10,6 @@ import 'package:alcris/widgets/common/perfil/btoncerrar.dart';
 import 'package:alcris/services/api2_servicios.dart';
 import 'package:alcris/screen/chat/chat_alcris.dart';
 import 'package:alcris/screen/auth/login.dart';
-
-// Importación unificada de la pantalla de servicios
 import 'package:alcris/screen/servicios/detallepaquete.dart';
 
 class PantallaServicios extends StatefulWidget {
@@ -22,6 +21,10 @@ class PantallaServicios extends StatefulWidget {
 class _PantallaServiciosState extends State<PantallaServicios> {
   int _currentIndex = 1;
 
+  // Cambia aquí los números por el teléfono real del taller Alcris
+  static const String _telefonoMostrar = '3223201720';
+  static const String _telefonoLlamada = '+573223201720';
+
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _futureServicios;
 
@@ -31,9 +34,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     _futureServicios = _apiService.obtenerServicios();
   }
 
-  // 📄 FUNCIÓN EXCLUSIVA: Abre el archivo PDF del manual de forma externa en el dispositivo
   Future<void> _abrirManualPDF() async {
-    // Reemplaza esta URL de prueba por el enlace final de tu PDF (subido a tu hosting, drive, etc.)
     final Uri pdfUrl = Uri.parse("https://w3.org");
 
     try {
@@ -52,6 +53,138 @@ class _PantallaServiciosState extends State<PantallaServicios> {
         );
       }
     }
+  }
+
+  void _mostrarContactoTaller() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 18),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const Text(
+                'Contacto del Taller Alcris',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Comunícate con nosotros para soporte o consultas sobre tu vehículo.',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE94560).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.phone_in_talk_rounded,
+                        color: Color(0xFFE94560),
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Teléfono del Taller',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            _telefonoMostrar,
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Copiar número',
+                      icon: const Icon(
+                        Icons.copy_rounded,
+                        color: Color(0xFF0B2A6B),
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(text: _telefonoMostrar),
+                        );
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Número copiado al portapapeles'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final uri = Uri.parse('tel:$_telefonoLlamada');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri);
+                    }
+                  },
+                  icon: const Icon(Icons.call_rounded, size: 18),
+                  label: const Text('Llamar al taller'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0B2A6B),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _cerrarSesion() async {
@@ -162,21 +295,13 @@ class _PantallaServiciosState extends State<PantallaServicios> {
         'color': const Color(0xFF0B2A6B),
       },
       {
-        'id': 'faq',
-        'titulo': 'Preguntas Frecuentes',
-        'subtitulo': 'Dudas sobre tiempos, precios y garantías',
-        'icono': Icons.help_outline_rounded,
-        'color': Colors.blueGrey,
-      },
-      {
         'id': 'contacto',
         'titulo': 'Contacto del Taller',
-        'subtitulo': 'Información de atención y soporte técnico',
+        'subtitulo': 'Tel: $_telefonoMostrar · Atención y soporte técnico',
         'icono': Icons.support_agent_rounded,
         'color': const Color(0xFFE94560),
       },
     ];
-
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -190,7 +315,6 @@ class _PantallaServiciosState extends State<PantallaServicios> {
             localidad: 'Localidad',
           ),
           const SizedBox(height: 24),
-
           // 2. Botón Ver Catálogo
           SizedBox(
             width: double.infinity,
@@ -209,7 +333,6 @@ class _PantallaServiciosState extends State<PantallaServicios> {
             ),
           ),
           const SizedBox(height: 16),
-
           // 3. Botón Cerrar Sesión
           SizedBox(
             width: double.infinity,
@@ -238,7 +361,6 @@ class _PantallaServiciosState extends State<PantallaServicios> {
             ),
           ),
           const SizedBox(height: 36),
-
           // 4. Listado de Documentación
           const Text(
             'Guías y Documentación',
@@ -249,7 +371,6 @@ class _PantallaServiciosState extends State<PantallaServicios> {
             ),
           ),
           const SizedBox(height: 14),
-
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -313,18 +434,10 @@ class _PantallaServiciosState extends State<PantallaServicios> {
                       color: Colors.grey.shade400,
                     ),
                     onTap: () {
-                      // 🔥 Ejecuta de verdad la apertura del PDF si pulsa sobre el manual
                       if (item['id'] == 'manual') {
                         _abrirManualPDF();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Abriendo de forma estática: ${item['titulo']}',
-                            ),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
+                      } else if (item['id'] == 'contacto') {
+                        _mostrarContactoTaller();
                       }
                     },
                   ),
@@ -338,109 +451,83 @@ class _PantallaServiciosState extends State<PantallaServicios> {
   }
 
   Widget _buildGridServicios() {
-    return FutureBuilder<List<dynamic>>(
+    return FutureBuilder<List>(
       future: _futureServicios,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: CircularProgressIndicator(color: Colors.blueAccent),
-            ),
+            child: CircularProgressIndicator(color: Color(0xFF0B2A6B)),
           );
         }
         if (snapshot.hasError) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                "Error al conectar con Alcris Backend:\n${snapshot.error}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.redAccent),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: Colors.redAccent,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Error al cargar servicios: ${snapshot.error}',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _futureServicios = _apiService.obtenerServicios();
+                      });
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
               ),
             ),
           );
         }
-        if (snapshot.hasData) {
-          final datosBackend = snapshot.data!;
-          if (datosBackend.isEmpty) {
-            return const Center(
-              child: Text("No hay servicios disponibles en el catálogo."),
-            );
-          }
-          final List<Map<String, dynamic>> serviciosFormateados = datosBackend
-              .map(
-                (s) =>
-                    _mapearDisenoServicio(Map<String, dynamic>.from(s as Map)),
-              )
-              .toList();
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Nuestros servicios',
-                      style: TextStyle(
-                        color: Color(0xFF1E293B),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${serviciosFormateados.length} disponibles',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: serviciosFormateados.length,
-                  itemBuilder: (context, index) {
-                    final item = serviciosFormateados[index];
-                    return TarjetaServicio(
-                      datos: item,
-                      onReservar: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DetalleServicioScreen(servicio: item),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
+        final servicios = snapshot.data ?? [];
+        if (servicios.isEmpty) {
+          return const Center(
+            child: Text('No hay servicios disponibles en este momento.'),
           );
         }
-        return const Center(child: Text("No se pudieron mapear los módulos."));
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _futureServicios = _apiService.obtenerServicios();
+            });
+          },
+          child: GridView.builder(
+            padding: const EdgeInsets.all(20),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.85,
+            ),
+            itemCount: servicios.length,
+            itemBuilder: (context, index) {
+              final item = _mapearDisenoServicio(servicios[index]);
+              return TarjetaServicio(
+                datos: item,
+                onReservar: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DetalleServicioScreen(servicio: item),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
       },
     );
   }
