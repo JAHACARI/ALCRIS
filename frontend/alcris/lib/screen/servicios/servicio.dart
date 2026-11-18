@@ -110,7 +110,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
 Future<void> _abrirManualPDF() async {
   try {
     // 1. Cargar el PDF desde los assets
-    final ByteData bytes = await rootBundle.load('assets/pdf/manual.pdf');
+    final ByteData bytes = await rootBundle.load('assets/pdf/Manual_de_Usuario_Alcris.pdf');
     final Uint8List list = bytes.buffer.asUint8List();
 
     // 2. Obtener el directorio temporal del dispositivo
