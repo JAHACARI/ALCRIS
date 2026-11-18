@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:alcris/models/perfil.dart';
+// Ajusta esta ruta según la carpeta donde tengas ApiConfig (ej. config/api_config.dart)
+import 'package:alcris/services/api_config.dart';
 
 class PerfilService {
-  final String baseUrl = 'https://onrender.com';
+  String get baseUrl => '${ApiConfig.baseUrl}/usuarios';
 
   Future<PerfilUsuario> obtenerPerfil({
     required String id,
