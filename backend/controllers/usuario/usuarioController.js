@@ -101,7 +101,7 @@ export const deleteUsuario = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Solo admin o el propio usuario pueden eliminar la cuenta
+    // Permite borrar si es admin O si es el dueño de la cuenta
     if (req.usuario.rol !== "admin" && String(req.usuario.id) !== String(id)) {
       return res
         .status(403)
