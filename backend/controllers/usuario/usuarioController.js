@@ -101,6 +101,13 @@ export const deleteUsuario = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Solo admin o el propio usuario pueden eliminar la cuenta
+    if (req.usuario.rol !== "admin" && String(req.usuario.id) !== String(id)) {
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para eliminar este usuario" });
+    }
+
     const { data: existente } = await obtenerUsuarioPorId(id);
     if (!existente) {
       return res.status(404).json({ error: "Usuario no encontrado" });
