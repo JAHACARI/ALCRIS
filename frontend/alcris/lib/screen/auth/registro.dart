@@ -191,7 +191,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 
-  Future<void> _procesarRegistro() async {
+    Future<void> _procesarRegistro() async {
     if (_nombreController.text.trim().isEmpty ||
         _correoController.text.trim().isEmpty ||
         _telefonoController.text.trim().isEmpty ||
@@ -251,6 +251,83 @@ class _RegistroScreenState extends State<RegistroScreen> {
       if (mounted) Navigator.pop(context);
       _mostrarAlerta(e.toString().replaceAll('Exception: ', ''));
     }
+  }
+
+  void _mostrarTerminosYCondiciones() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.privacy_tip_outlined, color: Colors.redAccent),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Términos y Tratamiento de Datos',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: const SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Autorización de Tratamiento de Datos Personales',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Al aceptar, autorizas de manera previa, expresa e informada a Alcris para recolectar, almacenar, usar y tratar tus datos personales con el propósito de gestionar tu cuenta, agendar servicios, enviar notificaciones y brindar soporte técnico.',
+                  style: TextStyle(fontSize: 13, height: 1.4),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Marco Legal Aplicable:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'El tratamiento de tu información se rige por la Ley Estatutaria 1581 de 2012 (Régimen General de Protección de Datos Personales de Colombia) y el Decreto Reglamentario 1377 de 2013. Como titular, tienes derecho a conocer, actualizar, rectificar y solicitar la supresión de tus datos en cualquier momento.',
+                  style: TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  _acepto = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar y Continuar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _mostrarAlerta(String mensaje) {
@@ -331,11 +408,17 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           color: Color(0xFF1E293B),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                     const SizedBox(height: 20),
                       FormularioRegistro(
                         campos: campos,
                         aceptoValue: _acepto,
-                        onAceptoChanged: (v) => setState(() => _acepto = v),
+                        onAceptoChanged: (v) {
+                          if (v) {
+                            _mostrarTerminosYCondiciones();
+                          } else {
+                            setState(() => _acepto = false);
+                          }
+                        },
                       ),
                       const SizedBox(height: 24),
                       BotonCrearCuenta(onPressed: _procesarRegistro),

@@ -108,21 +108,11 @@ class _PantallaServiciosState extends State<PantallaServicios> {
   }
 
 Future<void> _abrirManualPDF() async {
+  final Uri pdfUrl = Uri.parse('assets/assets/pdf/Manual_de_Usuario_Alcris.pdf');
+
   try {
-    // 1. Cargar el PDF desde los assets
-    final ByteData bytes = await rootBundle.load('assets/pdf/Manual_de_Usuario_Alcris.pdf');
-    final Uint8List list = bytes.buffer.asUint8List();
-
-    // 2. Obtener el directorio temporal del dispositivo
-    final tempDir = await getTemporaryDirectory();
-    final file = await File('${tempDir.path}/Manual_de_Usuario_Alcris.pdf').create();
-    await file.writeAsBytes(list);
-
-    // 3. Abrir el archivo con el visor predeterminado
-    final result = await OpenFilex.open(file.path);
-    
-    if (result.type != ResultType.done) {
-      throw result.message;
+    if (!await launchUrl(pdfUrl, mode: LaunchMode.externalApplication)) {
+      throw 'No se pudo abrir el visor de documentos';
     }
   } catch (e) {
     if (mounted) {
@@ -135,7 +125,6 @@ Future<void> _abrirManualPDF() async {
     }
   }
 }
-
   void _mostrarContactoTaller() {
     showModalBottomSheet(
       context: context,
