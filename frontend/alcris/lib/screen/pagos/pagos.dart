@@ -6,7 +6,7 @@ import 'package:alcris/models/servicio.dart' show cop;
 import 'package:alcris/services/api_pagos.dart';
 
 // ⚠️ Cambia por el número de Nequi real del taller
-const kNumeroNequi = '300 000 0000';
+const kNumeroNequi = '3107662219';
 const _rojo = Color(0xFFE94560);
 
 // ───────── Lista de reservas por pagar ─────────

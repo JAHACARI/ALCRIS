@@ -5,6 +5,7 @@ import 'package:alcris/widgets/common/menuinf2.dart';
 import 'package:alcris/widgets/common/perfil/tarjetausuario.dart';
 import 'package:alcris/screen/admin/admin_shell.dart';
 import 'package:alcris/widgets/common/perfil/btoncerrar.dart';
+import 'package:alcris/widgets/common/perfil/btoneliminar.dart';
 
 // IMPORTS OFICIALES DE TU BACKEND
 import 'package:alcris/services/perfil.dart';
@@ -53,6 +54,23 @@ class _PerfilScreenState extends State<PerfilScreen> {
         _estaCargando = false;
       });
     }
+  }
+
+  // Lógica de eliminación desacoplada del botón
+  Future<void> _eliminarCuentaUsuario() async {
+    if (_usuario == null || _usuario!.id.isEmpty) {
+      throw Exception('No se encontró el identificador del usuario');
+    }
+
+    await _perfilService.eliminarPerfil(
+      id: _usuario!.id,
+      token: "TU_TOKEN_DE_SESION",
+    );
+
+    // Aquí limpia SharedPreferences/SecureStorage si guardas sesión local
+
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
   @override
@@ -244,6 +262,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
             // Botón independiente de Salida
             const BotonCerrarSesion(),
+            const SizedBox(height: 12),
+
+            // Botón independiente de Eliminación de Cuenta
+            BotonEliminarCuenta(
+              onConfirmarEliminacion: _eliminarCuentaUsuario,
+            ),
           ],
         ),
       ),
