@@ -12,6 +12,6 @@ const router = Router();
 router.get("/", verificarToken, soloAdmin, getUsuarios);
 router.get("/:id", verificarToken, getUsuarioPorId);
 router.put("/:id", verificarToken, updateUsuario);
-router.delete("/:id", verificarToken, soloAdmin, deleteUsuario);
+router.delete("/:id", verificarToken, deleteUsuario);
 
 export default router;
