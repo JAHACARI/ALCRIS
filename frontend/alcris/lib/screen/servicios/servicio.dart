@@ -115,7 +115,7 @@ Future<void> _abrirManualPDF() async {
 
     // 2. Obtener el directorio temporal del dispositivo
     final tempDir = await getTemporaryDirectory();
-    final file = await File('${tempDir.path}/manual.pdf').create();
+    final file = await File('${tempDir.path}/Manual_de_Usuario_Alcris.pdf').create();
     await file.writeAsBytes(list);
 
     // 3. Abrir el archivo con el visor predeterminado
