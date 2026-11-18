@@ -105,14 +105,28 @@ export const actualizarUsuario = async (id, campos) => {
 
   return { data, error };
 };
-
 export const eliminarUsuario = async (id) => {
-  const { data, error } = await supabase
+  // 1. Elimina primero las reservas asociadas a este usuario
+  const { error: errorReservas } = await supabase
+    .from("reservas")
+    .delete()
+    .eq("usuario_id", id);
+
+  if (errorReservas) {
+    return { data: null, error: errorReservas };
+  }
+
+  // (Opcional) Si tienes otras tablas con usuario_id como 'vehiculos' o 'mensajes', bórralas aquí igual:
+  // await supabase.from("vehiculos").delete().eq("usuario_id", id);
+
+  // 2. Ahora sí elimina al usuario
+  return await supabase
     .from("usuario")
     .delete()
     .eq("id", id)
-    .select(CAMPOS_PUBLICOS)
+    .select()
     .single();
-
-  return { data, error };
 };
+
+
+
