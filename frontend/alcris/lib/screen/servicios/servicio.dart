@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +16,8 @@ import 'package:alcris/models/perfil.dart';
 import 'package:alcris/screen/chat/chat_alcris.dart';
 import 'package:alcris/screen/auth/login.dart';
 import 'package:alcris/screen/servicios/detallepaquete.dart';
+import 'package:path_provider/path_provider.dart'; // Asegúrate de tener path_provider en tu pubspec.yaml
+import 'package:open_filex/open_filex.dart';
 
 class PantallaServicios extends StatefulWidget {
   const PantallaServicios({super.key});
@@ -104,26 +107,34 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     );
   }
 
-  Future<void> _abrirManualPDF() async {
-    final Uri pdfUrl = Uri.parse("https://w3.org");
+Future<void> _abrirManualPDF() async {
+  try {
+    // 1. Cargar el PDF desde los assets
+    final ByteData bytes = await rootBundle.load('assets/pdf/manual.pdf');
+    final Uint8List list = bytes.buffer.asUint8List();
 
-    try {
-      if (await canLaunchUrl(pdfUrl)) {
-        await launchUrl(pdfUrl, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No se pudo abrir el visor de documentos';
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al abrir el manual: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    // 2. Obtener el directorio temporal del dispositivo
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/manual.pdf').create();
+    await file.writeAsBytes(list);
+
+    // 3. Abrir el archivo con el visor predeterminado
+    final result = await OpenFilex.open(file.path);
+    
+    if (result.type != ResultType.done) {
+      throw result.message;
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al abrir el manual: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
 
   void _mostrarContactoTaller() {
     showModalBottomSheet(
