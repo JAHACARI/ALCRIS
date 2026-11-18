@@ -1,15 +1,15 @@
+import 'dart:convert';
 import 'package:alcris/screen/auth/verificarcuenta.dart';
 import 'package:alcris/screen/servicios/servicio.dart';
-import 'package:alcris/screen/auth/registro.dart'; // Ajusta esta ruta según la ubicación real de tu archivo HomeScreen
+import 'package:alcris/screen/auth/registro.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:alcris/widgets/common/cabeceralogin.dart';
 
-// Importación de los nuevos componentes modulares aislados
 import 'package:alcris/widgets/login/bloquesocial.dart';
 import 'package:alcris/widgets/login/enlaceregistro.dart';
 import 'package:alcris/widgets/login/formulariologin.dart';
 
-// Capa de infraestructura
 import 'package:alcris/services/api3_verifycuenta.dart';
 import 'package:alcris/screen/admin/admin_shell.dart';
 import 'package:alcris/services/admin_api.dart';
@@ -23,7 +23,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _ocultarContrasena = true;
 
-  // Controladores de búfer para inyección y captura de texto
   final TextEditingController _correoController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -36,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Pipeline asíncrono para la verificación de credenciales en Node.js
   Future<void> _procesarLogin() async {
     final correo = _correoController.text.trim();
     final password = _passwordController.text;
@@ -65,17 +63,41 @@ class _LoginScreenState extends State<LoginScreen> {
       _mostrarAlerta(respuesta['message'] ?? '¡Login exitoso!');
 
       if (mounted) {
-        debugPrint('LOGIN: $respuesta'); // temporal: para ver qué campos llegan
-
-        // Rol y token que devuelve el backend
         final String rol =
             (respuesta['rol'] ?? respuesta['usuario']?['rol'] ?? 'usuario')
                 .toString();
-        AdminApi.token = (respuesta['token'] ?? '').toString();
-        AdminApi.esAdmin = rol == 'admin'; // se reinicia en cada login
+        final String token = (respuesta['token'] ?? '').toString();
+
+        String userId =
+            (respuesta['id'] ?? respuesta['usuario']?['id'] ?? '').toString();
+
+        // Extrae el ID directamente del payload del JWT si no viene suelto
+        final parts = token.split('.');
+        if (userId.isEmpty && parts.length == 3) {
+          try {
+            final normalized = base64Url.normalize(parts[1]);
+            final decoded =
+                jsonDecode(utf8.decode(base64Url.decode(normalized)));
+            userId = (decoded['id'] ?? '').toString();
+          } catch (_) {}
+        }
+
+        final String nombreUsuario = (respuesta['nombre'] ??
+                respuesta['usuario']?['nombre'] ??
+                'User_Name')
+            .toString();
+
+        AdminApi.token = token;
+        AdminApi.esAdmin = rol == 'admin';
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('userId', userId);
+        await prefs.setString('nombreUsuario', nombreUsuario);
+
+        if (!mounted) return;
 
         if (rol == 'admin') {
-          // El admin elige a dónde entrar
           final entrarPanel = await showDialog<bool>(
             context: context,
             barrierDismissible: false,
@@ -118,7 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final String mensajeError = e.toString().replaceAll('Exception: ', '');
 
-      // Redirección forzada hacia la verificación si el backend responde con error de activación (403)
       if (mensajeError.contains('verificar') || mensajeError.contains('403')) {
         _mostrarAlerta('Debes verificar tu cuenta primero.');
         if (mounted) {
@@ -194,13 +215,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Componente 1: Bloque de Inputs y acciones de credenciales
                       FormularioLogin(
                         campos: camposLogin,
                         onLoginPressed: _procesarLogin,
                       ),
-                      // Componente 3: Enlace plano inferior
                       const EnlaceRegistro(),
                     ],
                   ),
@@ -208,8 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           ),
-
-          // Flecha flotante arriba a la izquierda para volver directamente a HomeScreen
           Positioned(
             top: MediaQuery.of(context).padding.top + 50,
             right: 22,
@@ -226,7 +242,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegistroScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const RegistroScreen(),
+                    ),
                   );
                 },
               ),

@@ -41,7 +41,7 @@ class _PantallaServiciosState extends State<PantallaServicios> {
     _cargarPerfil();
   }
 
-  Future<void> _cargarPerfil() async {
+ Future<void> _cargarPerfil() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String token = prefs.getString('token') ?? AdminApi.token;
@@ -64,8 +64,11 @@ class _PantallaServiciosState extends State<PantallaServicios> {
         });
       }
 
-      if (token.isNotEmpty) {
-        final datos = await _perfilService.obtenerPerfil(token);
+      if (token.isNotEmpty && userId.isNotEmpty) {
+        final datos = await _perfilService.obtenerPerfil(
+          id: userId,
+          token: token,
+        );
         if (mounted) {
           setState(() => _usuarioPerfil = datos);
         }
@@ -74,7 +77,6 @@ class _PantallaServiciosState extends State<PantallaServicios> {
       // Mantiene los datos cargados desde SharedPreferences
     }
   }
-
   Future<void> _eliminarCuentaUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     final String token = prefs.getString('token') ?? AdminApi.token;

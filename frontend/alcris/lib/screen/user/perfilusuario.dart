@@ -6,6 +6,8 @@ import 'package:alcris/widgets/common/perfil/tarjetausuario.dart';
 import 'package:alcris/screen/admin/admin_shell.dart';
 import 'package:alcris/widgets/common/perfil/btoncerrar.dart';
 import 'package:alcris/widgets/common/perfil/btoneliminar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 // IMPORTS OFICIALES DE TU BACKEND
 import 'package:alcris/services/perfil.dart';
@@ -41,8 +43,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
         _mensajeError = null;
       });
 
-      // Petición al servicio (puedes inyectar tu token real de SharedPreferences/SecureStorage)
-      final datos = await _perfilService.obtenerPerfil("TU_TOKEN_DE_SESION");
+      final preferencias = await SharedPreferences.getInstance();
+      final id = preferencias.getString('id');
+      final token = preferencias.getString('token');
+      if (id == null || token == null) {
+        throw Exception('No se encontró la sesión del usuario');
+      }
+
+      final datos = await _perfilService.obtenerPerfil(id: id, token: token);
 
       setState(() {
         _usuario = datos;
@@ -62,7 +70,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       throw Exception('No se encontró el identificador del usuario');
     }
 
-    await _perfilService.eliminarPerfil(
+    await _perfilService.eliminarCuenta(
       id: _usuario!.id,
       token: "TU_TOKEN_DE_SESION",
     );

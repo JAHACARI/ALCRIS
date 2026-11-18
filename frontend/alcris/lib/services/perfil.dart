@@ -1,14 +1,16 @@
-import 'dart:convert';
+mport 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:alcris/models/perfil.dart';
 
 class PerfilService {
-  // URL real de tu backend en Render
   final String baseUrl = 'https://onrender.com';
 
-  Future<PerfilUsuario> obtenerPerfil(String token) async {
+  Future<PerfilUsuario> obtenerPerfil({
+    required String id,
+    required String token,
+  }) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/perfil'),
+      Uri.parse('$baseUrl/$id'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -16,9 +18,12 @@ class PerfilService {
     );
 
     if (response.statusCode == 200) {
-      return PerfilUsuario.fromJson(jsonDecode(response.body));
+      final body = jsonDecode(response.body);
+      final usuarioData = body['usuario'] ?? body;
+      return PerfilUsuario.fromJson(usuarioData);
     } else {
-      throw Exception('Error al cargar el perfil');
+      final body = jsonDecode(response.body);
+      throw Exception(body['error'] ?? 'Error al cargar el perfil');
     }
   }
 
