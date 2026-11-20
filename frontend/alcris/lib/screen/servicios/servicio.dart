@@ -108,11 +108,20 @@ class _PantallaServiciosState extends State<PantallaServicios> {
   }
 
 Future<void> _abrirManualPDF() async {
-  final Uri pdfUrl = Uri.parse('assets/assets/pdf/Manual_de_Usuario_Alcris.pdf');
-
   try {
-    if (!await launchUrl(pdfUrl, mode: LaunchMode.externalApplication)) {
-      throw 'No se pudo abrir el visor de documentos';
+    // 1. Carga el PDF desde tus assets (revisa si en pubspec.yaml es 'assets/pdf/...' o 'assets/assets/pdf/...')
+    final byteData = await rootBundle.load('assets/pdf/Manual_de_Usuario_Alcris.pdf');
+
+    // 2. Crea una copia en la carpeta temporal del dispositivo
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File('${tempDir.path}/Manual_de_Usuario_Alcris.pdf');
+    await tempFile.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
+
+    // 3. Abre el archivo temporal con el visor de PDF del teléfono
+    final result = await OpenFilex.open(tempFile.path);
+
+    if (result.type != ResultType.done) {
+      throw result.message;
     }
   } catch (e) {
     if (mounted) {

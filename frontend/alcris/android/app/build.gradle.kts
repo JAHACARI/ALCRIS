@@ -1,8 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 
 android {
     namespace = "com.alcris.login"
@@ -25,13 +34,25 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+signingConfigs {
+    create("release") {
+        val storeFileProp = keystoreProperties.getProperty("storeFile")?.trim()
+        if (!storeFileProp.isNullOrEmpty()) {
+            storeFile = file(storeFileProp)
         }
+        keyAlias = keystoreProperties.getProperty("keyAlias")?.trim() ?: ""
+        keyPassword = keystoreProperties.getProperty("keyPassword")?.trim() ?: ""
+        storePassword = keystoreProperties.getProperty("storePassword")?.trim() ?: ""
     }
+}
+
+buildTypes {
+    getByName("release") {
+        signingConfig = signingConfigs.getByName("release")
+        isMinifyEnabled = false
+        isShrinkResources = false
+    }
+}
 }
 
 kotlin {
