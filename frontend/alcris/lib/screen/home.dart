@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:alcris/widgets/common/cabecerahome.dart';
-import 'package:alcris/widgets/common/menuinferior.dart';
 import 'package:alcris/screen/auth/registro.dart';
 import 'package:alcris/screen/auth/login.dart';
 
@@ -11,8 +10,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
   final List<Map<String, dynamic>> _pilaresTaller = [
     {
       'title': 'Repuestos Originales',
@@ -303,10 +300,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: MenuInferior(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }
