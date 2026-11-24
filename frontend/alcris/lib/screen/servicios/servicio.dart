@@ -57,8 +57,9 @@ class _PantallaServiciosState extends State<PantallaServicios> {
           _usuarioPerfil = PerfilUsuario(
             id: userId,
             nombre: nombreGuardado,
+            telefono: '',
             eslogan: 'Cliente registrado en Alcris',
-            localidad: 'Localidad',
+            localidad: '',
             servicios: 0,
             pendientes: 0,
             completados: 0,
@@ -391,8 +392,9 @@ children: [
 // 1. Tarjeta de Usuario
 TarjetaUsuario(
 nombre: _usuarioPerfil?.nombre ?? 'User_Name',
+telefono: _usuarioPerfil?.telefono ?? '',
 eslogan: _usuarioPerfil?.eslogan ?? 'Cliente registrado en Alcris',
-localidad: _usuarioPerfil?.localidad ?? 'Localidad',
+localidad: _usuarioPerfil?.localidad ?? '',
 ),
 const SizedBox(height: 24),
 // 2. Botón Ver Catálogo

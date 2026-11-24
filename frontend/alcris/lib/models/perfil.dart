@@ -1,6 +1,7 @@
 class PerfilUsuario {
   final String id;
   final String nombre;
+  final String telefono;
   final String eslogan;
   final String localidad;
   final int servicios;
@@ -11,6 +12,7 @@ class PerfilUsuario {
   PerfilUsuario({
     required this.id,
     required this.nombre,
+    required this.telefono,
     required this.eslogan,
     required this.localidad,
     required this.servicios,
@@ -23,8 +25,9 @@ class PerfilUsuario {
     return PerfilUsuario(
       id: json['id']?.toString() ?? '',
       nombre: json['nombre'] ?? 'Usuario',
+      telefono: json['telefono'] ?? '',
       eslogan: json['eslogan'] ?? 'Cliente registrado en Alcris',
-      localidad: json['localidad'] ?? 'Localidad',
+      localidad: json['localidad'] ?? 'Municipio no registrado',
       servicios: json['servicios'] ?? 0,
       pendientes: json['pendientes'] ?? 0,
       completados: json['completados'] ?? 0,

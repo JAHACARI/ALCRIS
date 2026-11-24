@@ -44,7 +44,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       });
 
       final preferencias = await SharedPreferences.getInstance();
-      final id = preferencias.getString('id');
+      final id = preferencias.getString('userId');
       final token = preferencias.getString('token');
       if (id == null || token == null) {
         throw Exception('No se encontró la sesión del usuario');
@@ -161,6 +161,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             // Componente de Perfil con el ID y datos dinámicos mapeados del backend
             TarjetaUsuario(
               nombre: usuario.nombre,
+              telefono: usuario.telefono,
               eslogan: usuario.eslogan,
               localidad: usuario.localidad,
             ),

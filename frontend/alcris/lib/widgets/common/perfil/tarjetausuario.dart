@@ -3,12 +3,14 @@ import 'package:alcris/widgets/common/perfil/editarperfil.dart';
 
 class TarjetaUsuario extends StatefulWidget {
   final String nombre;
+  final String telefono;
   final String eslogan;
   final String localidad;
 
   const TarjetaUsuario({
     super.key,
     required this.nombre,
+    required this.telefono,
     required this.eslogan,
     required this.localidad,
   });
@@ -94,11 +96,26 @@ class _TarjetaUsuarioState extends State<TarjetaUsuario> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
+                    const Icon(Icons.phone_outlined, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        widget.telefono.isNotEmpty ? widget.telefono : 'Teléfono no registrado',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
                     const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text(
-                      _currentLocation, 
-                      style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+                    Expanded(
+                      child: Text(
+                        _currentLocation.isNotEmpty ? 'Municipio: $_currentLocation' : 'Municipio no registrado',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ],
                 ),
