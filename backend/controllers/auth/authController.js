@@ -44,10 +44,17 @@ export const registro = async (req, res) => {
       });
     }
 
-    if (contrasena.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    const contrasenaValida =
+      typeof contrasena === "string" &&
+      contrasena.length >= 6 &&
+      /[A-Z]/.test(contrasena) &&
+      /[^A-Za-z0-9]/.test(contrasena);
+
+    if (!contrasenaValida) {
+      return res.status(400).json({
+        error:
+          "La contraseña debe tener al menos 6 caracteres, una mayúscula y un símbolo",
+      });
     }
 
     const { data: existe } = await obtenerPorEmail(email);

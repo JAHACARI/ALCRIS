@@ -21,6 +21,15 @@ class RegistroScreen extends StatefulWidget {
 class _RegistroScreenState extends State<RegistroScreen> {
   bool _acepto = false, _ocultar = true;
 
+  // Reglas de la contraseña
+  bool get _tieneMinimo6 => _passwordController.text.length >= 6;
+  bool get _tieneMayuscula =>
+      _passwordController.text.contains(RegExp(r'[A-Z]'));
+  bool get _tieneSimbolo =>
+      _passwordController.text.contains(RegExp(r'[^A-Za-z0-9]'));
+  bool get _contrasenaValida =>
+      _tieneMinimo6 && _tieneMayuscula && _tieneSimbolo;
+
   // 1. Controladores completos exigidos por el pipeline del Backend
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _correoController = TextEditingController();
@@ -72,6 +81,12 @@ class _RegistroScreenState extends State<RegistroScreen> {
     'Villavieja',
     'Yaguará',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -199,6 +214,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
         _passwordController.text.trim().isEmpty ||
         _confirmarPasswordController.text.trim().isEmpty) {
       _mostrarAlerta('Por favor, llena todos los campos obligatorios.');
+      return;
+    }
+
+    if (!_contrasenaValida) {
+      _mostrarAlerta(
+        'La contraseña debe tener al menos 6 caracteres, una mayúscula y un símbolo.',
+      );
       return;
     }
 
@@ -336,6 +358,58 @@ class _RegistroScreenState extends State<RegistroScreen> {
     ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
+  Widget _requisitoContrasena(String texto, bool cumplido) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(
+            cumplido ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 16,
+            color: cumplido ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            texto,
+            style: TextStyle(
+              fontSize: 12,
+              color: cumplido ? Colors.green.shade700 : Colors.grey.shade700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _listaRequisitosContrasena() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tu contraseña debe cumplir:',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 6),
+          _requisitoContrasena('Al menos 6 caracteres', _tieneMinimo6),
+          _requisitoContrasena('Una letra mayúscula (A-Z)', _tieneMayuscula),
+          _requisitoContrasena('Un símbolo (ej: ! @ # %)', _tieneSimbolo),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> campos = [
@@ -420,6 +494,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           }
                         },
                       ),
+                      _listaRequisitosContrasena(),
                       const SizedBox(height: 24),
                       BotonCrearCuenta(onPressed: _procesarRegistro),
                       const SizedBox(height: 16),
