@@ -36,8 +36,8 @@ class _AgendarCitaScreenState extends State<AgendarCitaScreen> {
   void initState() {
     super.initState();
     final ahora = DateTime.now();
-    // Por defecto: mañana (nunca una fecha pasada)
-    _fechaSeleccionada = _formatoFecha(ahora.add(const Duration(days: 1)));
+    // Por defecto: hoy, igual que el calendario
+    _fechaSeleccionada = _formatoFecha(ahora);
     _horaSeleccionadaString = _horasDisponiblesDelDia.first;
     _obtenerDisponibilidadBackend(ahora.month, ahora.year, fecha: _fechaSeleccionada);
   }

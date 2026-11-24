@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+DateTime _soloFecha(DateTime d) => DateTime(d.year, d.month, d.day);
+
 class SelectorCalendario extends StatefulWidget {
   final List<String> diasOcupados; // Recibe los días bloqueados de Supabase
   final Function(int mes, int anio) onMesCambiado; // Avisa al backend al cambiar de mes
@@ -18,8 +20,17 @@ class SelectorCalendario extends StatefulWidget {
 }
 
 class _SelectorCalendarioState extends State<SelectorCalendario> {
-  DateTime _focusedDay = DateTime(2026, 10, 22); // Anclado al mes de tu diseño
+  late final DateTime _hoy;
+  late DateTime _focusedDay;
   DateTime? _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _hoy = _soloFecha(DateTime.now());
+    _focusedDay = _hoy;
+    _selectedDay = _hoy;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +48,8 @@ class _SelectorCalendarioState extends State<SelectorCalendario> {
         ],
       ),
       child: TableCalendar(
-        firstDay: DateTime(2026, 1, 1),
-        lastDay: DateTime(2026, 12, 31),
+        firstDay: DateTime(_hoy.year, 1, 1),
+        lastDay: DateTime(_hoy.year, 12, 31),
         focusedDay: _focusedDay,
         selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
         

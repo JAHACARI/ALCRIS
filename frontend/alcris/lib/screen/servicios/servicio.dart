@@ -16,6 +16,7 @@ import 'package:alcris/models/perfil.dart';
 import 'package:alcris/screen/chat/chat_alcris.dart';
 import 'package:alcris/screen/auth/login.dart';
 import 'package:alcris/screen/servicios/detallepaquete.dart';
+import 'package:alcris/screen/reservas/mis_reservas.dart';
 import 'package:path_provider/path_provider.dart'; // Asegúrate de tener path_provider en tu pubspec.yaml
 import 'package:open_filex/open_filex.dart';
 
@@ -415,7 +416,32 @@ borderRadius: BorderRadius.circular(14),
 ),
 ),
 const SizedBox(height: 16),
-// 3. Botón Cerrar Sesión
+// 3. Botón Mis Reservas
+SizedBox(
+width: double.infinity,
+height: 50,
+child: OutlinedButton.icon(
+onPressed: () {
+Navigator.push(
+context,
+MaterialPageRoute(
+builder: (context) => const MisReservasScreen(),
+),
+);
+},
+icon: const Icon(Icons.event_note_outlined),
+label: const Text('Mis reservas'),
+style: OutlinedButton.styleFrom(
+foregroundColor: const Color(0xFF0B2A6B),
+side: const BorderSide(color: Color(0xFF0B2A6B)),
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(14),
+),
+),
+),
+),
+const SizedBox(height: 16),
+// 4. Botón Cerrar Sesión
 SizedBox(
 width: double.infinity,
 height: 50,
